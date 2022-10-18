@@ -4,5 +4,7 @@ opa:
   image: docker.io/openpolicyagent/opa:0.45.0-rootless
 rabbitmq:
   image: docker.io/rabbitmq:3-management
+webhooks:
+  image: docker.xenit.eu/open-source/contentgrid/webhooks:0.0.1-SNAPSHOT
 
 development: true
