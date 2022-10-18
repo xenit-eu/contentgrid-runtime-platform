@@ -30,6 +30,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
+          args: [ 'run', '--server' ]
           ports:
             - containerPort: 8181
 ---
