@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openpolicyagent
+  labels:
+    app.kubernetes.io/name: openpolicyagent
+    app.kubernetes.io/component: authorization
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openpolicyagent
+  template:
+    metadata:
+      labels:
+        {{ if .Values.development -}}
+        date: "{{ now | unixEpoch }}"
+        {{- end }}
+        app.kubernetes.io/name: openpolicyagent
+        app.kubernetes.io/component: authorization
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      containers:
+        - name: openpolicyagent
+          image: {{ .Values.opa.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            - containerPort: 8181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa-service
+  labels:
+    app.kubernetes.io/name: openpolicyagent
+    app.kubernetes.io/component: authorization
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: openpolicyagent
+  ports:
+    - port: 8181
+      targetPort: 8181
+---

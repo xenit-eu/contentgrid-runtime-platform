@@ -1,0 +1,7 @@
+# Default values for contentgrid-rtp-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+gateway:
+  image: ~
+opa:
+  image: ~
