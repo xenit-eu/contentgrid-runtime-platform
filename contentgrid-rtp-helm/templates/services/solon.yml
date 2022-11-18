@@ -1,0 +1,132 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solon
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: solon
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{ if .Values.development -}}
+        date: "{{ now | unixEpoch }}"
+        {{- end }}
+        app.kubernetes.io/name: solon
+        app.kubernetes.io/component: solon
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      containers:
+        - name: solon
+          image: {{ .Values.solon.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: 'SPRING_CONFIG_IMPORT'
+              value: 'file:/etc/solon/application.yml'
+          volumeMounts:
+            - name: solon-config-volume
+              mountPath: /etc/solon/
+              readOnly: true
+      volumes:
+        - name: solon-config-volume
+          configMap:
+            name: solon-config
+      serviceAccountName: policy-discovery
+      automountServiceAccountToken: true
+      imagePullSecrets:
+        - name: scw-contentgrid-userapps
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: solon-config
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  application.yml: |
+    logging:
+      level:
+        com.contentgrid.solon: DEBUG
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solon-service
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+      app.kubernetes.io/name: solon
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: policy-discovery
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: discovery-role
+  namespace: default
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  # - deployments
+  # - pods
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: policy-discovery-binding
+  namespace: default
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: discovery-role
+subjects:
+- kind: ServiceAccount
+  name: policy-discovery
+  namespace: {{ .Release.Namespace }}
