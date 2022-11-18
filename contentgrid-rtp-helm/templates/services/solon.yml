@@ -63,6 +63,8 @@ data:
     logging:
       level:
         com.contentgrid.solon: DEBUG
+    solon:
+      namespace: default
 ---
 apiVersion: v1
 kind: Service
