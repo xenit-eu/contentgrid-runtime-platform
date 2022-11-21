@@ -43,10 +43,8 @@ spec:
         - name: solon-config-volume
           configMap:
             name: solon-config
-      serviceAccountName: policy-discovery
+      serviceAccountName: solon-serviceaccount
       automountServiceAccountToken: true
-      imagePullSecrets:
-        - name: scw-contentgrid-userapps
 
 ---
 apiVersion: v1
@@ -85,7 +83,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: policy-discovery
+  name: solon-serviceaccount
   labels:
     app.kubernetes.io/name: solon
     app.kubernetes.io/component: solon
@@ -95,7 +93,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: discovery-role
+  name: solon-role
   namespace: default
   labels:
     app.kubernetes.io/name: solon
@@ -117,7 +115,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: policy-discovery-binding
+  name: solon-rolebinding
   namespace: default
   labels:
     app.kubernetes.io/name: solon
@@ -127,8 +125,8 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: discovery-role
+  name: solon-role
 subjects:
 - kind: ServiceAccount
-  name: policy-discovery
+  name: solon-serviceaccount
   namespace: {{ .Release.Namespace }}
