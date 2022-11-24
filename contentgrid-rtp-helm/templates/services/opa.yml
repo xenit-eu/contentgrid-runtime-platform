@@ -30,9 +30,24 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          args: [ 'run', '--server' ]
+          args: [
+            'run',
+            '--server',
+            '--log-format=json-pretty',
+            '--authorization=basic',
+            '--config-file', '/config/config.yml',
+            'file:/config/system.rego'
+          ]
           ports:
             - containerPort: 8181
+          volumeMounts:
+            - name: opa-config-volume
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: opa-config-volume
+          configMap:
+            name: opa-config
 ---
 apiVersion: v1
 kind: Service
@@ -50,3 +65,35 @@ spec:
     - port: 8181
       targetPort: 8181
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-config
+  labels:
+    app.kubernetes.io/name: openpolicyagent
+    app.kubernetes.io/component: authorization
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  config.yml: |
+    services:
+      solon:
+        url: 'http://solon-service.contentgrid-system.svc.cluster.local:8080'
+    bundles:
+      authz:
+        service: solon
+        resource: '/bundle.tar.gz'
+        polling:
+          min_delay_seconds: 30
+          max_delay_seconds: 60
+    decision_logs:
+      console: true
+  system.rego: |
+    package system.authz
+    # Deny access by default.
+    default allow := false
+    # Allow checking policies via compile endpoint
+    allow {
+        input.method == "POST"
+        input.path == ["v1", "compile"]
+    }
