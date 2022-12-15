@@ -35,28 +35,12 @@ spec:
           env:
             - name: 'OPA_SERVICE_URL'
               value: 'http://opa-service:8181'
-            - name: 'SPRING_CONFIG_IMPORT'
-              value: 'file:/etc/gateway/application.yml'
-          volumeMounts:
-            - name: gateway-config-volume
-              mountPath: /etc/gateway/
-              readOnly: true
-      volumes:
-        - name: gateway-config-volume
-          configMap:
-            name: gateway-config
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: gateway-config
-  labels:
-    app.kubernetes.io/name: gateway
-    app.kubernetes.io/component: proxy
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-data:
-  application.yml: |
+            - name: SERVICEDISCOVERY_ENABLED
+              value: 'true'
+            - name: SERVICEDISCOVERY_NAMESPACE
+              value: '{{ .Values.userapps.namespace }}'
+      serviceAccountName: contentgrid-gateway
+      automountServiceAccountToken: true
 ---
 apiVersion: v1
 kind: Service
@@ -90,3 +74,53 @@ spec:
     - port: 8081
       targetPort: 8081
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: contentgrid-gateway
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: contentgrid-gateway
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: contentgrid-gateway
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: contentgrid-gateway
+subjects:
+- kind: ServiceAccount
+  name: contentgrid-gateway
+  namespace: {{ .Release.Namespace }}
