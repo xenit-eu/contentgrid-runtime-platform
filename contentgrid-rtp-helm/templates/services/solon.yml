@@ -94,7 +94,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: solon-role
-  namespace: default
+  namespace: {{ .Values.userapps.namespace }}
   labels:
     app.kubernetes.io/name: solon
     app.kubernetes.io/component: solon
@@ -116,7 +116,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: solon-rolebinding
-  namespace: default
+  namespace: {{ .Values.userapps.namespace }}
   labels:
     app.kubernetes.io/name: solon
     app.kubernetes.io/component: solon

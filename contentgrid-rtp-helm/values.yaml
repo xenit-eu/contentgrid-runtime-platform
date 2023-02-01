@@ -9,4 +9,7 @@ solon:
 webhooks:
   image: docker.xenit.eu/open-source/contentgrid/webhooks:0.0.1-SNAPSHOT
 
+userapps:
+  namespace: default
+
 development: true
