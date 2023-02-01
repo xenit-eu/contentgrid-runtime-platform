@@ -39,8 +39,52 @@ spec:
               value: 'true'
             - name: SERVICEDISCOVERY_NAMESPACE
               value: '{{ .Values.userapps.namespace }}'
+          volumeMounts:
+            - name: gateway-config-volume
+              mountPath: /etc/gateway/
+              readOnly: true
+      volumes:
+        - name: gateway-config-volume
+          configMap:
+            name: gateway-config
       serviceAccountName: contentgrid-gateway
       automountServiceAccountToken: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  application.yml: |
+    contentgrid:
+      gateway:
+        cors:
+          configurations:
+            '[16e6ca50-f350-4d1f-b076-36680538e190.userapps.contentgrid.com]':
+              allowedOrigins:
+                - 'http://localhost:3000'
+                - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
+    spring:
+      security:
+        oauth2:
+          resourceserver:
+            jwt:
+              issuer-uri: https://auth.contentgrid.com/realms/application-realm-prototype
+          client:
+            provider:
+              application-realm-prototype:
+                user-name-attribute: preferred_username
+                issuer-uri: https://auth.contentgrid.com/realms/application-realm-prototype
+            registration:
+              application-realm-prototype:
+                client-id: contentgrid-gateway
+                client-secret: wkNlQcZ11AGh5CcV3p81JOQmzZuuBwcm
+                scope: openid,profile,email
 ---
 apiVersion: v1
 kind: Service
