@@ -39,6 +39,8 @@ spec:
               value: 'true'
             - name: SERVICEDISCOVERY_NAMESPACE
               value: '{{ .Values.userapps.namespace }}'
+            - name: 'SPRING_CONFIG_IMPORT'
+              value: 'file:/etc/gateway/application.yml'
           volumeMounts:
             - name: gateway-config-volume
               mountPath: /etc/gateway/
