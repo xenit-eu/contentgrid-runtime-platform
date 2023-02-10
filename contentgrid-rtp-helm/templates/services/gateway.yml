@@ -71,6 +71,10 @@ data:
               allowedOrigins:
                 - 'http://localhost:3000'
                 - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
+            '[82249ef0-4f2f-4d01-820c-e76b04958411.userapps.contentgrid.com]':
+              allowedOrigins:
+                - 'http://localhost:3000'
+                - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
     spring:
       security:
         oauth2:
