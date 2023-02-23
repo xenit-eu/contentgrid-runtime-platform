@@ -130,3 +130,70 @@ subjects:
 - kind: ServiceAccount
   name: solon-serviceaccount
   namespace: {{ .Release.Namespace }}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: solon-to-apiserver
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: solon
+      app.kubernetes.io/component: solon
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: solon-from-opa
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: solon
+      app.kubernetes.io/component: solon
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: openpolicyagent
+            app.kubernetes.io/component: authorization
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: solon-to-apps
+  labels:
+    app.kubernetes.io/name: solon
+    app.kubernetes.io/component: solon
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: solon
+      app.kubernetes.io/component: solon
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: {}
+          podSelector:
+            matchLabels:
+              app.contentgrid.com/service-type: api
+      ports:
+        - port: 8081 # Access to management port only

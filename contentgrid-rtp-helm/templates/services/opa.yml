@@ -97,3 +97,51 @@ data:
         input.method == "POST"
         input.path == ["v1", "compile"]
     }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: opa-to-solon
+  labels:
+    app.kubernetes.io/name: openpolicyagent
+    app.kubernetes.io/component: authorization
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: openpolicyagent
+      app.kubernetes.io/component: authorization
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: solon
+              app.kubernetes.io/component: solon
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: opa-from-gateway
+  labels:
+    app.kubernetes.io/name: openpolicyagent
+    app.kubernetes.io/component: authorization
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: openpolicyagent
+      app.kubernetes.io/component: authorization
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+              app.kubernetes.io/component: proxy
+      ports:
+        - port: 8181
