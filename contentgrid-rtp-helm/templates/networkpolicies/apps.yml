@@ -1,0 +1,129 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apps-from-gateway
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: '{{ .Release.Namespace }}'
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: gateway
+            app.kubernetes.io/component: proxy
+      ports:
+        - port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apps-from-webhooks
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: '{{ .Release.Namespace }}'
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: webhooks
+              app.kubernetes.io/component: webhook-invoker
+      ports:
+        - port: 8081
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apps-from-solon
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: '{{ .Release.Namespace }}'
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: solon
+              app.kubernetes.io/component: solon
+      ports:
+        - port: 8081
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apps-to-rabbitmq
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: '{{ .Release.Namespace }}'
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: message-queue
+      ports:
+        - port: 5672
+{{ if .Values.userapps.database }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apps-to-database
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  egress:
+    {{ range $db := .Values.userapps.database }}
+    - to:
+        - ipBlock:
+            cidr: {{ $db.ip }}/24
+      ports:
+        - port: {{ $db.port }}
+    {{ end }}
+{{ end }}

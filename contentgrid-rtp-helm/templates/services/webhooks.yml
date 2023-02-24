@@ -91,3 +91,93 @@ spec:
     - port: 8081
       targetPort: 8081
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: webhooks-to-rabbitmq
+  labels:
+    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/component: webhook-invoker
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/component: webhook-invoker
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: message-queue
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: webhooks-to-external
+  labels:
+    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/component: webhook-invoker
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/component: webhook-invoker
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # localhost
+              - 127.0.0.0/8
+              # RFC1918 private netblocks
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              # RFC6598 shared netspace
+              - 100.64.0.0/10
+              # RFC3927 link-local addresses
+              - 169.254.0.0/16
+              # Multicast
+              - 224.0.0.0/4
+    - to:
+        - ipBlock:
+            cidr: ::/0
+            except:
+              # localhost
+              - ::1/128
+              # ipv6 private networks (ULA)
+              - fc00::/7
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: webhooks-to-apps
+  labels:
+    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/component: webhook-invoker
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/component: webhook-invoker
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: {}
+          podSelector:
+            matchLabels:
+              app.contentgrid.com/service-type: api
+      ports:
+        - port: 8081 # Access to management port only
