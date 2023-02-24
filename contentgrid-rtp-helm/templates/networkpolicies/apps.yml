@@ -102,3 +102,28 @@ spec:
               app.kubernetes.io/component: message-queue
       ports:
         - port: 5672
+{{ if .Values.userapps.database }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apps-to-database
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  egress:
+    {{ range $db := .Values.userapps.database }}
+    - to:
+        - ipBlock:
+            cidr: {{ $db.ip }}/24
+      ports:
+        - port: {{ $db.port }}
+    {{ end }}
+{{ end }}

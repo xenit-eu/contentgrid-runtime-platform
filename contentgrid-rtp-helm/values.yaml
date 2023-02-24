@@ -11,5 +11,8 @@ webhooks:
 
 userapps:
   namespace: default
+  #database:
+    #- ip: ~
+    #  port: ~
 
 development: true
