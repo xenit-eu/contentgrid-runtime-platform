@@ -102,6 +102,26 @@ spec:
               app.kubernetes.io/component: message-queue
       ports:
         - port: 5672
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: apps-to-objectstorage
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.contentgrid.com/service-type: api
+  egress:
+    - toFQDNs:
+        - matchPattern: "*.s3.fr-par.scw.cloud"
+      toPorts:
+        - ports:
+          - port: "443"
+
 {{ if .Values.userapps.database }}
 ---
 apiVersion: networking.k8s.io/v1
