@@ -31,7 +31,10 @@ spec:
           imagePullPolicy: Always
           {{- end }}
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+            - name: http-mgmt
+              containerPort: 8081
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/solon/application.yml'
@@ -77,8 +80,14 @@ spec:
   selector:
       app.kubernetes.io/name: solon
   ports:
-    - port: 8080
-      targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: http
+      appProtocol: http
+    - name: mgmt
+      port: 8081
+      targetPort: http-mgmt
+      appProtocol: http
 ---
 apiVersion: v1
 kind: ServiceAccount
