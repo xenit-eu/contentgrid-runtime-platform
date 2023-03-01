@@ -23,6 +23,11 @@ spec:
         app.kubernetes.io/component: solon
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/path: actuator/prometheus
+        prometheus.io/port: '8081'
+        prometheus.io/scrape: 'true'
+        instrumentation.opentelemetry.io/inject-java: grafana-agent/grafana-instrumentation
     spec:
       containers:
         - name: solon
