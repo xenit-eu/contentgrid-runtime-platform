@@ -23,6 +23,10 @@ spec:
         app.kubernetes.io/component: webhook-invoker
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/path: 'actuator/prometheus'
+        prometheus.io/port: '8081'
+        prometheus.io/scrape: 'true'
     spec:
       containers:
         - name: slingshot
@@ -31,10 +35,25 @@ spec:
           imagePullPolicy: Always
           {{- end }}
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/slingshot/application.yml'
+            - name: 'MANAGEMENT_SERVER_PORT'
+              value: 8081
+            - name: 'MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE'
+              value: 'health,info,prometheus,metrics'
           volumeMounts:
             - name: slingshot-config-volume
               mountPath: /etc/slingshot/
@@ -74,22 +93,10 @@ spec:
   ports:
     - port: 8080
       targetPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: slingshot-mgmt-service
-  labels:
-    app.kubernetes.io/name: slingshot
-    app.kubernetes.io/component: webhook-invoker
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-spec:
-  selector:
-    app.kubernetes.io/name: slingshot
-  ports:
+      name: http
     - port: 8081
       targetPort: 8081
+      name: management
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
