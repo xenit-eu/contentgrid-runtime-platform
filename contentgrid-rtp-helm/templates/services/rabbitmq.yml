@@ -78,7 +78,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: rabbitmq-from-webhooks
+  name: rabbitmq-from-slingshot
   labels:
     app.kubernetes.io/name: rabbitmq
     app.kubernetes.io/component: message-queue
@@ -95,7 +95,7 @@ spec:
     - from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: webhooks
+              app.kubernetes.io/name: slingshot
               app.kubernetes.io/component: webhook-invoker
       ports:
         - port: 5672
