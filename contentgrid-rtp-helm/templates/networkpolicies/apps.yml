@@ -28,7 +28,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: apps-from-webhooks
+  name: apps-from-slingshot
   namespace: {{ .Values.userapps.namespace }}
   labels:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
@@ -46,7 +46,7 @@ spec:
               kubernetes.io/metadata.name: '{{ .Release.Namespace }}'
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: webhooks
+              app.kubernetes.io/name: slingshot
               app.kubernetes.io/component: webhook-invoker
       ports:
         - port: 8081

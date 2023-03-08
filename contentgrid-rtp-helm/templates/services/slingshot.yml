@@ -2,16 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webhooks
+  name: slingshot
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/name: slingshot
   replicas: 1
   template:
     metadata:
@@ -19,14 +19,14 @@ spec:
         {{ if .Values.development -}}
         date: "{{ now | unixEpoch }}"
         {{- end }}
-        app.kubernetes.io/name: webhooks
+        app.kubernetes.io/name: slingshot
         app.kubernetes.io/component: webhook-invoker
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
       containers:
-        - name: webhooks
-          image: {{ .Values.webhooks.image }}
+        - name: slingshot
+          image: {{ .Values.slingshot.image }}
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
@@ -34,22 +34,22 @@ spec:
             - containerPort: 80
           env:
             - name: 'SPRING_CONFIG_IMPORT'
-              value: 'file:/etc/webhooks/application.yml'
+              value: 'file:/etc/slingshot/application.yml'
           volumeMounts:
-            - name: webhooks-config-volume
-              mountPath: /etc/webhooks/
+            - name: slingshot-config-volume
+              mountPath: /etc/slingshot/
               readOnly: true
       volumes:
-        - name: webhooks-config-volume
+        - name: slingshot-config-volume
           configMap:
-            name: webhooks-config
+            name: slingshot-config
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: webhooks-config
+  name: slingshot-config
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -62,15 +62,15 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webhooks-service
+  name: slingshot-service
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
-      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/name: slingshot
   ports:
     - port: 8080
       targetPort: 8080
@@ -78,15 +78,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webhooks-mgmt-service
+  name: slingshot-mgmt-service
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
   ports:
     - port: 8081
       targetPort: 8081
@@ -94,9 +94,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: webhooks-to-rabbitmq
+  name: slingshot-to-rabbitmq
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -105,7 +105,7 @@ spec:
     - Egress
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/name: slingshot
       app.kubernetes.io/component: webhook-invoker
   egress:
     - to:
@@ -117,9 +117,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: webhooks-to-external
+  name: slingshot-to-external
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -128,7 +128,7 @@ spec:
     - Egress
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/name: slingshot
       app.kubernetes.io/component: webhook-invoker
   egress:
     - to:
@@ -159,9 +159,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: webhooks-to-apps
+  name: slingshot-to-apps
   labels:
-    app.kubernetes.io/name: webhooks
+    app.kubernetes.io/name: slingshot
     app.kubernetes.io/component: webhook-invoker
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -170,7 +170,7 @@ spec:
     - Egress
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: webhooks
+      app.kubernetes.io/name: slingshot
       app.kubernetes.io/component: webhook-invoker
   egress:
     - to:

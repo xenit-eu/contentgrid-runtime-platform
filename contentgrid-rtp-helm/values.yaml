@@ -6,8 +6,8 @@ rabbitmq:
   image: docker.io/rabbitmq:3-management
 solon:
   image: docker.xenit.eu/open-source/contentgrid/solon:0.0.1-SNAPSHOT
-webhooks:
-  image: docker.xenit.eu/open-source/contentgrid/webhooks:0.0.1-SNAPSHOT
+slingshot:
+  image: docker.xenit.eu/open-source/contentgrid/slingshot:0.0.1-SNAPSHOT
 
 userapps:
   namespace: default
