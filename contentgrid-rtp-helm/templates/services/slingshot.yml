@@ -51,7 +51,7 @@ spec:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/slingshot/application.yml'
             - name: 'MANAGEMENT_SERVER_PORT'
-              value: 8081
+              value: '8081'
             - name: 'MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE'
               value: 'health,info,prometheus,metrics'
           volumeMounts:
