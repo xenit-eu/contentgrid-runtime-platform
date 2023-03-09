@@ -67,11 +67,11 @@ data:
       gateway:
         cors:
           configurations:
-            '[16e6ca50-f350-4d1f-b076-36680538e190.userapps.contentgrid.com]':
+            '[2e53620c-93ca-4f40-8cfb-10038e3ef062.userapps.contentgrid.com]':
               allowedOrigins:
                 - 'http://localhost:3000'
                 - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
-            '[82249ef0-4f2f-4d01-820c-e76b04958411.userapps.contentgrid.com]':
+            '[a836f3f3-6a29-4aea-b26d-4c324751144c.userapps.contentgrid.com]':
               allowedOrigins:
                 - 'http://localhost:3000'
                 - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
