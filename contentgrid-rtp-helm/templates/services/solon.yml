@@ -16,9 +16,6 @@ spec:
   template:
     metadata:
       labels:
-        {{ if .Values.development -}}
-        date: "{{ now | unixEpoch }}"
-        {{- end }}
         app.kubernetes.io/name: solon
         app.kubernetes.io/component: solon
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
