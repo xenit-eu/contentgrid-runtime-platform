@@ -16,9 +16,6 @@ spec:
   template:
     metadata:
       labels:
-        {{ if .Values.development -}}
-        date: "{{ now | unixEpoch }}"
-        {{- end }}
         app.kubernetes.io/name: openpolicyagent
         app.kubernetes.io/component: authorization
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
