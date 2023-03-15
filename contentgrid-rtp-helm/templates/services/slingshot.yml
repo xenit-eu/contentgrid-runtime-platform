@@ -74,6 +74,11 @@ data:
     spring:
       rabbitmq:
         host: rabbitmq-service
+    contentgrid:
+      webhooks:
+        signing:
+          jwt:
+            generate-key: true
 ---
 apiVersion: v1
 kind: Service
