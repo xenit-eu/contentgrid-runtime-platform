@@ -72,22 +72,8 @@ data:
               allowedOrigins:
                 - 'http://localhost:3000'
                 - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
-    spring:
-      security:
-        oauth2:
-          resourceserver:
-            jwt:
-              issuer-uri: https://auth.contentgrid.com/realms/application-realm-prototype
-          client:
-            provider:
-              application-realm-prototype:
-                user-name-attribute: preferred_username
-                issuer-uri: https://auth.contentgrid.com/realms/application-realm-prototype
-            registration:
-              application-realm-prototype:
-                client-id: contentgrid-gateway
-                client-secret: wkNlQcZ11AGh5CcV3p81JOQmzZuuBwcm
-                scope: openid,profile,email
+        runtime-platform:
+          enabled: true
 ---
 apiVersion: v1
 kind: Service
