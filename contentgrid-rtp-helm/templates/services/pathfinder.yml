@@ -78,6 +78,10 @@ data:
             namespace: '{{ .Release.Namespace }}'
             annotations:
                 '[cert-manager.io/cluster-issuer]': 'letsencrypt-production'
+            tls:
+                {{ if .Values.userapps.defaultDomainSuffix -}}
+                fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'
+                {{- end }}
             services:
                 - path: /
                   pathType: Prefix
