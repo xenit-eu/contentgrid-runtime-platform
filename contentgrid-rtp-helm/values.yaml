@@ -8,6 +8,8 @@ solon:
   image: docker.xenit.eu/open-source/contentgrid/solon:0.0.1-SNAPSHOT
 slingshot:
   image: docker.xenit.eu/open-source/contentgrid/slingshot:0.0.1-SNAPSHOT
+pathfinder:
+  image: open-source.docker.xenit.eu/contentgrid/pathfinder:0.0.1-SNAPSHOT
 
 userapps:
   namespace: default
