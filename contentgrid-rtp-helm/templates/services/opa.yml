@@ -20,6 +20,8 @@ spec:
         app.kubernetes.io/component: authorization
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
         - name: openpolicyagent
@@ -36,7 +38,15 @@ spec:
             'file:/config/system.rego'
           ]
           ports:
-            - containerPort: 8181
+            - name: http
+              containerPort: 8181
+          livenessProbe:
+            httpGet:
+              port: 8181
+          readinessProbe:
+            httpGet:
+              path: /health?bundle=true
+              port: 8181
           volumeMounts:
             - name: opa-config-volume
               mountPath: /config
