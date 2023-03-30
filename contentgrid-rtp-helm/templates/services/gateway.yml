@@ -60,6 +60,13 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
   application.yml: |
+    management:
+      server:
+        port: 8081
+      endpoints:
+        web:
+          exposure:
+            include: '*'
     contentgrid:
       gateway:
         cors:
