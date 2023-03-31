@@ -20,6 +20,8 @@ spec:
         app.kubernetes.io/component: authorization
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/scrape: 'true'
     spec:
       containers:
         - name: openpolicyagent
@@ -36,7 +38,15 @@ spec:
             'file:/config/system.rego'
           ]
           ports:
-            - containerPort: 8181
+            - name: http
+              containerPort: 8181
+          livenessProbe:
+            httpGet:
+              port: 8181
+          readinessProbe:
+            httpGet:
+              path: /health?bundle=true
+              port: 8181
           volumeMounts:
             - name: opa-config-volume
               mountPath: /config
@@ -93,6 +103,20 @@ data:
     allow {
         input.method == "POST"
         input.path == ["v1", "compile"]
+    }
+    # Allow health checks
+    allow {
+        input.method == "GET"
+        input.path == [""]
+    }
+    allow {
+        input.method == "GET"
+        input.path == ["health"]
+    }
+    # Allow prometheus metric collection
+    allow {
+        input.method == "GET"
+        input.path == ["metrics"]
     }
 ---
 apiVersion: networking.k8s.io/v1
