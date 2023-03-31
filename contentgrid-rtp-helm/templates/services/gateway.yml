@@ -84,16 +84,6 @@ data:
             include: '*'
     contentgrid:
       gateway:
-        cors:
-          configurations:
-            '[2e53620c-93ca-4f40-8cfb-10038e3ef062.userapps.contentgrid.com]':
-              allowedOrigins:
-                - 'http://localhost:3000'
-                - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
-            '[a836f3f3-6a29-4aea-b26d-4c324751144c.userapps.contentgrid.com]':
-              allowedOrigins:
-                - 'http://localhost:3000'
-                - 'https://rgfnl-dev.s3-website.fr-par.scw.cloud'
         runtime-platform:
           enabled: true
 ---
