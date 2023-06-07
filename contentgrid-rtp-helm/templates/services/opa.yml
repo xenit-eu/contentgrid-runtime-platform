@@ -91,8 +91,8 @@ data:
         service: solon
         resource: '/bundle.tar.gz'
         polling:
-          min_delay_seconds: 30
-          max_delay_seconds: 60
+          min_delay_seconds: 5
+          max_delay_seconds: 10
     decision_logs:
       console: true
   system.rego: |
