@@ -121,11 +121,9 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 rules:
 - apiGroups:
-  - ""
+  - "discovery.k8s.io"
   resources:
-  - services
-  # - deployments
-  # - pods
+  - endpointslices
   verbs:
   - get
   - list
