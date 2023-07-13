@@ -13,6 +13,7 @@ pathfinder:
 
 userapps:
   namespace: default
+  ingressClassName: nginx
   #database:
     #- ip: ~
     #  port: ~
