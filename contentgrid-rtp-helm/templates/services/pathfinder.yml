@@ -76,6 +76,9 @@ data:
                 '[app.contentgrid.com/service-type]': gateway
         target:
             namespace: '{{ .Release.Namespace }}'
+            {{ if .Values.userapps.ingressClassName -}}
+            ingress-class-name: '{{ .Values.userapps.ingressClassName }}'
+            {{- end }}
             annotations:
                 '[cert-manager.io/cluster-issuer]': 'letsencrypt-production'
             tls:
