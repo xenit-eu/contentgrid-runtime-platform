@@ -85,7 +85,7 @@ data:
   config.yml: |
     services:
       solon:
-        url: 'http://solon-service.contentgrid-system.svc.cluster.local:8080'
+        url: 'http://solon-service.{{ .Release.Namespace }}.svc.cluster.local:8080'
     bundles:
       authz:
         service: solon
