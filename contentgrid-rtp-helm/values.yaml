@@ -36,6 +36,7 @@ keycloakx:
     - "--verbose"
     - "start"
     - "--http-enabled=true"
+    - "--hostname-strict=false"
     - "--http-port=8080"
     - "--cache-config-file=cache-ispn.xml"
     - "--cache-stack=kubernetes"
