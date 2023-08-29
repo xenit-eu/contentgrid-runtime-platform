@@ -80,7 +80,7 @@ data:
             ingress-class-name: '{{ .Values.userapps.ingressClassName }}'
             {{- end }}
             annotations:
-                '[cert-manager.io/cluster-issuer]': 'letsencrypt-production'
+                '[cert-manager.io/cluster-issuer]': '{{ .Values.ingress.certificateIssuer }}'
             tls:
                 {{ if .Values.userapps.defaultDomainSuffix -}}
                 fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'

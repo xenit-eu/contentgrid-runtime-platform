@@ -23,6 +23,9 @@ development: true
 keycloak:
   host: ~
 
+ingress:
+  certificateIssuer: letsencrypt-production
+
 keycloakx:
   image:
     tag: 21.1.2
