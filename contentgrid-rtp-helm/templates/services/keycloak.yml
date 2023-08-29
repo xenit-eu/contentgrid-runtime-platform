@@ -1,0 +1,82 @@
+# most keycloak stuff is in values.yml because this project depends on the codecentric keycloakx chart
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: contentgrid-keycloak
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    {{ if not (empty .Values.ingress.certificateIssuer) -}}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.certificateIssuer }}
+    {{- end }}
+  labels:
+    app.kubernetes.io/name: ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ .Values.keycloak.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak-http
+            port:
+              number: 8080
+  tls:
+  - secretName: keycloak-tls
+    hosts:
+    - {{ .Values.keycloak.host }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  policyTypes:
+  - Ingress
+  - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloakx
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: keycloakx
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8443
+    {{ range $.Values.keycloakx.extraPorts }}
+    - protocol: {{ default "TCP" .protocol }}
+      port: {{ .containerPort }}
+    {{- end }}
+  egress:
+  - to:
+    - ipBlock:
+        cidr: {{ .Values.keycloakx.database.hostname }}/24
+    ports:
+    - port: {{ .Values.keycloakx.database.port }}
+      protocol: TCP
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - port: 443
+      protocol: TCP
+  # This is for the infinispan cluster
+  - to:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: keycloakx
+    ports:
+    - port: 7800
+      protocol: TCP

@@ -19,3 +19,67 @@ userapps:
     #  port: ~
 
 development: true
+
+keycloak:
+  host: ~
+
+ingress:
+  certificateIssuer: letsencrypt-production
+
+keycloakx:
+  image:
+    tag: 21.1.2
+  fullnameOverride: keycloak # this is used for the name of the service that we use in the ingress
+  replicas: 1
+  command:
+    - "/opt/keycloak/bin/kc.sh"
+    - "--verbose"
+    - "start"
+    - "--http-enabled=true"
+    - "--hostname-strict=false"
+    - "--http-port=8080"
+    - "--cache-config-file=cache-ispn.xml"
+    - "--cache-stack=kubernetes"
+    - "--log-level=INFO,org.keycloak.broker.oidc:DEBUG"
+  extraEnv: |
+    - name: JAVA_OPTS_APPEND
+      value: >-
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=50.0
+        -Djava.awt.headless=true
+        -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+  database:
+    vendor: postgres
+    hostname: ~
+    port: ~
+    database: keycloak
+    username: keycloak
+    existingSecret: keycloak-database
+  http:
+    relativePath: /
+  service:
+    httpPort: 8080
+  extraPorts:
+    - containerPort: 7800
+  extraInitContainers: |
+    - name: theme-provider
+      image: ghcr.io/xenit-eu/contentgrid-keycloak-themes:0.0.1-snapshot
+      imagePullPolicy: Always
+      command:
+        - sh
+      args:
+        - -c
+        - |
+          echo "Copying theme..."
+          cp -R /contentgrid-keycloak-themes/* /theme
+      volumeMounts:
+        - name: theme
+          mountPath: /theme
+
+  extraVolumeMounts: |
+    - name: theme
+      mountPath: /opt/keycloak/providers/
+
+  extraVolumes: |
+    - name: theme
+      emptyDir: {}
