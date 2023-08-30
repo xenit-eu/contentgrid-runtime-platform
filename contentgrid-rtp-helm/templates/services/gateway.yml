@@ -241,7 +241,7 @@ spec:
       app.kubernetes.io/component: proxy
   egress:
     - toFQDNs:
-        - matchName: "auth.contentgrid.com"
+        - matchName: "{{ .Values.keycloak.host }}"
       toPorts:
         - ports:
             - port: "443"
