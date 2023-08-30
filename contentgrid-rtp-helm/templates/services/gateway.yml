@@ -242,6 +242,7 @@ spec:
   egress:
     - toFQDNs:
         - matchName: "auth.contentgrid.com"
+        - matchName: "{{ .Values.keycloak.host }}"
       toPorts:
         - ports:
             - port: "443"
