@@ -10,6 +10,8 @@ slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT
+liaison:
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT
 
 userapps:
   namespace: default
