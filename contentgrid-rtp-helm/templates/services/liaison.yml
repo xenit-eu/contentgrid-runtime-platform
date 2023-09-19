@@ -74,8 +74,12 @@ data:
   application.yml: |
     liaison:
         discovery:
-            namespace: '{{ .Values.userapps.namespace }}'
-            resync-interval-seconds: 300
+            webapp:
+                namespace: '{{ .Values.userapps.namespace }}'
+                resync-interval-seconds: 300
+            gateway:
+                namespace: '{{ .Values.userapps.namespace }}'
+                resync-interval-seconds: 300
 ---
 apiVersion: v1
 kind: Service
