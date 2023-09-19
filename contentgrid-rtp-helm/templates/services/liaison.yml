@@ -4,19 +4,20 @@ kind: Deployment
 metadata:
   name: liaison
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: liaison
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/component: liaison
   replicas: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: liaison
+        app.kubernetes.io/name: webapp
         app.kubernetes.io/component: liaison
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -65,7 +66,7 @@ kind: ConfigMap
 metadata:
   name: liaison-config
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -81,13 +82,14 @@ kind: Service
 metadata:
   name: liaison-service
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
-      app.kubernetes.io/name: liaison
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/component: liaison
   ports:
     - name: http
       port: 8080
@@ -103,7 +105,7 @@ kind: ServiceAccount
 metadata:
   name: liaison-serviceaccount
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -114,7 +116,7 @@ metadata:
   name: liaison-role
   namespace: {{ .Values.userapps.namespace }}
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -134,7 +136,7 @@ metadata:
   name: liaison-rolebinding
   namespace: {{ .Values.userapps.namespace }}
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -152,14 +154,14 @@ kind: CiliumNetworkPolicy
 metadata:
   name: liaison-to-apiserver
   labels:
-    app.kubernetes.io/name: liaison
+    app.kubernetes.io/name: webapp
     app.kubernetes.io/component: liaison
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: liaison
+      app.kubernetes.io/name: webapp
       app.kubernetes.io/component: liaison
   egress:
     - toEntities:
