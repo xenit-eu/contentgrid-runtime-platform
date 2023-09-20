@@ -1,0 +1,60 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appfrontend
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/component: appfrontend
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/component: appfrontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: webapp
+        app.kubernetes.io/component: appfrontend
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      containers:
+        - name: appfrontend
+          image: {{ .Values.appfrontend.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: appfrontend-service
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/component: appfrontend
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/component: appfrontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      appProtocol: http
