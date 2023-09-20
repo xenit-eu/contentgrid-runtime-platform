@@ -12,6 +12,8 @@ pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT
+appfrontend:
+  image: ghcr.io/xenit-eu/contentgrid-app-frontend:main
 
 userapps:
   namespace: default
