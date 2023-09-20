@@ -187,7 +187,7 @@ data:
                 - path: /
                   pathType: Prefix
                   serviceName: appfrontend-service
-                  servicePort: 80
+                  servicePortName: http
                 - path: /config.js
                   pathType: Exact
                   serviceName: liaison-service
