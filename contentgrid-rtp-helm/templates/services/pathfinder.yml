@@ -184,10 +184,10 @@ data:
                 fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'
                 {{- end }}
             services:
-                # - path: /
-                #   pathType: Prefix
-                #   serviceName: gateway-service
-                #   servicePort: 8080
+                - path: /
+                  pathType: Prefix
+                  serviceName: appfrontend-service
+                  servicePort: 80
                 - path: /config.js
                   pathType: Exact
                   serviceName: liaison-service
