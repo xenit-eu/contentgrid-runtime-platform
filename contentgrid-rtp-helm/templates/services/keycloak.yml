@@ -80,3 +80,26 @@ spec:
     ports:
     - port: 7800
       protocol: TCP
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: keycloak-to-smtp
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: authentication
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloakx
+  egress:
+    - toFQDNs:
+        - matchName: "smtp.tem.scw.cloud"
+      toPorts:
+        - ports:
+            - port: "465"
+              protocol: TCP
+            - port: "2465"
+              protocol: TCP
