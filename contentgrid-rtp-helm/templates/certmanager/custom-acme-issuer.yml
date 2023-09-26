@@ -1,0 +1,22 @@
+{{ if .Values.certificates.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.ingress.certificateIssuer }}
+spec:
+  acme:
+    email: {{ .Values.certificates.acme.email }}
+    server: {{ .Values.certificates.acme.server }}
+    externalAccountBinding:
+      keyID: {{ .Values.certificates.acme.eabKeyId }}
+      keySecretRef:
+        name: {{ .Values.certificates.acme.eabSecretName }}
+        key: eab-credentials
+    privateKeySecretRef:
+      name: {{ .Values.ingress.certificateIssuer }}-accountkey
+    solvers:
+    - http01:
+        ingress:
+          ingressClassName: nginx
+{{ end }}

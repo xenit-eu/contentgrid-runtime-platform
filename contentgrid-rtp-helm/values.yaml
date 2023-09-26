@@ -30,6 +30,9 @@ keycloak:
 ingress:
   certificateIssuer: letsencrypt-production
 
+certificates:
+  enabled: false
+
 keycloakx:
   image:
     tag: 21.1.2
