@@ -27,8 +27,15 @@ development: true
 keycloak:
   host: ~
 
-ingress:
-  certificateIssuer: letsencrypt-production
+certificates:
+  issuer: letsencrypt-production
+#  acme:
+#    email: ~
+#    server: ~
+#    externalAccountBinding:
+#        keyId: ~
+#        secretName: ~
+
 
 keycloakx:
   image:

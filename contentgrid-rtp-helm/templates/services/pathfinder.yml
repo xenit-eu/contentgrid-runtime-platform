@@ -81,7 +81,7 @@ data:
             ingress-class-name: '{{ .Values.userapps.ingressClassName }}'
             {{- end }}
             annotations:
-                '[cert-manager.io/cluster-issuer]': '{{ .Values.ingress.certificateIssuer }}'
+                '[cert-manager.io/cluster-issuer]': '{{ .Values.certificates.issuer }}'
             tls:
                 {{ if .Values.userapps.defaultDomainSuffix -}}
                 fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'
@@ -178,7 +178,7 @@ data:
             ingress-class-name: '{{ .Values.userapps.ingressClassName }}'
             {{- end }}
             annotations:
-                '[cert-manager.io/cluster-issuer]': '{{ .Values.ingress.certificateIssuer }}'
+                '[cert-manager.io/cluster-issuer]': '{{ .Values.certificates.issuer }}'
             tls:
                 {{ if .Values.userapps.defaultDomainSuffix -}}
                 fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'

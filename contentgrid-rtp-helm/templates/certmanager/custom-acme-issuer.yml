@@ -1,0 +1,24 @@
+{{ if not (empty .Values.certificates.acme) }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.certificates.issuer }}
+spec:
+  acme:
+    email: {{ .Values.certificates.acme.email }}
+    server: {{ .Values.certificates.acme.server }}
+    {{- if not (empty .Values.certificates.acme.externalAccountBinding) }}
+    externalAccountBinding:
+      keyID: {{ .Values.certificates.acme.externalAccountBinding.keyId }}
+      keySecretRef:
+        name: {{ .Values.certificates.acme.externalAccountBinding.secretName }}
+        key: eab-credentials
+    {{- end }}
+    privateKeySecretRef:
+      name: {{ .Values.certificates.issuer }}-accountkey
+    solvers:
+    - http01:
+        ingress:
+          ingressClassName: nginx
+{{ end }}
