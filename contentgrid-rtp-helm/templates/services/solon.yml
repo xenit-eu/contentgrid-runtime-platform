@@ -75,7 +75,8 @@ data:
       level:
         com.contentgrid.solon: DEBUG
     solon:
-      namespace: default
+      kubernetes:
+        namespace: default
 ---
 apiVersion: v1
 kind: Service
