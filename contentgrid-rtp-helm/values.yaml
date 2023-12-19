@@ -15,12 +15,15 @@ liaison:
 appfrontend:
   image: ghcr.io/xenit-eu/contentgrid-app-frontend:main
 surveyor:
+  prometheus:
+    image: prom/prometheus:latest
   postgresExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT
 
 userapps:
   namespace: default
   ingressClassName: nginx
+  #defaultDomainSuffix: ~
   #database:
     #- ip: ~
     #  port: ~
