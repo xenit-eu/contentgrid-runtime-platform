@@ -1,0 +1,142 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: surveyor-prometheus
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+        app.kubernetes.io/name: prometheus
+        app.kubernetes.io/component: surveyor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus
+        app.kubernetes.io/component: surveyor
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/path: metrics
+        prometheus.io/port: '9090'
+        prometheus.io/scrape: 'true'
+    spec:
+      containers:
+        - name: prometheus
+          image: {{ .Values.surveyor.prometheus.image }}
+          ports:
+            - name: management
+              containerPort: 9090
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: management
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: management
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/data
+            - --storage.tsdb.retention.time=24h
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/prometheus
+              readOnly: true
+            - name: tsdb-storage
+              mountPath: /data
+      volumes:
+        - name: config-volume
+          configMap:
+            name: surveyor-prometheus-config
+        - name: tsdb-storage
+          persistentVolumeClaim:
+            claimName: surveyor-prometheus-tsdb
+      automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: surveyor-prometheus
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+  ports:
+    - name: http
+      port: 80
+      targetPort: management
+      appProtocol: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: surveyor-prometheus-config
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5m
+      scrape_timeout: 1m
+      evaluation_interval: 5m
+    scrape_configs:
+      - job_name: database
+        static_configs:
+          - targets:
+              - surveyor-postgres-exporter
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: surveyor-prometheus-tsdb
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- with .Values.surveyor.prometheus.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: surveyor-prometheus-to-postgres-exporter
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/component: surveyor
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres-exporter
+              app.kubernetes.io/component: surveyor

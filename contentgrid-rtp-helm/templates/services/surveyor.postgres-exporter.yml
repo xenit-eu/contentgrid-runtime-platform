@@ -4,25 +4,26 @@ kind: Deployment
 metadata:
   name: surveyor-postgres-exporter
   labels:
-    app.kubernetes.io/name: surveyor
-    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
     matchLabels:
-        app.kubernetes.io/name: surveyor
-        app.kubernetes.io/component: postgres-exporter
+        app.kubernetes.io/name: postgres-exporter
+        app.kubernetes.io/component: surveyor
   replicas: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: surveyor
-        app.kubernetes.io/component: postgres-exporter
+        app.kubernetes.io/name: postgres-exporter
+        app.kubernetes.io/component: surveyor
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
       annotations:
         prometheus.io/path: actuator/prometheus
+        prometheus.io/port: '8081'
         prometheus.io/scrape: 'true'
         instrumentation.opentelemetry.io/inject-java: grafana-agent/grafana-instrumentation
     spec:
@@ -54,12 +55,31 @@ spec:
       automountServiceAccountToken: true
 ---
 apiVersion: v1
+kind: Service
+metadata:
+  name: surveyor-postgres-exporter
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      appProtocol: http
+---
+apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: surveyor-postgres-exporter-serviceaccount
   labels:
-    app.kubernetes.io/name: surveyor
-    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 ---
@@ -69,8 +89,8 @@ metadata:
   name: surveyor-postgres-exporter-role
   namespace: {{ .Values.userapps.namespace }}
   labels:
-    app.kubernetes.io/name: surveyor
-    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 rules:
@@ -89,8 +109,8 @@ metadata:
   name: surveyor-postgres-exporter-rolebinding
   namespace: {{ .Values.userapps.namespace }}
   labels:
-    app.kubernetes.io/name: surveyor
-    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 roleRef:
@@ -107,18 +127,42 @@ kind: CiliumNetworkPolicy
 metadata:
   name: surveyor-postgres-exporter-to-apiserver
   labels:
-    app.kubernetes.io/name: surveyor
-    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: surveyor
-      app.kubernetes.io/component: postgres-exporter
+      app.kubernetes.io/name: postgres-exporter
+      app.kubernetes.io/component: surveyor
   egress:
     - toEntities:
         - kube-apiserver
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: surveyor-postgres-exporter-from-prometheus
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-exporter
+      app.kubernetes.io/component: surveyor
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+              app.kubernetes.io/component: surveyor
+
 {{ if .Values.userapps.database }}
 ---
 apiVersion: networking.k8s.io/v1
@@ -126,8 +170,8 @@ kind: NetworkPolicy
 metadata:
   name: surveyor-postgres-exporter-to-database
   labels:
-    app.kubernetes.io/name: surveyor
-    app.kubernetes.io/component: postgres-exporter
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
@@ -135,8 +179,8 @@ spec:
     - Egress
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: surveyor
-      app.kubernetes.io/component: postgres-exporter
+      app.kubernetes.io/name: postgres-exporter
+      app.kubernetes.io/component: surveyor
   egress:
     {{ range $db := .Values.userapps.database }}
     - to:
