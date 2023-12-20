@@ -42,14 +42,13 @@ spec:
               port: management
           args:
             - --config.file=/etc/prometheus/prometheus.yml
-            - --storage.tsdb.path=/data
             - --storage.tsdb.retention.time=24h
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
               readOnly: true
             - name: tsdb-storage
-              mountPath: /data
+              mountPath: /prometheus
       volumes:
         - name: config-volume
           configMap:
