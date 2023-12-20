@@ -26,6 +26,14 @@ spec:
         prometheus.io/port: '9090'
         prometheus.io/scrape: 'true'
     spec:
+      initContainers:
+        - name: "init-chown-data"
+          image: "busybox"
+          # 65534 is the nobody user that prometheus uses.
+          command: ["chown", "-R", "65534:65534", "/data"]
+          volumeMounts:
+            - name: tsdb-storage
+              mountPath: /data
       containers:
         - name: prometheus
           image: {{ .Values.surveyor.prometheus.image }}
