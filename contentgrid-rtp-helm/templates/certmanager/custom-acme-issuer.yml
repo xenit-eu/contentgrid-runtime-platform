@@ -1,4 +1,6 @@
-{{ range $name, $settings := .Values.certificates.issuers }}
+{{ with .Values.certificates.issuers }}
+{{ range $name, $settings := . }}
+{{ with $settings.acme }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
@@ -6,9 +8,9 @@ metadata:
   name: {{ $name }}
 spec:
   acme:
-    email: {{ $settings.acme.email }}
-    server: {{ $settings.acme.server }}
-    {{- with $settings.acme.externalAccountBinding }}
+    email: {{ .email }}
+    server: {{ .server }}
+    {{- with .externalAccountBinding }}
     externalAccountBinding:
       keyID: {{ .keyId }}
       keySecretRef:
@@ -16,9 +18,11 @@ spec:
         key: eab-credentials
     {{- end }}
     privateKeySecretRef:
-      name: {{ .$name }}-accountkey
+      name: {{ $name }}-accountkey
     solvers:
     - http01:
         ingress:
           ingressClassName: nginx
+{{ end }}
+{{ end }}
 {{ end }}

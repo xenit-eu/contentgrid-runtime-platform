@@ -67,7 +67,7 @@ keycloak:
   host: ~
 
 certificates:
-  default-issuer: letsencrypt-production
+  defaultIssuer: letsencrypt-production
 #  issuers:
 #    my-issuer:
 #      acme:
