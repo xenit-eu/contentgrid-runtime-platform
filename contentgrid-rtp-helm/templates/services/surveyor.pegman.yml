@@ -1,0 +1,210 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: surveyor-pegman
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pegman
+      app.kubernetes.io/component: surveyor
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pegman
+        app.kubernetes.io/component: surveyor
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/path: '/actuator/prometheus'
+        prometheus.io/port: '8081'
+        prometheus.io/scrape: 'true'
+    spec:
+      containers:
+        - name: pegman
+          image: {{ .Values.surveyor.pegman.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
+          env:
+            - name: 'SPRING_CONFIG_IMPORT'
+              value: 'file:/etc/pegman/config/application.yml,configtree:/etc/pegman/config/*/'
+          volumeMounts:
+            - name: pegman-config
+              mountPath: /etc/pegman/config
+              readOnly: true
+            - name: pegman-systems
+              mountPath: /etc/pegman/config/systems
+              readOnly: true
+            - name: pegman-systems-tokens
+              mountPath: /etc/pegman/config/systems-tokens
+              readOnly: true
+      volumes:
+        - name: pegman-config
+          configMap:
+            name: surveyor-pegman-config
+        - name: pegman-systems
+          configMap:
+            name: surveyor-pegman-systems
+        - name: pegman-systems-tokens
+          secret:
+            secretName: surveyor-pegman-systems
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: surveyor-pegman
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      appProtocol: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: surveyor-pegman-config
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-management
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  application.yml: ""
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: surveyor-pegman-systems
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  surveyor.systems.prometheus.rtp-internal.name: runtime
+  surveyor.systems.prometheus.rtp-internal.type: runtime
+  surveyor.systems.prometheus.rtp-internal.url: http://surveyor-prometheus
+  {{- with .Values.surveyor.pegman.extraConfig }}
+  {{- tpl . $ | indent 2 -}}
+  {{- end }}
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: surveyor-pegman-systems
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  {{- with .Values.surveyor.pegman.extraSecrets }}
+  {{- tpl . $ | indent 2 -}}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: surveyor-pegman-to-prometheus
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pegman
+      app.kubernetes.io/component: surveyor
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+              app.kubernetes.io/component: surveyor
+---
+{{ with .Values.surveyor.pegman.extraCiliumNetworkPolicyEgress }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: surveyor-pegman-to-extra
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: pegman
+      app.kubernetes.io/component: surveyor
+  egress:
+    {{- printf "\n%s" (tpl . $) | indent 4 -}}
+{{ end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: surveyor-pegman
+  annotations:
+    {{ if not (empty .Values.certificates.issuer) -}}
+    cert-manager.io/cluster-issuer: {{ .Values.certificates.issuer }}
+    {{- end }}
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ .Values.surveyor.pegman.host }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: surveyor-pegman
+            port:
+              name: http
+  tls:
+  - secretName: surveyor-pegman-tls
+    hosts:
+    - {{ .Values.surveyor.pegman.host }}
