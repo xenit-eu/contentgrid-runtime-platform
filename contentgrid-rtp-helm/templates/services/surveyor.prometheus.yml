@@ -140,3 +140,26 @@ spec:
             matchLabels:
               app.kubernetes.io/name: postgres-exporter
               app.kubernetes.io/component: surveyor
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: surveyor-prometheus-from-pegman
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/component: surveyor
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pegman
+              app.kubernetes.io/component: surveyor
