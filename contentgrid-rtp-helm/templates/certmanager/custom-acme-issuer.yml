@@ -1,22 +1,22 @@
-{{ if not (empty .Values.certificates.acme) }}
+{{ range $name, $settings := .Values.certificates.issuers }}
 ---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: {{ .Values.certificates.issuer }}
+  name: {{ $name }}
 spec:
   acme:
-    email: {{ .Values.certificates.acme.email }}
-    server: {{ .Values.certificates.acme.server }}
-    {{- if not (empty .Values.certificates.acme.externalAccountBinding) }}
+    email: {{ $settings.acme.email }}
+    server: {{ $settings.acme.server }}
+    {{- with $settings.acme.externalAccountBinding }}
     externalAccountBinding:
-      keyID: {{ .Values.certificates.acme.externalAccountBinding.keyId }}
+      keyID: {{ .keyId }}
       keySecretRef:
-        name: {{ .Values.certificates.acme.externalAccountBinding.secretName }}
+        name: {{ .secretName }}
         key: eab-credentials
     {{- end }}
     privateKeySecretRef:
-      name: {{ .Values.certificates.issuer }}-accountkey
+      name: {{ .$name }}-accountkey
     solvers:
     - http01:
         ingress:

@@ -67,13 +67,15 @@ keycloak:
   host: ~
 
 certificates:
-  issuer: letsencrypt-production
-#  acme:
-#    email: ~
-#    server: ~
-#    externalAccountBinding:
-#        keyId: ~
-#        secretName: ~
+  default-issuer: letsencrypt-production
+#  issuers:
+#    my-issuer:
+#      acme:
+#        email: ~
+#        server: ~
+#        externalAccountBinding:
+#          keyId: ~
+#          secretName: ~
 
 
 keycloakx:
