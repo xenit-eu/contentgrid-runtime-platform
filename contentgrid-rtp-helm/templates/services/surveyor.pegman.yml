@@ -183,8 +183,8 @@ kind: Ingress
 metadata:
   name: surveyor-pegman
   annotations:
-    {{ if not (empty .Values.certificates.issuer) -}}
-    cert-manager.io/cluster-issuer: {{ .Values.certificates.issuer }}
+    {{- with .Values.certificates.defaultIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
     {{- end }}
   labels:
     app.kubernetes.io/name: pegman
