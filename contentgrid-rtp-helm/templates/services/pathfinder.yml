@@ -47,6 +47,8 @@ spec:
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pathfinder/application.yml'
+            - name: 'SPRING_PROFILES_ACTIVE'
+              values: 'api'
           volumeMounts:
             - name: pathfinder-config-volume
               mountPath: /etc/pathfinder/
@@ -57,44 +59,6 @@ spec:
             name: pathfinder-config
       serviceAccountName: pathfinder-serviceaccount
       automountServiceAccountToken: true
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: pathfinder-config
-  labels:
-    app.kubernetes.io/name: pathfinder
-    app.kubernetes.io/component: pathfinder
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-data:
-  application.yml: |
-    pathfinder:
-        source:
-            namespace: '{{ .Values.userapps.namespace }}'
-            labels:
-                '[app.contentgrid.com/service-type]': gateway
-        target:
-            namespace: '{{ .Release.Namespace }}'
-            {{ if .Values.userapps.ingressClassName -}}
-            ingress-class-name: '{{ .Values.userapps.ingressClassName }}'
-            {{- end }}
-            annotations:
-                '[cert-manager.io/cluster-issuer]': '{{ .Values.certificates.issuer }}'
-            tls:
-                {{ if .Values.userapps.defaultDomainSuffix -}}
-                fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'
-                {{- end }}
-            services:
-                - path: /
-                  pathType: Prefix
-                  serviceName: gateway-service
-                  servicePort: 8080
-                - path: /.well-known/jwks.json
-                  pathType: Exact
-                  serviceName: slingshot-service
-                  servicePortName: http
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -144,6 +108,8 @@ spec:
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pathfinder/application.yml'
+            - name: 'SPRING_PROFILES_ACTIVE'
+              values: 'webapp'
           volumeMounts:
             - name: pathfinder-config-volume
               mountPath: /etc/pathfinder/
@@ -151,17 +117,16 @@ spec:
       volumes:
         - name: pathfinder-config-volume
           configMap:
-            name: pathfinder-config-webapp
+            name: pathfinder-config
       serviceAccountName: pathfinder-serviceaccount
       automountServiceAccountToken: true
-
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pathfinder-config-webapp
+  name: pathfinder-config
   labels:
-    app.kubernetes.io/name: webapp
+    app.kubernetes.io/name: pathfinder
     app.kubernetes.io/component: pathfinder
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -170,19 +135,46 @@ data:
     pathfinder:
         source:
             namespace: '{{ .Values.userapps.namespace }}'
+        target:
+            namespace: '{{ .Release.Namespace }}'
+            {{- with .Values.userapps.ingressClassName }}
+            ingress-class-name: '{{ . }}'
+            {{- end }}
+            copy-annotations:
+                '[cert-manager.io/cluster-issuer]':
+                    default-value: '{{ .Values.certificates.defaultIssuer }}'
+                    acceptable-values:
+                    {{- with .Values.certificates.defaultIssuer }}
+                        - '{{ . }}'
+                    {{- end }}
+                    {{- range (keys (.Values.certificates.issuers | default dict)) }}
+                        - '{{ . }}'
+                    {{- end }}
+            {{- with .Values.userapps.defaultDomainSuffix }}
+            tls:
+                fallback-cn-hostname: 'managed-by.{{ . }}'
+            {{- end }}
+  application-api.yml: |
+    pathfinder:
+        source:
+            labels:
+                '[app.contentgrid.com/service-type]': gateway
+        target:
+            services:
+                - path: /
+                  pathType: Prefix
+                  serviceName: gateway-service
+                  servicePort: 8080
+                - path: /.well-known/jwks.json
+                  pathType: Exact
+                  serviceName: slingshot-service
+                  servicePortName: http
+  application-webapp.yml: |
+    pathfinder:
+        source:
             labels:
                 '[app.contentgrid.com/service-type]': webapp
         target:
-            namespace: '{{ .Release.Namespace }}'
-            {{ if .Values.userapps.ingressClassName -}}
-            ingress-class-name: '{{ .Values.userapps.ingressClassName }}'
-            {{- end }}
-            annotations:
-                '[cert-manager.io/cluster-issuer]': '{{ .Values.certificates.issuer }}'
-            tls:
-                {{ if .Values.userapps.defaultDomainSuffix -}}
-                fallback-cn-hostname: 'managed-by.{{ .Values.userapps.defaultDomainSuffix }}'
-                {{- end }}
             services:
                 - path: /
                   pathType: Prefix
