@@ -48,7 +48,7 @@ spec:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pathfinder/application.yml'
             - name: 'SPRING_PROFILES_ACTIVE'
-              values: 'api'
+              value: 'api'
           volumeMounts:
             - name: pathfinder-config-volume
               mountPath: /etc/pathfinder/
@@ -109,7 +109,7 @@ spec:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pathfinder/application.yml'
             - name: 'SPRING_PROFILES_ACTIVE'
-              values: 'webapp'
+              value: 'webapp'
           volumeMounts:
             - name: pathfinder-config-volume
               mountPath: /etc/pathfinder/
