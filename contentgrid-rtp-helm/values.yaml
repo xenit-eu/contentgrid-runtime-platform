@@ -22,31 +22,31 @@ surveyor:
     host: ~
     extraConfig: |
       {{- with .Values.surveyor.pegman.scaleway }}
-      surveyor.systems.prometheus.metrics.name: runtime
-      surveyor.systems.prometheus.metrics.type: scaleway:prometheus
-      surveyor.systems.prometheus.metrics.url: https://metrics.cockpit.{{ .region }}.scw.cloud/prometheus
-      surveyor.systems.prometheus.metrics.headers.x-datasource: product
+      surveyor.systems.prometheus.scaleway-metrics.name: runtime
+      surveyor.systems.prometheus.scaleway-metrics.type: scaleway:prometheus
+      surveyor.systems.prometheus.scaleway-metrics.url: https://metrics.cockpit.{{ .region }}.scw.cloud/prometheus
+      surveyor.systems.prometheus.scaleway-metrics.headers.x-datasource: product
 
-      surveyor.systems.prometheus.logs.name: runtime
-      surveyor.systems.prometheus.logs.type: scaleway:loki
-      surveyor.systems.prometheus.logs.url: https://logs.cockpit.{{ .region }}.cloud/loki
-      surveyor.systems.prometheus.logs.headers.x-datasource: product
+      surveyor.systems.prometheus.scaleway-logs.name: runtime
+      surveyor.systems.prometheus.scaleway-logs.type: scaleway:loki
+      surveyor.systems.prometheus.scaleway-logs.url: https://logs.cockpit.{{ .region }}.cloud/loki
+      surveyor.systems.prometheus.scaleway-logs.headers.x-datasource: product
       {{- end }}
     extraSecrets: |
       {{- with .Values.surveyor.pegman.scaleway }}
-      surveyor.systems.prometheus.metrics.headers.x-token: {{ .token | b64enc }}
-      surveyor.systems.prometheus.logs.headers.x-token: {{ .token | b64enc }}
+      surveyor.systems.prometheus.scaleway-metrics.headers.x-token: {{ .token | b64enc }}
+      surveyor.systems.prometheus.scaleway-logs.headers.x-token: {{ .token | b64enc }}
       {{- end }}
     extraCiliumNetworkPolicyEgress: |
+      {{- with .Values.surveyor.pegman.scaleway }}
       - toFQDNs:
-          {{- with .Values.surveyor.pegman.scaleway }}
           - matchName: "metrics.cockpit.{{ .region }}.cloud"
           - matchName: "logs.cockpit.{{ .region }}.scw.cloud"
-          {{- end }}
         toPorts:
           - ports:
               - port: "443"
                 protocol: TCP
+      {{- end }}
 #    scaleway:
 #      region: fr-par
 #      token:
