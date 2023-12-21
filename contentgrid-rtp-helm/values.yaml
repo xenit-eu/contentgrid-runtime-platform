@@ -40,7 +40,7 @@ surveyor:
     extraCiliumNetworkPolicyEgress: |
       {{- with .Values.surveyor.pegman.scaleway }}
       - toFQDNs:
-          - matchName: "metrics.cockpit.{{ .region }}.cloud"
+          - matchName: "metrics.cockpit.{{ .region }}.scw.cloud"
           - matchName: "logs.cockpit.{{ .region }}.scw.cloud"
         toPorts:
           - ports:
