@@ -6,8 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
-    {{ if not (empty .Values.certificates.issuer) -}}
-    cert-manager.io/cluster-issuer: {{ .Values.certificates.issuer }}
+    {{- with .Values.certificates.defaultIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
     {{- end }}
   labels:
     app.kubernetes.io/name: ingress
