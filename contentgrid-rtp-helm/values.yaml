@@ -29,7 +29,7 @@ surveyor:
 
       surveyor.systems.prometheus.scaleway-logs.name: runtime
       surveyor.systems.prometheus.scaleway-logs.type: scaleway:loki
-      surveyor.systems.prometheus.scaleway-logs.url: https://logs.cockpit.{{ .region }}.cloud/loki
+      surveyor.systems.prometheus.scaleway-logs.url: https://logs.cockpit.{{ .region }}.scw.cloud/loki
       surveyor.systems.prometheus.scaleway-logs.headers.x-datasource: product
       {{- end }}
     extraSecrets: |
