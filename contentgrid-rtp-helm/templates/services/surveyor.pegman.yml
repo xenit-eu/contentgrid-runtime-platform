@@ -208,3 +208,24 @@ spec:
   - secretName: surveyor-pegman-tls
     hosts:
     - {{ .Values.surveyor.pegman.host }}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: surveyor-pegman-to-auth
+  labels:
+    app.kubernetes.io/name: pegman
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: pegman
+      app.kubernetes.io/component: surveyor
+  egress:
+    - toFQDNs:
+        - matchName: "auth.contentgrid.com"
+      toPorts:
+        - ports:
+            - port: "443"
