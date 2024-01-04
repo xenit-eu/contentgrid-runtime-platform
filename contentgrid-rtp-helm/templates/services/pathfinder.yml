@@ -57,6 +57,7 @@ spec:
         - name: pathfinder-config-volume
           configMap:
             name: pathfinder-config
+      enableServiceLinks: false
       serviceAccountName: pathfinder-serviceaccount
       automountServiceAccountToken: true
 ---
@@ -118,6 +119,7 @@ spec:
         - name: pathfinder-config-volume
           configMap:
             name: pathfinder-config
+      enableServiceLinks: false
       serviceAccountName: pathfinder-serviceaccount
       automountServiceAccountToken: true
 ---

@@ -59,6 +59,8 @@ spec:
         - name: slingshot-config-volume
           configMap:
             name: slingshot-config
+      enableServiceLinks: false
+      automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -55,6 +55,8 @@ spec:
         - name: opa-config-volume
           configMap:
             name: opa-config
+      enableServiceLinks: false
+      automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: Service

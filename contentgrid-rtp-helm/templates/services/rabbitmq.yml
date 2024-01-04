@@ -48,6 +48,8 @@ spec:
                 - '-q'
                 - 'check_running'
             timeoutSeconds: 5
+      enableServiceLinks: false
+      automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: Service
