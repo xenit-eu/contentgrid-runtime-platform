@@ -64,6 +64,7 @@ spec:
         - name: tsdb-storage
           persistentVolumeClaim:
             claimName: surveyor-prometheus-tsdb
+      enableServiceLinks: false
       automountServiceAccountToken: false
 ---
 apiVersion: v1

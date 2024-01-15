@@ -57,6 +57,7 @@ spec:
         - name: liaison-config-volume
           configMap:
             name: liaison-config
+      enableServiceLinks: false
       serviceAccountName: liaison-serviceaccount
       automountServiceAccountToken: true
 

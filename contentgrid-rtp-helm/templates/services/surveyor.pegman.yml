@@ -69,6 +69,8 @@ spec:
         - name: pegman-systems-tokens
           secret:
             secretName: surveyor-pegman-systems
+      enableServiceLinks: false
+      automountServiceAccountToken: false
 ---
 apiVersion: v1
 kind: Service

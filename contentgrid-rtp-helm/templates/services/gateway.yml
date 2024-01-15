@@ -61,6 +61,7 @@ spec:
         - name: gateway-config-volume
           configMap:
             name: gateway-config
+      enableServiceLinks: false
       serviceAccountName: contentgrid-gateway
       automountServiceAccountToken: true
 ---
