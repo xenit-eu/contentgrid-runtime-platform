@@ -144,3 +144,6 @@ rabbitmq:
     enabled: true
   volumePermissions:
     enabled: true
+  commonLabels:
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform

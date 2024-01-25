@@ -15,6 +15,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rabbitmq
       app.kubernetes.io/component: message-queue
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
   ingress:
     - from:
         - namespaceSelector:
@@ -41,6 +42,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rabbitmq
       app.kubernetes.io/component: message-queue
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
   ingress:
     - from:
         - podSelector:
@@ -49,3 +51,22 @@ spec:
               app.kubernetes.io/component: webhook-invoker
       ports:
         - port: 5672
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: rabbitmq-to-apiserver
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: message-queue
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  egress:
+    - toEntities:
+        - kube-apiserver
