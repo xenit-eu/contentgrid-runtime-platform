@@ -3,14 +3,17 @@ kind: ConfigMap
 metadata:
   labels:
     app.kubernetes.io/part-of: contentgrid-runtime
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
   name: runtime-platform-config
-  namespace: default
+  namespace: {{ .Values.userapps.namespace }}
 data:
   server.forward-headers-strategy: native
   server.tomcat.remoteip.internal-proxies: 100\.64\.\d{1,3}\.\d{1,3}
   management.endpoints.web.exposure.include: '*'
   management.server.port: '8081'
-  spring.rabbitmq.host: rabbitmq-service.contentgrid-system.svc.cluster.local
+  spring.datasource.hikari.minimum-idle: "0"
+{{- if default true .Values.rabbitmq.enabled }}
+  spring.rabbitmq.host: {{ .Values.rabbitmq.fullnameOverride }}{{ default .Release.Namespace .Values.rabbitmq.namespaceOverride | trunc 63 | trimSuffix "-" }}.svc.cluster.local
   spring.rabbitmq.username: guest
   spring.rabbitmq.password: guest
-  spring.datasource.hikari.minimum-idle: "0"
+{{- end }}
