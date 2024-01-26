@@ -138,6 +138,9 @@ keycloakx:
 rabbitmq:
   fullnameOverride: rabbitmq
   enableServiceLinks: false
+  auth:
+    existingPasswordSecret: rabbitmq
+    existingErlangSecret: rabbitmq
   networkPolicy:
     enabled: true
   metrics:
