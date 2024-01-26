@@ -13,7 +13,7 @@ data:
   management.server.port: '8081'
   spring.datasource.hikari.minimum-idle: "0"
 {{- if default true .Values.rabbitmq.enabled }}
-  spring.rabbitmq.host: {{ .Values.rabbitmq.fullnameOverride }}.{{ default .Release.Namespace .Values.rabbitmq.namespaceOverride | trunc 63 | trimSuffix "-" }}.svc.cluster.local
+  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
   spring.rabbitmq.username: guest
   spring.rabbitmq.password: guest
 {{- end }}

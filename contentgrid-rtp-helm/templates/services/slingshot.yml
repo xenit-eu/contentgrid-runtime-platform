@@ -46,14 +46,14 @@ spec:
               port: 8081
           env:
             - name: 'SPRING_CONFIG_IMPORT'
-              value: 'file:/etc/slingshot/application.yml'
+              value: 'configtree:/etc/slingshot/*/'
             - name: 'MANAGEMENT_SERVER_PORT'
               value: '8081'
             - name: 'MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE'
               value: 'health,info,prometheus,metrics'
           volumeMounts:
             - name: slingshot-config-volume
-              mountPath: /etc/slingshot/
+              mountPath: /etc/slingshot/application
               readOnly: true
       volumes:
         - name: slingshot-config-volume
@@ -72,15 +72,10 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
-  application.yml: |
-    spring:
-      rabbitmq:
-        host: rabbitmq-service
-    contentgrid:
-      webhooks:
-        signing:
-          jwt:
-            generate-key: true
+  {{- if default true .Values.rabbitmq.enabled }}
+  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
+  {{- end }}
+  contentgrid.webhooks.signing.jwt.generate-key: "true"
 ---
 apiVersion: v1
 kind: Service
