@@ -52,6 +52,55 @@ spec:
       ports:
         - port: 5672
 ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rabbitmq-clustering
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: message-queue
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: message-queue
+              app.kubernetes.io/part-of: contentgrid-runtimeplatform
+      # Allow all ports, because cilium does not support port ranges
+      # See https://www.rabbitmq.com/clustering.html#ports
+      # See https://docs.cilium.io/en/latest/network/kubernetes/policy/#networkpolicy-state
+      #ports:
+      #  - port: 4369
+      #  - port: 6000
+      #    endPort: 6500
+      #  - port: 25672
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: message-queue
+              app.kubernetes.io/part-of: contentgrid-runtimeplatform
+      # Allow all ports, because cilium does not support port ranges
+      # See https://www.rabbitmq.com/clustering.html#ports
+      # See https://docs.cilium.io/en/latest/network/kubernetes/policy/#networkpolicy-state
+      #ports:
+      #  - port: 4369
+      #  - port: 6000
+      #    endPort: 6500
+      #  - port: 25672
+---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
