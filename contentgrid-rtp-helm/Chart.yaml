@@ -29,5 +29,5 @@ dependencies:
     version: "2.3.0"
   - name: rabbitmq
     repository: https://charts.bitnami.com/bitnami
-    version: "12.8.0"
+    version: "12.9.0"
     condition: rabbitmq.enabled
