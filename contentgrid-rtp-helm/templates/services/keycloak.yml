@@ -1,3 +1,4 @@
+{{ if .Values.keycloakx.enabled }}
 # most keycloak stuff is in values.yml because this project depends on the codecentric keycloakx chart
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -103,3 +104,4 @@ spec:
               protocol: TCP
             - port: "2465"
               protocol: TCP
+{{ end }}
