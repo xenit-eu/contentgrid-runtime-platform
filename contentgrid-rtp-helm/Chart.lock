@@ -4,6 +4,6 @@ dependencies:
   version: 2.3.0
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
-  version: 12.14.1
-digest: sha256:2de5aa30fd6c99967de611dab8c1a26427cf73e865ed7838f181f3fb82b3c3e0
-generated: "2024-03-05T17:50:49.099072938Z"
+  version: 12.15.0
+digest: sha256:1d4f2b4050d1af12445c7484588165fd4d57f4daedbb7f3bab9870e59501b3d3
+generated: "2024-03-06T14:25:24.09223189Z"
