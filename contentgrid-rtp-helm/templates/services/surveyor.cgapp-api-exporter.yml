@@ -1,0 +1,150 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: surveyor-cgapp-api-exporter
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+        app.kubernetes.io/name: cgapp-api-exporter
+        app.kubernetes.io/component: surveyor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cgapp-api-exporter
+        app.kubernetes.io/component: surveyor
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/path: actuator/prometheus
+        prometheus.io/port: '8081'
+        prometheus.io/scrape: 'true'
+        instrumentation.opentelemetry.io/inject-java: grafana-agent/grafana-instrumentation
+    spec:
+      containers:
+        - name: cgapp-api-exporter
+          image: {{ .Values.surveyor.cgappApiExporter.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
+          env:
+            - name: 'SPRING_CONFIG_IMPORT'
+              value: 'file:/etc/surveyor/application.yml'
+          volumeMounts:
+            - name: surveyor-config-volume
+              mountPath: /etc/surveyor/
+              readOnly: true
+      volumes:
+        - name: surveyor-config-volume
+          configMap:
+            name: surveyor-cgapp-api-exporter-config
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: surveyor-cgapp-api-exporter
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      appProtocol: http
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: surveyor-cgapp-api-exporter-config
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  application.yml: |
+    spring:
+      rabbitmq:
+        host: {{ include "rabbitmq_host" .}}
+        port: 5672
+    surveyor.exporter:
+      rabbitmq:
+        enabled: true
+        queue: surveyor-cgapp-api-exporter
+    management:
+      server:
+        port: 8081
+    logging.level:
+      com.contentgrid.surveyor: DEBUG
+
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: surveyor-cgapp-api-exporter-to-rabbitmq
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: cgapp-api-exporter
+      app.kubernetes.io/component: surveyor
+  egress:
+    - toEndpoints:
+      - matchLabels:
+          app.kubernetes.io/name: rabbitmq
+          app.kubernetes.io/component: message-queue
+          app.kubernetes.io/part-of: contentgrid-runtimeplatform
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: surveyor-cgapp-api-exporter-from-prometheus
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: cgapp-api-exporter
+      app.kubernetes.io/component: surveyor
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+              app.kubernetes.io/component: surveyor

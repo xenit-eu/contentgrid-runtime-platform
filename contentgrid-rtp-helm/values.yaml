@@ -50,6 +50,8 @@ surveyor:
 #      token:
   postgresExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT
+  cgappApiExporter:
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT
 
 userapps:
   namespace: default
