@@ -12,7 +12,7 @@ data:
   management.endpoints.web.exposure.include: '*'
   management.server.port: '8081'
   spring.datasource.hikari.minimum-idle: "0"
-  contentgrid.audit.messaging.source: "https://${applicationId}.{{ .Values.userapps.defaultDomainSuffix }}"
+  contentgrid.audit.messaging.source: "https://{{ .Values.userapps.defaultDomainSuffix }}"
   contentgrid.audit.messaging.destination: 'surveyor-cgapp-api-exporter'
 {{- if default true .Values.rabbitmq.enabled }}
   spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
