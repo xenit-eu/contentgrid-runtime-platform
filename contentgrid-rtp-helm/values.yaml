@@ -95,7 +95,6 @@ keycloakx:
     - "--http-port=8080"
     - "--cache-config-file=cache-ispn.xml"
     - "--cache-stack=kubernetes"
-    - "--features=declarative-user-profile"
     - "--log-level=INFO,org.keycloak.broker.oidc:DEBUG"
   extraEnv: |
     - name: JAVA_OPTS_APPEND
