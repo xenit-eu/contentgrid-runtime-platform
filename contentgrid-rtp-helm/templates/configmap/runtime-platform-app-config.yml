@@ -19,3 +19,5 @@ data:
   spring.rabbitmq.username: guest
   spring.rabbitmq.password: guest
 {{- end }}
+  contentgrid.security.csrf.disabled: 'true'
+  contentgrid.security.unauthenticated.allow: 'true'
