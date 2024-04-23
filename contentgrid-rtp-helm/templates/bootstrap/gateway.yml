@@ -1,0 +1,110 @@
+# Creates an initial secret for JWT signing for the gateway
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  name: initialize-gateway-role
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - create
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - get
+  resourceNames:
+    - gateway-jwt-apps-keys
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  name: initialize-gateway-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  name: initialize-gateway-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: initialize-gateway-role
+subjects:
+- kind: ServiceAccount
+  name: initialize-gateway-sa
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  name: initialize-gateway-script
+data:
+  initialize.sh: |
+    #!/bin/sh
+
+    if ! kubectl get secret gateway-jwt-apps-keys; then
+        openssl genrsa 2048 | \
+        kubectl create secret generic gateway-jwt-apps-keys --from-file=active-1.pem=/dev/stdin
+    fi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: initialize-gateway
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: initialize-gateway-sa
+      automountServiceAccountToken: true
+      containers:
+      - name: initialize-gateway-container
+        image: bitnami/kubectl
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "/tmp/gateway/initialize.sh"]
+        volumeMounts:
+          - mountPath: /tmp/gateway
+            name: patch
+      volumes:
+      - name: patch
+        configMap:
+          defaultMode: 0777
+          name: initialize-gateway-script
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: initialize-gateway-to-kube-apiserver
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  endpointSelector:
+    matchLabels:
+      job-name: initialize-gateway
+  egress:
+    - toEntities:
+        - kube-apiserver

@@ -57,10 +57,16 @@ spec:
             - name: gateway-config-volume
               mountPath: /etc/gateway/
               readOnly: true
+            - name: jwt-apps-keys
+              mountPath: /etc/gateway/keys/jwt-apps
+              readOnly: true
       volumes:
         - name: gateway-config-volume
           configMap:
             name: gateway-config
+        - name: jwt-apps-keys
+          secret:
+            secretName: gateway-jwt-apps-keys # secret created by templates/bootstrap/gateway.yml
       enableServiceLinks: false
       serviceAccountName: contentgrid-gateway
       automountServiceAccountToken: true
@@ -87,6 +93,11 @@ data:
       gateway:
         runtime-platform:
           enabled: true
+        jwt:
+          signers:
+            apps:
+              active-keys: file:/etc/gateway/keys/jwt-apps/active-*.pem
+              all-keys: file:/etc/gateway/keys/jwt-apps/*.pem
 ---
 apiVersion: v1
 kind: Service
@@ -107,6 +118,26 @@ spec:
     - port: 8081
       targetPort: management
       name: management
+---
+# This is a separate service, so we can later switch away from
+# communicating directly with the gateway management port,
+# without restarting all applications
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-jwks
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: gateway
+  ports:
+    - port: 80
+      targetPort: management
+      name: jwks
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -225,6 +256,32 @@ spec:
               app.contentgrid.com/service-type: api
       ports:
         - port: 8080 # Access to public port only
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gateway-jwks-from-apps
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: proxy
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {}
+          podSelector:
+            matchLabels:
+              app.contentgrid.com/service-type: api
+      ports:
+        - port: 8081 # Access to management port only
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
