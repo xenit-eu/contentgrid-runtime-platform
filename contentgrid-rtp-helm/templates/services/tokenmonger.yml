@@ -1,0 +1,210 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tokenmonger
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: tokenmonger
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/path: actuator/prometheus
+        prometheus.io/port: '8081'
+        prometheus.io/scrape: 'true'
+    spec:
+      containers:
+        - name: tokenmonger
+          image: {{ .Values.tokenmonger.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+          env:
+            - name: 'TOKENMONGER_HOST'
+              value: '{{ .Values.tokenmonger.host }}'
+            - name: 'SPRING_CONFIG_IMPORT'
+              value: 'file:/etc/tokenmonger/application.yml,configtree:/etc/tokenmonger/config/*/'
+          volumeMounts:
+            - name: tokenmonger-config
+              mountPath: /etc/tokenmonger/
+              readOnly: true
+            - name: tokenmonger-extensions
+              mountPath: /etc/tokenmonger/config/extensions
+            - name: jwt-delegated-keys
+              mountPath: /etc/tokenmonger/keys/jwt-delegated
+              readOnly: true
+            - name: jwt-external-keys
+              mountPath: /etc/tokenmonger/keys/jwt-external
+              readOnly: true
+            - name: jwt-system-keys
+              mountPath: /etc/tokenmonger/keys/jwt-system
+              readOnly: true
+      volumes:
+        - name: tokenmonger-config
+          configMap:
+            name: tokenmonger-config
+        - name: tokenmonger-extensions
+          secret:
+            secretName: tokenmonger-extensions # This secret is not managed by helm and needs to be configured manually for now
+            optional: true
+        - name: jwt-delegated-keys
+          secret:
+            secretName: tokenmonger-jwt-delegated-keys # secret created by templates/bootstrap/tokenmonger.yml
+        - name: jwt-external-keys
+          secret:
+            secretName: tokenmonger-jwt-external-keys # secret created by templates/bootstrap/tokenmonger.yml
+        - name: jwt-system-keys
+          secret:
+            secretName: tokenmonger-jwt-system-keys # secret created by templates/bootstrap/tokenmonger.yml
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tokenmonger-config
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  application.yml: |
+    management:
+      server:
+        port: 8081
+      endpoints:
+        web:
+          exposure:
+            include: '*'
+    contentgrid:
+      tokenmonger:
+        user-to-extension:
+          jwk-set-uri: http://gateway-jwks/actuator/jwks/authentication
+          issuer: https://${tokenmonger.host}/authentication/external
+          active-signing-keys: file:/etc/tokenmonger/keys/jwt-external/active-*.pem
+          retired-signing-keys: file:/etc/tokenmonger/keys/jwt-external/*.pem
+        extension-to-app:
+          issuer: https://${tokenmonger.host}/authentication/delegated
+          active-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/active-*.pem
+          retired-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/*.pem
+        extension:
+          issuer: https://${tokenmonger.host}/authentication/system
+          active-signing-keys: file:/etc/tokenmonger/keys/jwt-system/active-*.pem
+          retired-signing-keys: file:/etc/tokenmonger/keys/jwt-system/*.pem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tokenmonger
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: tokenmonger
+  ports:
+    - port: 8080
+      targetPort: http
+      name: http
+    - port: 8081
+      targetPort: management
+      name: management
+{{ with .Values.tokenmonger.host }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tokenmonger
+  annotations:
+    {{- with $.Values.certificates.defaultIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
+    {{- end }}
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ . }}
+    http:
+      paths:
+      - path: /authentication
+        pathType: Prefix
+        backend:
+          service:
+            name: tokenmonger
+            port:
+              name: http
+  tls:
+  - secretName: tokenmonger-tls
+    hosts:
+    - {{ . }}
+{{ end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tokenmonger-from-gateway
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tokenmonger-to-gateway-jwks
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+              app.kubernetes.io/component: proxy
+      ports:
+        - port: 8081 # Management port only for jwks
