@@ -36,14 +36,7 @@ spec:
           ports:
             - name: management
               containerPort: 8080
-          livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: 8080
-          readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: 8080
+          {{- include "contentgrid.probes" "management" | indent 10 }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pathfinder/application.yml'
