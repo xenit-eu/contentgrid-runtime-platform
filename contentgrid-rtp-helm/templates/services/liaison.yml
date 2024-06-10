@@ -38,14 +38,7 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
-          livenessProbe:
-            httpGet:
-              path: /actuator/health/liveness
-              port: management
-          readinessProbe:
-            httpGet:
-              path: /actuator/health/readiness
-              port: management
+          {{- include "contentgrid.probes" "management" | indent 10 }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/liaison/application.yml'
