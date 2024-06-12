@@ -101,6 +101,7 @@ data:
           endpoints:
             authentication:
               uri: http://tokenmonger:8080
+              authorization: authenticated
               encryption:
                 active-keys: file:/etc/gateway/keys/jwt-authentication-encryption/active-*.bin
                 all-keys: file:/etc/gateway/keys/jwt-authentication-encryption/*.bin
