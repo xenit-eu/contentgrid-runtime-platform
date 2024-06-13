@@ -145,6 +145,7 @@ keycloakx:
 rabbitmq:
   fullnameOverride: rabbitmq
   enableServiceLinks: false
+  resourcesPreset: medium
   auth:
     existingPasswordSecret: rabbitmq
     existingErlangSecret: rabbitmq
