@@ -53,6 +53,12 @@ spec:
             - name: jwt-apps-keys
               mountPath: /etc/gateway/keys/jwt-apps
               readOnly: true
+            - name: jwt-authentication-keys
+              mountPath: /etc/gateway/keys/jwt-authentication
+              readOnly: true
+            - name: jwt-authentication-encryption-keys
+              mountPath: /etc/gateway/keys/jwt-authentication-encryption
+              readOnly: true
       volumes:
         - name: gateway-config-volume
           configMap:
@@ -60,6 +66,12 @@ spec:
         - name: jwt-apps-keys
           secret:
             secretName: gateway-jwt-apps-keys # secret created by templates/bootstrap/gateway.yml
+        - name: jwt-authentication-keys
+          secret:
+            secretName: gateway-jwt-authentication-keys # secret created by templates/bootstrap/gateway.yml
+        - name: jwt-authentication-encryption-keys
+          secret:
+            secretName: gateway-jwt-authentication-encryption-keys # secret created by templates/bootstrap/gateway.yml
       enableServiceLinks: false
       serviceAccountName: contentgrid-gateway
       automountServiceAccountToken: true
@@ -86,11 +98,21 @@ data:
       gateway:
         runtime-platform:
           enabled: true
+          endpoints:
+            authentication:
+              uri: http://tokenmonger:8080
+              authorization: authenticated
+              encryption:
+                active-keys: file:/etc/gateway/keys/jwt-authentication-encryption/active-*.bin
+                all-keys: file:/etc/gateway/keys/jwt-authentication-encryption/*.bin
         jwt:
           signers:
             apps:
               active-keys: file:/etc/gateway/keys/jwt-apps/active-*.pem
               all-keys: file:/etc/gateway/keys/jwt-apps/*.pem
+            authentication:
+              active-keys: file:/etc/gateway/keys/jwt-authentication/active-*.pem
+              all-keys: file:/etc/gateway/keys/jwt-authentication/*.pem
 ---
 apiVersion: v1
 kind: Service
@@ -253,6 +275,28 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
+  name: gateway-to-tokenmonger
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: proxy
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: tokenmonger
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
   name: gateway-jwks-from-apps
   labels:
     app.kubernetes.io/name: gateway
@@ -273,6 +317,30 @@ spec:
           podSelector:
             matchLabels:
               app.contentgrid.com/service-type: api
+      ports:
+        - port: 8081 # Access to management port only
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gateway-jwks-from-tokenmonger
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: proxy
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: tokenmonger
       ports:
         - port: 8081 # Access to management port only
 ---

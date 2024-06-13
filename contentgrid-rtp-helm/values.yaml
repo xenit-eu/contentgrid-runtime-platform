@@ -1,5 +1,8 @@
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT
+tokenmonger:
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT
+  host: ~
 opa:
   image: docker.io/openpolicyagent/opa:0.58.0-rootless
 solon:

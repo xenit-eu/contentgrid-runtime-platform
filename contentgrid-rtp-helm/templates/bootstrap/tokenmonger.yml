@@ -1,4 +1,4 @@
-# Creates an initial secret for JWT signing for the gateway
+# Creates an initial secret for JWT signing for tokenmonger
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -7,7 +7,7 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  name: initialize-gateway-role
+  name: initialize-tokenmonger-role
 rules:
 - apiGroups:
     - ""
@@ -22,9 +22,9 @@ rules:
   verbs:
     - get
   resourceNames:
-    - gateway-jwt-apps-keys
-    - gateway-jwt-authentication-keys
-    - gateway-jwt-authentication-encryption-keys
+    - tokenmonger-jwt-delegated-keys
+    - tokenmonger-jwt-external-keys
+    - tokenmonger-jwt-system-keys
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -33,7 +33,7 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  name: initialize-gateway-sa
+  name: initialize-tokenmonger-sa
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -42,14 +42,14 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  name: initialize-gateway-role-binding
+  name: initialize-tokenmonger-role-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: initialize-gateway-role
+  name: initialize-tokenmonger-role
 subjects:
 - kind: ServiceAccount
-  name: initialize-gateway-sa
+  name: initialize-tokenmonger-sa
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -58,30 +58,31 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  name: initialize-gateway-script
+  name: initialize-tokenmonger-script
 data:
   initialize.sh: |
     #!/bin/sh
 
-    if ! kubectl get secret gateway-jwt-apps-keys; then
+    if ! kubectl get secret tokenmonger-jwt-delegated-keys; then
         openssl genrsa 2048 | \
-        kubectl create secret generic gateway-jwt-apps-keys --from-file=active-1.pem=/dev/stdin
+        kubectl create secret generic tokenmonger-jwt-delegated-keys --from-file=active-1.pem=/dev/stdin
     fi
 
-    if ! kubectl get secret gateway-jwt-authentication-keys; then
+    if ! kubectl get secret tokenmonger-jwt-external-keys; then
         openssl genrsa 2048 | \
-        kubectl create secret generic gateway-jwt-authentication-keys --from-file=active-1.pem=/dev/stdin
+        kubectl create secret generic tokenmonger-jwt-external-keys --from-file=active-1.pem=/dev/stdin
     fi
 
-    if ! kubectl get secret gateway-jwt-authentication-encryption-keys; then
-        openssl rand 32 | \
-        kubectl create secret generic gateway-jwt-authentication-encryption-keys --from-file=active-1.bin=/dev/stdin
+    if ! kubectl get secret tokenmonger-jwt-system-keys; then
+        openssl genrsa 2048 | \
+        kubectl create secret generic tokenmonger-jwt-system-keys --from-file=active-1.pem=/dev/stdin
     fi
+
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: initialize-gateway
+  name: initialize-tokenmonger
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
@@ -89,26 +90,26 @@ spec:
   template:
     spec:
       restartPolicy: Never
-      serviceAccountName: initialize-gateway-sa
+      serviceAccountName: initialize-tokenmonger-sa
       automountServiceAccountToken: true
       containers:
-      - name: initialize-gateway-container
+      - name: initialize-tokenmonger-container
         image: bitnami/kubectl
         imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "-c", "/tmp/gateway/initialize.sh"]
+        command: ["/bin/sh", "-c", "/tmp/tokenmonger/initialize.sh"]
         volumeMounts:
-          - mountPath: /tmp/gateway
+          - mountPath: /tmp/tokenmonger
             name: patch
       volumes:
       - name: patch
         configMap:
           defaultMode: 0777
-          name: initialize-gateway-script
+          name: initialize-tokenmonger-script
 ---
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 metadata:
-  name: initialize-gateway-to-kube-apiserver
+  name: initialize-tokenmonger-to-kube-apiserver
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-5"
@@ -116,7 +117,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      job-name: initialize-gateway
+      job-name: initialize-tokenmonger
   egress:
     - toEntities:
         - kube-apiserver
