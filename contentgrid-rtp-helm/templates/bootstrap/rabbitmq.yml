@@ -1,4 +1,5 @@
 # Sets up rabbitmq secrets before rabbitmq is installed
+# And loads rabbitmq definitions after rabbitmq is up and running
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -107,3 +108,99 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  name: setup-rabbitmq-script
+data:
+  setup.sh: |
+    #!/bin/sh
+
+    curl -u user:"$RABBITMQ_PASSWORD"  \
+      --fail-with-body \
+      -X POST \
+      -H "Content-Type: application/json" \
+      -T /tmp/rabbitmq/definitions.json \
+      http://rabbitmq:15672/api/definitions \
+
+  definitions.json: {{ .Files.Get "definitions/rabbitmq.json" | quote }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-rabbitmq
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: setup-rabbitmq-container
+        image: bitnami/os-shell
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh", "-c", "/tmp/rabbitmq/setup.sh"]
+        env:
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-password
+        volumeMounts:
+          - mountPath: /tmp/rabbitmq
+            name: patch
+      volumes:
+      - name: patch
+        configMap:
+          defaultMode: 0777
+          name: setup-rabbitmq-script
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rabbitmq-from-setup-rabbitmq
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: message-queue
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              job-name: setup-rabbitmq
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: setup-rabbitmq-to-rabbitmq
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      job-name: setup-rabbitmq
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: message-queue
+              app.kubernetes.io/part-of: contentgrid-runtimeplatform

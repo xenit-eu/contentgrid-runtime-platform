@@ -1,0 +1,114 @@
+{
+    "rabbit_version": "3.13.3",
+    "rabbitmq_version": "3.13.3",
+    "product_name": "RabbitMQ",
+    "product_version": "3.13.3",
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "slingshot",
+            "vhost": "/",
+            "configure": "",
+            "write": "",
+            "read": "^contentgrid\\.slingshot$"
+        },
+        {
+            "user": "surveyor",
+            "vhost": "/",
+            "configure": "",
+            "write": "",
+            "read": "^contentgrid\\.surveyor\\."
+        }
+    ],
+    "policies": [
+        {
+            "vhost": "/",
+            "name": "contentgrid-surveyor",
+            "pattern": "^contentgrid\\.surveyor\\.",
+            "apply-to": "queues",
+            "definition": {
+                "dead-letter-exchange": "contentgrid-dlx",
+                "delivery-limit": 1,
+                "max-length": 10000,
+                "message-ttl": 300000,
+                "overflow": "drop-head"
+            },
+            "priority": 0
+        },
+        {
+            "vhost": "/",
+            "name": "contentgrid-slingshot",
+            "pattern": "^contentgrid\\.slingshot$",
+            "apply-to": "queues",
+            "definition": {
+                "dead-letter-exchange": "contentgrid-dlx",
+                "delivery-limit": 3,
+                "max-length": 10000,
+                "overflow": "reject-publish"
+            },
+            "priority": 0
+        }
+    ],
+    "queues": [
+        {
+            "name": "contentgrid.surveyor.cgapp-api-exporter",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        },
+        {
+            "name": "contentgrid.slingshot",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "contentgrid-dlx",
+            "vhost": "/",
+            "type": "fanout",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        },
+        {
+            "name": "contentgrid.apps",
+            "vhost": "/",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "contentgrid.apps",
+            "vhost": "/",
+            "destination": "contentgrid.slingshot",
+            "destination_type": "queue",
+            "routing_key": "contentgrid.events",
+            "arguments": {}
+        },
+        {
+            "source": "contentgrid.apps",
+            "vhost": "/",
+            "destination": "contentgrid.surveyor.cgapp-api-exporter",
+            "destination_type": "queue",
+            "routing_key": "contentgrid.audit",
+            "arguments": {}
+        }
+    ]
+}
