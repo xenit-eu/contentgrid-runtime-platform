@@ -90,7 +90,7 @@ data:
     surveyor.exporter:
       rabbitmq:
         enabled: true
-        queue: surveyor-cgapp-api-exporter
+        queue: contentgrid.surveyor.cg-app-api-exporter
     management:
       server:
         port: 8081

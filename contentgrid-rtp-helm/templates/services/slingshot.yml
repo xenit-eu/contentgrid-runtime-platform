@@ -67,6 +67,7 @@ metadata:
 data:
   {{- if default true .Values.rabbitmq.enabled }}
   spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
+  contentgrid.webhooks.queue: contentgrid.slingshot
   {{- end }}
   contentgrid.webhooks.signing.jwt.generate-key: "true"
 ---
