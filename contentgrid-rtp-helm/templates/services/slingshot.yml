@@ -48,10 +48,16 @@ spec:
             - name: slingshot-config-volume
               mountPath: /etc/slingshot/application
               readOnly: true
+            - name: slingshot-rabbitmq
+              mountPath: /etc/slingshot/rabbitmq
+              readOnly: true
       volumes:
         - name: slingshot-config-volume
           configMap:
             name: slingshot-config
+        - name: slingshot-rabbitmq
+          secret:
+            secretName: slingshot-rabbitmq
       enableServiceLinks: false
       automountServiceAccountToken: false
 ---
@@ -65,10 +71,24 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
-  {{- if default true .Values.rabbitmq.enabled }}
-  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
-  {{- end }}
   contentgrid.webhooks.signing.jwt.generate-key: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: slingshot-rabbitmq
+  labels:
+    app.kubernetes.io/name: slingshot
+    app.kubernetes.io/component: webhook-invoker
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if default true .Values.rabbitmq.enabled }}
+stringData:
+  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
+  spring.rabbitmq.username: slingshot
+  #spring.rabbitmq.password: Set by rabbitmq bootstrap
+  contentgrid.webhooks.queue: contentgrid.slingshot
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

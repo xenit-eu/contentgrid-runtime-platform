@@ -1,4 +1,5 @@
 # Sets up rabbitmq secrets before rabbitmq is installed
+# And loads rabbitmq definitions after rabbitmq is up and running
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -23,6 +24,17 @@ rules:
     - get
   resourceNames:
     - rabbitmq
+    - slingshot-rabbitmq
+    - surveyor-cgapp-api-exporter-rabbitmq
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - patch
+  resourceNames:
+    - slingshot-rabbitmq
+    - surveyor-cgapp-api-exporter-rabbitmq
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -59,11 +71,21 @@ metadata:
   name: initialize-rabbitmq-script
 data:
   initialize.sh: |
-    #!/bin/sh
+    #!/bin/bash
+    set -euo pipefail
 
-    if ! kubectl get secret rabbitmq; then
+    if ! kubectl get secret rabbitmq > /dev/null; then
         kubectl create secret generic rabbitmq --from-literal="rabbitmq-password={{ randAlphaNum 16 }}" --from-literal="rabbitmq-erlang-cookie={{ randAlphaNum 32 }}"
     fi
+
+    for secret in slingshot-rabbitmq surveyor-cgapp-api-exporter-rabbitmq; do
+      if [ -z "$(kubectl get secret $secret -o jsonpath='{.data.spring\.rabbitmq\.password}')" ]; then
+        openssl rand -base64 30 | \
+        jq -R '{stringData : {"spring.rabbitmq.password": . } }' | \
+        kubectl patch secret $secret --patch-file=/dev/stdin
+      fi
+    done
+
 ---
 apiVersion: batch/v1
 kind: Job
@@ -82,7 +104,7 @@ spec:
       - name: initialize-rabbitmq-container
         image: bitnami/kubectl
         imagePullPolicy: IfNotPresent
-        command: ["/bin/sh", "-c", "/tmp/rabbitmq/initialize.sh"]
+        command: ["/bin/bash", "-c", "/tmp/rabbitmq/initialize.sh"]
         volumeMounts:
           - mountPath: /tmp/rabbitmq
             name: patch
@@ -107,3 +129,126 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: setup-rabbitmq-script
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: setup
+data:
+  setup.sh: |
+    #!/bin/bash
+    set -euo pipefail
+
+    # Set up users
+    echo "$SLINGSHOT_PASSWORD" | \
+    jq -R '{ password: ., tags: [] }' | \
+    curl -u user:"$RABBITMQ_PASSWORD" \
+      --fail-with-body \
+      --silent \
+      -X PUT \
+      --json @- \
+      http://rabbitmq:15672/api/users/slingshot
+
+    echo "$SURVEYOR_PASSWORD" | \
+    jq -R '{ password: ., tags: [] }' | \
+    curl -u user:"$RABBITMQ_PASSWORD" \
+      --fail-with-body \
+      --silent \
+      -X PUT \
+      --json @- \
+      http://rabbitmq:15672/api/users/surveyor
+
+    # Set up definitions
+    curl -u user:"$RABBITMQ_PASSWORD" \
+      --fail-with-body \
+      --silent \
+      -X POST \
+      -H "Content-Type: application/json" \
+      -T /tmp/rabbitmq/definitions.json \
+      http://rabbitmq:15672/api/definitions
+
+  definitions.json: {{ .Files.Get "definitions/rabbitmq.json" | quote }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-rabbitmq-{{ .Files.Get "definitions/rabbitmq.json" | sha1sum }}
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: setup
+spec:
+  template:
+    metadata:
+      labels:
+          app.kubernetes.io/name: rabbitmq
+          app.kubernetes.io/component: setup
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: setup-rabbitmq-container
+        image: bitnami/os-shell
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c", "/tmp/rabbitmq/setup.sh"]
+        env:
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-password
+          - name: SLINGSHOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: slingshot-rabbitmq
+                key: spring.rabbitmq.password
+          - name: SURVEYOR_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: surveyor-cgapp-api-exporter-rabbitmq
+                key: spring.rabbitmq.password
+        volumeMounts:
+          - mountPath: /tmp/rabbitmq
+            name: patch
+      volumes:
+      - name: patch
+        configMap:
+          defaultMode: 0777
+          name: setup-rabbitmq-script
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rabbitmq-from-setup-rabbitmq
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: message-queue
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: setup
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: setup-rabbitmq-to-rabbitmq
+spec:
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: setup
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: rabbitmq
+              app.kubernetes.io/component: message-queue

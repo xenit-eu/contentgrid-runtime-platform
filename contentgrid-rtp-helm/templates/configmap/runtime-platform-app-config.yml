@@ -12,12 +12,13 @@ data:
   management.endpoints.web.exposure.include: '*'
   management.server.port: '8081'
   spring.datasource.hikari.minimum-idle: "0"
-  contentgrid.audit.messaging.source: "https://{{ .Values.userapps.defaultDomainSuffix }}"
-  contentgrid.audit.messaging.destination: 'surveyor-cgapp-api-exporter'
 {{- if default true .Values.rabbitmq.enabled }}
   spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
   spring.rabbitmq.username: guest
   spring.rabbitmq.password: guest
+  spring.rabbitmq.template.exchange: 'contentgrid.apps'
+  contentgrid.audit.messaging.source: "https://{{ .Values.userapps.defaultDomainSuffix }}"
+  contentgrid.audit.messaging.destination: 'contentgrid.audit'
 {{- end }}
   # The trailing dot is on purpose, we don't want any DNS search domains to apply when the direct name can not be resolved
   spring.security.oauth2.resourceserver.jwt.jwk-set-uri: http://gateway-jwks.{{ .Release.Namespace }}.svc.cluster.local./actuator/jwks/apps
