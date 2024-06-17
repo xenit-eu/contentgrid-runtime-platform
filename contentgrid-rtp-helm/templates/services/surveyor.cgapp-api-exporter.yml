@@ -41,15 +41,20 @@ spec:
           {{- include "contentgrid.probes" "management" | indent 10 }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
-              value: 'file:/etc/surveyor/application.yml'
+              value: 'file:/etc/surveyor/application.yml,configtree:/etc/surveyor/*/'
           volumeMounts:
             - name: surveyor-config-volume
               mountPath: /etc/surveyor/
               readOnly: true
+            - name: rabbitmq-config
+              mountPath: /etc/surveyor/rabbitmq
       volumes:
         - name: surveyor-config-volume
           configMap:
             name: surveyor-cgapp-api-exporter-config
+        - name: rabbitmq-config
+          secret:
+            secretName: surveyor-cgapp-api-exporter-rabbitmq
       enableServiceLinks: false
       automountServiceAccountToken: false
 ---
@@ -83,20 +88,29 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
   application.yml: |
-    spring:
-      rabbitmq:
-        host: {{ include "rabbitmq_host" .}}
-        port: 5672
-    surveyor.exporter:
-      rabbitmq:
-        enabled: true
-        queue: contentgrid.surveyor.cg-app-api-exporter
     management:
       server:
         port: 8081
     logging.level:
       com.contentgrid.surveyor: DEBUG
-
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: surveyor-cgapp-api-exporter-rabbitmq
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if default true .Values.rabbitmq.enabled }}
+stringData:
+  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
+  spring.rabbitmq.username: surveyor
+  #spring.rabbitmq.password: Set by rabbitmq bootstrap
+  surveyor.exporter.rabbitmq.queue: contentgrid.surveyor.cgapp-api-exporter
+  surveyor.exporter.rabbitmq.enabled: 'true'
+{{- end }}
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
