@@ -77,15 +77,6 @@ data:
     if ! kubectl get secret rabbitmq > /dev/null; then
         kubectl create secret generic rabbitmq --from-literal="rabbitmq-password={{ randAlphaNum 16 }}" --from-literal="rabbitmq-erlang-cookie={{ randAlphaNum 32 }}"
     fi
-
-    for secret in slingshot-rabbitmq surveyor-cgapp-api-exporter-rabbitmq; do
-      if [ -z "$(kubectl get secret $secret -o jsonpath='{.data.spring\.rabbitmq\.password}')" ]; then
-        openssl rand -base64 30 | \
-        jq -R '{stringData : {"spring.rabbitmq.password": . } }' | \
-        kubectl patch secret $secret --patch-file=/dev/stdin
-      fi
-    done
-
 ---
 apiVersion: batch/v1
 kind: Job
@@ -130,6 +121,48 @@ spec:
     - toEntities:
         - kube-apiserver
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: setup
+  name: setup-rabbitmq-role
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - get
+    - patch
+  resourceNames:
+    - slingshot-rabbitmq
+    - surveyor-cgapp-api-exporter-rabbitmq
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: setup
+  name: setup-rabbitmq-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: setup
+  name: setup-rabbitmq-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: setup-rabbitmq-role
+subjects:
+- kind: ServiceAccount
+  name: setup-rabbitmq-sa
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -143,23 +176,23 @@ data:
     set -euo pipefail
 
     # Set up users
-    echo "$SLINGSHOT_PASSWORD" | \
-    jq -R '{ password: ., tags: [] }' | \
-    curl -u user:"$RABBITMQ_PASSWORD" \
-      --fail-with-body \
-      --silent \
-      -X PUT \
-      --json @- \
-      http://rabbitmq:15672/api/users/slingshot
+    for secret in slingshot-rabbitmq surveyor-cgapp-api-exporter-rabbitmq; do
+      if [ -z "$(kubectl get secret $secret -o jsonpath='{.data.spring\.rabbitmq\.password}')" ]; then
+        username="$(kubectl get secret $secret -o jsonpath='{.data.spring\.rabbitmq\.username}' | base64 -d)"
+        generated_pwd="$(openssl rand -base64 30)"
 
-    echo "$SURVEYOR_PASSWORD" | \
-    jq -R '{ password: ., tags: [] }' | \
-    curl -u user:"$RABBITMQ_PASSWORD" \
-      --fail-with-body \
-      --silent \
-      -X PUT \
-      --json @- \
-      http://rabbitmq:15672/api/users/surveyor
+        echo "$generated_pwd" | jq -R '{ password: ., tags: [] }' | \
+          curl -u user:"$RABBITMQ_PASSWORD" \
+            --fail-with-body \
+            --silent \
+            -X PUT \
+            --json @- \
+            http://rabbitmq:15672/api/users/$username
+
+        echo "$generated_pwd" | jq -R '{stringData : {"spring.rabbitmq.password": . } }' | \
+          kubectl patch secret $secret --patch-file=/dev/stdin
+      fi
+    done
 
     # Set up definitions
     curl -u user:"$RABBITMQ_PASSWORD" \
@@ -187,31 +220,41 @@ spec:
           app.kubernetes.io/component: setup
     spec:
       restartPolicy: Never
+      serviceAccountName: setup-rabbitmq-sa
+      automountServiceAccountToken: true
+      initContainers:
+        - name: copy-kubectl
+          image: bitnami/kubectl
+          command:
+            - "/bin/sh"
+            - "-c"
+          args:
+            - |
+              echo "copying 'kubectl' binary to shared volume...";
+              cp -f "$(which kubectl)" /shared-bin/kubectl;
+          volumeMounts:
+            - name: shared-bin
+              mountPath: "/shared-bin/"
       containers:
-      - name: setup-rabbitmq-container
-        image: bitnami/os-shell
-        imagePullPolicy: IfNotPresent
-        command: ["/bin/bash", "-c", "/tmp/rabbitmq/setup.sh"]
-        env:
-          - name: RABBITMQ_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: rabbitmq
-                key: rabbitmq-password
-          - name: SLINGSHOT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: slingshot-rabbitmq
-                key: spring.rabbitmq.password
-          - name: SURVEYOR_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: surveyor-cgapp-api-exporter-rabbitmq
-                key: spring.rabbitmq.password
-        volumeMounts:
-          - mountPath: /tmp/rabbitmq
-            name: patch
+        - name: setup-rabbitmq-container
+          image: bitnami/os-shell
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-c", "/tmp/rabbitmq/setup.sh"]
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-password
+          volumeMounts:
+            - mountPath: /usr/local/bin/kubectl
+              name: shared-bin
+              subPath: kubectl
+            - mountPath: /tmp/rabbitmq
+              name: patch
       volumes:
+      - name: shared-bin
+        emptyDir: {}
       - name: patch
         configMap:
           defaultMode: 0777
@@ -252,3 +295,16 @@ spec:
             matchLabels:
               app.kubernetes.io/name: rabbitmq
               app.kubernetes.io/component: message-queue
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+  name: setup-rabbitmq-to-kube-apiserver
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: setup
+  egress:
+    - toEntities:
+        - kube-apiserver
