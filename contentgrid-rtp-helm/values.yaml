@@ -17,7 +17,7 @@ appfrontend:
   image: ghcr.io/xenit-eu/contentgrid-app-frontend:main
 surveyor:
   prometheus:
-    image: prom/prometheus:latest
+    image: docker.io/prom/prometheus:latest
   pegman:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT
     host: ~
