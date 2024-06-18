@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>xenit-eu/contentgrid-renovate-presets:renovate.json"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/xenit-eu/contentgrid-gateway",
+        "ghcr.io/xenit-eu/contentgrid-tokenmonger",
+        "ghcr.io/xenit-eu/contentgrid-solon",
+        "ghcr.io/xenit-eu/contentgrid-slingshot",
+        "ghcr.io/xenit-eu/contentgrid-pathfinder",
+        "ghcr.io/xenit-eu/contentgrid-liaison",
+        "ghcr.io/xenit-eu/contentgrid-app-frontend",
+        "ghcr.io/xenit-eu/contentgrid-app-frontend",
+        "ghcr.io/xenit-eu/contentgrid-surveyor-pegman",
+        "ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres",
+        "ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api"
+      ],
+      "pinDigests": true,
+      "automerge": true
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "docker.io/prom/prometheus"
+      ],
+      "pinDigests": true
+    }
+  ]
+}
