@@ -1,25 +1,25 @@
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:499e189d5249e96e381632b4d38dcfcc095aa9ec05be527f5fba737437fbe4d7
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:ef2ed004eb14daa7aeae1d21c9b8d55395851377e26adfb9de93bf35d0905fc9
   host: ~
 opa:
   image: docker.io/openpolicyagent/opa:0.58.0-rootless
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:2cf2a3e0373f8964e8702f5c1ffe78b24b1f9af024172d4f0d9811454689f2db
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:4749a5d2df194297c43dcd7d0c8d47eb03884451ad61e23253adf42f5de5fa47
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:422d6bc26ba03b9f8b899e0ce7dbb88b259039ac5cf09706a6120badd0429516
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:d3bca83328b7ed5d109af677804b5169c87e710fb2da17c8e563097dd03957eb
 appfrontend:
-  image: ghcr.io/xenit-eu/contentgrid-app-frontend:main
+  image: ghcr.io/xenit-eu/contentgrid-app-frontend:main@sha256:45ed0d5c849248d24ad65e7679b6206b6de4ea0ca31d3d0c02c941729d24ae09
 surveyor:
   prometheus:
-    image: docker.io/prom/prometheus:latest
+    image: docker.io/prom/prometheus:latest@sha256:5c435642ca4d8427ca26f4901c11114023004709037880cd7860d5b7176aa731
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:bc66379189250e9934daea55477b7b473abe69b4b6c9cb7522a719a2d7d39f1b
     host: ~
     extraConfig: |
       {{- with .Values.surveyor.pegman.scaleway }}
@@ -52,9 +52,9 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:12a5f5ca322b8e083696e5569304c4b3e97946c1f1d596fb3970a5ee621f1504
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:8944de2247498621e2fa7191eb635a379bcda27a2acfdf67f19d7955a91ad5d0
 
 userapps:
   namespace: default
