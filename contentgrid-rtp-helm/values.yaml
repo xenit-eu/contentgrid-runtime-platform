@@ -17,7 +17,7 @@ appfrontend:
   image: ghcr.io/xenit-eu/contentgrid-app-frontend:main@sha256:159ab3a6851cdcd5ccb2558c7e192b14d9762cd6ba8c6a94381839f376acddb0
 surveyor:
   prometheus:
-    image: docker.io/prom/prometheus:latest@sha256:5c435642ca4d8427ca26f4901c11114023004709037880cd7860d5b7176aa731
+    image: docker.io/prom/prometheus:latest@sha256:075b1ba2c4ebb04bc3a6ab86c06ec8d8099f8fda1c96ef6d104d9bb1def1d8bc
   pegman:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:94ba005dbba53603ed5586bcbf104407648a216d0462a8d42996c5f3802ed837
     host: ~
