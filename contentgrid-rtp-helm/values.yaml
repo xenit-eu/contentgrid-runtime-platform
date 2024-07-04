@@ -89,16 +89,9 @@ keycloakx:
     tag: 25.0.1
   fullnameOverride: keycloak # this is used for the name of the service that we use in the ingress
   replicas: 1
-  command:
-    - "/opt/keycloak/bin/kc.sh"
-    - "--verbose"
-    - "start"
-    - "--http-enabled=true"
-    - "--hostname-strict=false"
-    - "--http-port=8080"
-    - "--cache-config-file=cache-ispn.xml"
-    - "--cache-stack=kubernetes"
-    - "--log-level=INFO,org.keycloak.broker.oidc:DEBUG"
+  args:
+    - 'start'
+    - '--hostname-strict=false'
   extraEnv: |
     - name: JAVA_OPTS_APPEND
       value: >-
@@ -106,6 +99,8 @@ keycloakx:
         -XX:MaxRAMPercentage=50.0
         -Djava.awt.headless=true
         -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+  proxy:
+    mode: xforwarded
   database:
     vendor: postgres
     hostname: ~
