@@ -19,7 +19,7 @@ surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:075b1ba2c4ebb04bc3a6ab86c06ec8d8099f8fda1c96ef6d104d9bb1def1d8bc
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:f4d89040f2272094decb700674461dbe2eca89e1f3853fb6e80e2f1172ea1cfb
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:00b40d81d9bb8720e537382677768048b8e66404b4b19f4f64778d7f37235bff
     host: ~
     extraConfig: |
       {{- with .Values.surveyor.pegman.scaleway }}
