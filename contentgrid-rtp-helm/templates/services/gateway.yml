@@ -44,6 +44,8 @@ spec:
               value: 'true'
             - name: SERVICEDISCOVERY_NAMESPACE
               value: '{{ .Values.userapps.namespace }}'
+            - name: 'TOKENMONGER_HOST'
+              value: '{{ .Values.tokenmonger.host }}'
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/gateway/application.yml'
           volumeMounts:
@@ -98,6 +100,13 @@ data:
       gateway:
         runtime-platform:
           enabled: true
+          external-issuers:
+            extension-delegation:
+              issuer: https://${tokenmonger.host}/authentication/delegated
+              jwk-set-uri: https://${tokenmonger.host}/authentication/delegated/jwks
+            extension-system:
+              issuer: https://${tokenmonger.host}/authentication/system
+              jwk-set-uri: https://${tokenmonger.host}/authentication/system/jwks
           endpoints:
             authentication:
               uri: http://tokenmonger:8080
@@ -362,6 +371,7 @@ spec:
     - toFQDNs:
         - matchName: "auth.contentgrid.com"
         - matchName: "{{ .Values.keycloak.host }}"
+        - matchName: "{{ .Values.tokenmonger.host }}"
       toPorts:
         - ports:
             - port: "443"
