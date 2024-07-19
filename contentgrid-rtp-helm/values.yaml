@@ -1,7 +1,7 @@
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:6c46351ed0a74f3e5f45c3526ee0543d9787d2da5fc26f41364acf9acce128a3
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:70d1ed38976bfab2adfcf2a8f945bda9092c385f3f1ba590553f4703af79ff5e
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:3e015bdadbac21e0f4f6d912a7bcb456314f40593902d16fac17be5ebd3e2458
   host: ~
 opa:
   image: docker.io/openpolicyagent/opa:0.58.0-rootless
