@@ -30,5 +30,5 @@ dependencies:
     condition: keycloakx.enabled
   - name: rabbitmq
     repository: https://charts.bitnami.com/bitnami
-    version: "14.6.3"
+    version: "14.6.4"
     condition: rabbitmq.enabled
