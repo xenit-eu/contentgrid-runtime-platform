@@ -14,7 +14,7 @@ pathfinder:
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:d4b9385afa72dbc84147d1fe5b53f41b5dc3fbaaa9df33e1ac276ec6be89fda4
 appfrontend:
-  image: ghcr.io/xenit-eu/contentgrid-app-frontend:main@sha256:8030d20c3f307429eb0efaa999b7abb08622567ff85c222eeeedbcbd277fabc4
+  image: ghcr.io/xenit-eu/contentgrid-app-frontend:main@sha256:69d874d9da6c94cc01819408ec72630ebb662373d021f8081fd315d85098beba
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:f20d3127bf2876f4a1df76246fca576b41ddf1125ed1c546fbd8b16ea55117e6
