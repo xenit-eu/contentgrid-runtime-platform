@@ -43,7 +43,7 @@ spec:
               path: /actuator/health/readiness
               port: 8081
           env:
-            - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY'
+            - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER'
               value: 'https://{{ .Values.keycloak.host }}/realms/extensions'
             - name: 'CONTENTGRID_CONFIGURATION_DISCOVERY_KUBERNETES_NAMESPACE'
               value: '{{ .Values.userapps.namespace }}'
