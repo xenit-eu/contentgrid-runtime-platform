@@ -32,7 +32,14 @@ spec:
   - secretName: keycloak-tls
     hosts:
     - {{ .Values.keycloak.host }}
-
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realms-import
+  namespace: {{ .Release.Namespace }}
+data:
+{{ (.Files.Glob "definitions/keycloak-realm-*.json").AsConfig | indent 2}}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
