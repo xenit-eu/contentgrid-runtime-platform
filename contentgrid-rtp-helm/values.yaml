@@ -92,6 +92,7 @@ keycloakx:
   args:
     - 'start'
     - '--hostname-strict=false'
+    - '--import-realm'
   extraEnv: |
     - name: JAVA_OPTS_APPEND
       value: >-
@@ -132,10 +133,14 @@ keycloakx:
   extraVolumeMounts: |
     - name: theme
       mountPath: /opt/keycloak/providers/
-
+    - name: realms-import
+      mountPath: /opt/keycloak/data/import/
   extraVolumes: |
     - name: theme
       emptyDir: {}
+    - name: realms-import
+      configMap:
+        name: keycloak-realms-import
 
 rabbitmq:
   fullnameOverride: rabbitmq
