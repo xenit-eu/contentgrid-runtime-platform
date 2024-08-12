@@ -97,6 +97,10 @@ data:
           exposure:
             include: '*'
     contentgrid:
+      configuration:
+        discovery:
+          kubernetes:
+            namespace: "${servicediscovery.namespace}"
       gateway:
         runtime-platform:
           enabled: true
