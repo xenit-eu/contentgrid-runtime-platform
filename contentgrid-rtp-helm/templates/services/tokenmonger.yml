@@ -231,6 +231,25 @@ spec:
     - toEntities:
         - kube-apiserver
 ---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tokenmonger-to-auth
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  egress:
+    - toFQDNs:
+        - matchName: "{{ .Values.keycloak.host }}"
+      toPorts:
+        - ports:
+            - port: "443"
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
