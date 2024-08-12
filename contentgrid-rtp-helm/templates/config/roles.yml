@@ -1,0 +1,40 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: contentgrid-app-discovery
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: contentgrid-app-discovery
+  namespace: {{ .Values.userapps.namespace }}
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: contentgrid-app-discovery
+subjects:
+- kind: ServiceAccount
+  name: contentgrid-gateway
+  namespace: {{ .Release.Namespace }}
+- kind: ServiceAccount
+  name: contentgrid-tokenmonger
+  namespace: {{ .Release.Namespace }}

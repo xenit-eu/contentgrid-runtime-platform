@@ -43,6 +43,10 @@ spec:
               path: /actuator/health/readiness
               port: 8081
           env:
+            - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY'
+              value: 'https://{{ .Values.keycloak.host }}/realms/extensions'
+            - name: 'CONTENTGRID_CONFIGURATION_DISCOVERY_KUBERNETES_NAMESPACE'
+              value: '{{ .Values.userapps.namespace }}'
             - name: 'TOKENMONGER_HOST'
               value: '{{ .Values.tokenmonger.host }}'
             - name: 'SPRING_CONFIG_IMPORT'
@@ -80,7 +84,8 @@ spec:
           secret:
             secretName: tokenmonger-jwt-system-keys # secret created by templates/bootstrap/tokenmonger.yml
       enableServiceLinks: false
-      automountServiceAccountToken: false
+      serviceAccountName: contentgrid-tokenmonger
+      automountServiceAccountToken: true
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -101,16 +106,17 @@ data:
             include: '*'
     contentgrid:
       tokenmonger:
-        user-to-extension:
+        user-application-access:
           jwk-set-uri: http://gateway-jwks/actuator/jwks/authentication
+        user-extension-access:
           issuer: https://${tokenmonger.host}/authentication/external
           active-signing-keys: file:/etc/tokenmonger/keys/jwt-external/active-*.pem
           retired-signing-keys: file:/etc/tokenmonger/keys/jwt-external/*.pem
-        extension-to-app:
+        extension-delegated-application-access:
           issuer: https://${tokenmonger.host}/authentication/delegated
           active-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/active-*.pem
           retired-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/*.pem
-        extension:
+        extension-application-access:
           issuer: https://${tokenmonger.host}/authentication/system
           active-signing-keys: file:/etc/tokenmonger/keys/jwt-system/active-*.pem
           retired-signing-keys: file:/etc/tokenmonger/keys/jwt-system/*.pem
@@ -208,3 +214,28 @@ spec:
               app.kubernetes.io/component: proxy
       ports:
         - port: 8081 # Management port only for jwks
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tokenmonger-to-apiserver
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  egress:
+    - toEntities:
+        - kube-apiserver
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: contentgrid-tokenmonger
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
