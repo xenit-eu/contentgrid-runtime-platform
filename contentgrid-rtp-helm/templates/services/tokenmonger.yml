@@ -71,8 +71,8 @@ spec:
           configMap:
             name: tokenmonger-config
         - name: tokenmonger-extensions
-          secret:
-            secretName: tokenmonger-extensions # This secret is not managed by helm and needs to be configured manually for now
+          configMap:
+            name: tokenmonger-extensions # This configmap is not managed by helm and needs to be configured manually for now
             optional: true
         - name: jwt-delegated-keys
           secret:
