@@ -159,6 +159,20 @@ spec:
   - host: {{ . }}
     http:
       paths:
+      - path: '/.well-known/openid-configuration'
+        pathType: Prefix
+        backend:
+          service:
+            name: tokenmonger
+            port:
+              name: http
+      - path: '/.well-known/oauth-authorization-server'
+        pathType: Prefix
+        backend:
+          service:
+            name: tokenmonger
+            port:
+              name: http
       - path: /authentication
         pathType: Prefix
         backend:
