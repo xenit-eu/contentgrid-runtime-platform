@@ -43,7 +43,7 @@ spec:
               path: /actuator/health/readiness
               port: 8081
           env:
-            - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY'
+            - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER'
               value: 'https://{{ .Values.keycloak.host }}/realms/extensions'
             - name: 'CONTENTGRID_CONFIGURATION_DISCOVERY_KUBERNETES_NAMESPACE'
               value: '{{ .Values.userapps.namespace }}'
@@ -71,8 +71,8 @@ spec:
           configMap:
             name: tokenmonger-config
         - name: tokenmonger-extensions
-          secret:
-            secretName: tokenmonger-extensions # This secret is not managed by helm and needs to be configured manually for now
+          configMap:
+            name: tokenmonger-extensions # This configmap is not managed by helm and needs to be configured manually for now
             optional: true
         - name: jwt-delegated-keys
           secret:
@@ -159,6 +159,20 @@ spec:
   - host: {{ . }}
     http:
       paths:
+      - path: '/.well-known/openid-configuration'
+        pathType: Prefix
+        backend:
+          service:
+            name: tokenmonger
+            port:
+              name: http
+      - path: '/.well-known/oauth-authorization-server'
+        pathType: Prefix
+        backend:
+          service:
+            name: tokenmonger
+            port:
+              name: http
       - path: /authentication
         pathType: Prefix
         backend:
@@ -230,6 +244,25 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: tokenmonger-to-auth
+  labels:
+    app.kubernetes.io/name: tokenmonger
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  egress:
+    - toFQDNs:
+        - matchName: "{{ .Values.keycloak.host }}"
+      toPorts:
+        - ports:
+            - port: "443"
 ---
 apiVersion: v1
 kind: ServiceAccount
