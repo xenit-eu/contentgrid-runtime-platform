@@ -13,7 +13,7 @@ pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:5999418cd0b6103825c4532eb9f0fdfb687ab1c56b7a85099714147039d0b2ab
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:01f38b0929e192ba20ba7affec9e8b08ff052954bc0baec950bd1caf3f9cba10
-appfrontend:
+navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:031223db80e06c88d6843ca28ebb2df61eb8cefb493b0b40d5b7ffe568c07c41 
 surveyor:
   prometheus:

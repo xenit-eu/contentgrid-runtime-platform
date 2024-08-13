@@ -166,7 +166,7 @@ data:
             services:
                 - path: /
                   pathType: Prefix
-                  serviceName: appfrontend-service
+                  serviceName: navigator-service
                   servicePortName: http
                 - path: /config.js
                   pathType: Exact
