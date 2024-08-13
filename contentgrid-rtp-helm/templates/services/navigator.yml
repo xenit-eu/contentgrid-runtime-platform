@@ -2,29 +2,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: appfrontend
+  name: navigator
   labels:
     app.kubernetes.io/name: webapp
-    app.kubernetes.io/component: appfrontend
+    app.kubernetes.io/component: navigator
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: webapp
-      app.kubernetes.io/component: appfrontend
+      app.kubernetes.io/component: navigator
   replicas: 1
   template:
     metadata:
       labels:
         app.kubernetes.io/name: webapp
-        app.kubernetes.io/component: appfrontend
+        app.kubernetes.io/component: navigator
         app.kubernetes.io/part-of: contentgrid-runtimeplatform
         app.kubernetes.io/managed-by: {{ .Release.Service }}
     spec:
       containers:
-        - name: appfrontend
-          image: {{ .Values.appfrontend.image }}
+        - name: navigator
+          image: {{ .Values.navigator.image }}
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
@@ -37,16 +37,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: appfrontend-service
+  name: navigator-service
   labels:
     app.kubernetes.io/name: webapp
-    app.kubernetes.io/component: appfrontend
+    app.kubernetes.io/component: navigator
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   selector:
       app.kubernetes.io/name: webapp
-      app.kubernetes.io/component: appfrontend
+      app.kubernetes.io/component: navigator
   ports:
     - name: http
       port: 80
