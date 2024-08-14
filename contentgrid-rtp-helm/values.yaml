@@ -10,7 +10,7 @@ solon:
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:5d4143240b7fb142070ca94d8db4f64c47770088eb8e395725b58db658bf7f9b
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:5d11a68b0b48ff8981790d32c814fa9abdd3e102d0621767f74c3f2c462e3245
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:a9b1f14644a9d9967924fbd89c737daa26756814be93938e6536be55465d516d
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:3b365dc0cfd00f612a1b28d4a34cff8179ebb3d4e4409fb16ad0e57062a677db
 navigator:
