@@ -6,7 +6,7 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:0.58.0-rootless
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:f7efcd9493bdabbf69bbc4ed19ef7f99a532d6472f8db639e0c1100247ffcb14
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:fe98309f79a345e94359231b30b604de67f7daffd09c962d2fbe1123eb85b5b8
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:5d4143240b7fb142070ca94d8db4f64c47770088eb8e395725b58db658bf7f9b
 pathfinder:
