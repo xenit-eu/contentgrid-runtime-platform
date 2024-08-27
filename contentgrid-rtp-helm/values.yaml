@@ -17,7 +17,7 @@ navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:52614ab0b46c7dff883e65c47f0f244fafa0230f04516ea569788439f1774ad6 
 surveyor:
   prometheus:
-    image: docker.io/prom/prometheus:latest@sha256:cafe963e591c872d38f3ea41ff8eb22cee97917b7c97b5c0ccd43a419f11f613
+    image: docker.io/prom/prometheus:latest@sha256:f6639335d34a77d9d9db382b92eeb7fc00934be8eae81dbc03b31cfe90411a94
   pegman:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:4482bc6abe1d505c483ab99c522971984917c8077c9b052316f6f49d9cd69fe8
     host: ~
