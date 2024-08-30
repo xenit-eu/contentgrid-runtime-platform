@@ -32,7 +32,8 @@ spec:
           args: [
             'run',
             '--server',
-            '--log-format=json-pretty',
+            '--log-format=json',
+            '--log-level=error',
             '--authorization=basic',
             '--config-file', '/config/config.yml',
             'file:/config/system.rego'
