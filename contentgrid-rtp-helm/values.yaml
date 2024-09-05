@@ -1,5 +1,5 @@
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:02d23173879a9837f30f7cbc2bddcdf02cef652a7651a0b8bab4c423165ef92c
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:af417c3d1c4a3868f1dad9f5fb55dfd5e176e1cac8779ddf1194796e15f0efab
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:dc427b86cd33ffa403d9eeb132fb0525b69adf06903dfdbd3742e8849139f658
   host: ~
