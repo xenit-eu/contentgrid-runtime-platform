@@ -52,7 +52,7 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:04fc16607769e57b250b3af04a4f8e67a33c5b9fd8e59e855dbad5a85e8407c6
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:5ff273ce22a1ccac71a63dfc6306cd6712e7afd5267f637fdc19a1013fda4e1a
   cgappApiExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:607280b8913bab4c13de6004a4af79233b34c9dd329e2dc523e80f590d7cdfc6
 
