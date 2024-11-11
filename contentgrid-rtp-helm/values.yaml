@@ -8,7 +8,7 @@ opa:
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:6635e63f5bee7ceb9d791361748a43c73922740a890ce86d5095475448925c6f
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:6f8ee2bdf34d3949af2bfb3ace08e1db0653159aeebd9823a0c6a12c2a4fd51a
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:b440120bc71725ac4cb0a243b73745ec0809b0a83b7782e0c4b69d00df6566b5
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:7d8cf235e60457c59bc354d47e2995cd03d0a6ad4d697e2921b3017979173acc
 liaison:
