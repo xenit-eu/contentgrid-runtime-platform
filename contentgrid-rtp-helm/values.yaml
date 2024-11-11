@@ -16,7 +16,7 @@ liaison:
   renditions:
     uriTemplate: ~
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:2062226e56811283fee27497480f29dcc45a322aeedcfa59f7f6122e2b559f50 
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:3fe9eabb561ec7532289bc60dd78d1a27f9c34c29f3639f2e8cb9bf20704de37 
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:378f4e03703557d1c6419e6caccf922f96e6d88a530f7431d66a4c4f4b1000fe
