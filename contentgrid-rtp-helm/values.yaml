@@ -56,7 +56,7 @@ surveyor:
   postgresExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:bcd771eab7892aeb15d2ed57e2cca6305dbe3492fde3f68021c7667a7d55d4d9
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:5b693c89a8d1b5a97f09d061e3b0bb5829475250192c5e7f7d0271b375da8739
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:86ba9f830b9cca4e30e466c550db555a354597203d7687afe0ff05ba4d11283b
 
 userapps:
   namespace: default
