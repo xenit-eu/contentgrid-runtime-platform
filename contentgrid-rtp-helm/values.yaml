@@ -12,7 +12,7 @@ slingshot:
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:4d845e12c7e316f6c2d660c8fc938a2cecd325ec5f6e89fe9938b538c34e2ae7
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:6cf9231cc7b832f481875f03a12a318698469b29b3c11ed7430402eb65503ec2
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:63eae17483ce4246e2356ce3d52b8b69da62764767eb3cfd594ef8bc6d6c7a7d
   renditions:
     uriTemplate: ~
 navigator:
