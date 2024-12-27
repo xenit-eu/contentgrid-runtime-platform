@@ -1,9 +1,9 @@
 dependencies:
 - name: keycloakx
   repository: https://codecentric.github.io/helm-charts
-  version: 2.6.0
+  version: 5.0.0
 - name: rabbitmq
   repository: https://charts.bitnami.com/bitnami
   version: 14.7.0
-digest: sha256:04e7a3e62cf7f38504f45d4960d6d2646b8d3b109cbfcfe1b3d13f237f8dbb9d
-generated: "2024-11-22T18:46:10.786541159Z"
+digest: sha256:7403ad9271b78ed2c70a230d042e032427a716d7bc715a67d164587002b05306
+generated: "2024-12-27T16:25:09.935977565Z"
