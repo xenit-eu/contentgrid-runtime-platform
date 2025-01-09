@@ -4,7 +4,7 @@ tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:1d74d7438b5b65dccd50b52e48e66b17e2ae4bfa6899ba6638f31da383efd198
   host: ~
 opa:
-  image: docker.io/openpolicyagent/opa:0.58.0-rootless
+  image: docker.io/openpolicyagent/opa:0.58.0
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:df618f10e25de23c875235aeab9197c5639a30f434e8ac362fc7a07977d42f6e
 slingshot:
