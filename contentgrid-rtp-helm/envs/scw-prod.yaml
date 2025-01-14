@@ -1,0 +1,44 @@
+secretStoreName: cg-rtp-scw-prod-secretstore
+
+userapps:
+  database:
+    - ip: 51.159.205.58
+      port: "19477"
+  defaultDomainSuffix: eu-west-1.contentgrid.cloud
+
+surveyor:
+  pegman:
+    scaleway:
+      region: fr-par
+    host: metrics.eu-west-1.contentgrid.cloud
+
+keycloak:
+  host: auth.eu-west-1.contentgrid.cloud
+
+keycloakx:
+  database:
+    hostname: 51.159.26.208
+    port: "11785"
+  replicas: 2
+
+certificates:
+  defaultIssuer: gcloud-ca-production
+  issuers:
+    gcloud-ca-production:
+      acme:
+        email: contentgrid@xenit.eu
+        server: https://dv.acme-v02.api.pki.goog/directory
+        externalAccountBinding:
+          keyId: d085c9ef75f2f9e494bfc285de50dfbd
+          secretName: gcloud-ca-production-eab
+    letsencrypt-production: {}
+
+tokenmonger:
+  host: extensions.eu-west-1.contentgrid.cloud
+
+liaison:
+  renditions:
+    uriTemplate: >-
+      https://renditions.eu-west-1.contentgrid.cloud/renditions/get/pdf{?url}
+  extract:
+    baseUrl: https://ml.sandbox.contentgrid.app/extract/
