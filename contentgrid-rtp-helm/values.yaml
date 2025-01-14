@@ -88,7 +88,7 @@ keycloakx:
   image:
     # Explicitly configuring the repository allows renovatebot to send image update PRs
     repository: quay.io/keycloak/keycloak
-    tag: 26.0.7
+    tag: 26.0.8
   fullnameOverride: keycloak # this is used for the name of the service that we use in the ingress
   replicas: 1
   args:
