@@ -113,9 +113,8 @@ data:
   {{- tpl . $ | indent 2 -}}
   {{- end }}
 ---
-apiVersion: v1
-kind: Secret
-type: Opaque
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
 metadata:
   name: surveyor-pegman-systems
   labels:
@@ -123,10 +122,20 @@ metadata:
     app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-data:
-  {{- with .Values.surveyor.pegman.extraSecrets }}
-  {{- tpl . $ | indent 2 -}}
-  {{- end }}
+spec:
+  refreshInterval: 61m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: {{ .Values.secretStoreName }}
+  data:
+    - secretKey: surveyor.systems.prometheus.scaleway-metrics.headers.x-token
+      remoteRef:
+        key: name:surveyor-scaleway-token
+        version: latest_enabled
+    - secretKey: surveyor.systems.prometheus.scaleway-logs.headers.x-token
+      remoteRef:
+        key: name:surveyor-scaleway-token
+        version: latest_enabled
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
