@@ -35,11 +35,6 @@ surveyor:
       surveyor.systems.prometheus.scaleway-logs.url: https://logs.cockpit.{{ .region }}.scw.cloud/loki
       surveyor.systems.prometheus.scaleway-logs.headers.x-datasource: product
       {{- end }}
-    extraSecrets: |
-      {{- with .Values.surveyor.pegman.scaleway }}
-      surveyor.systems.prometheus.scaleway-metrics.headers.x-token: {{ .token | b64enc }}
-      surveyor.systems.prometheus.scaleway-logs.headers.x-token: {{ .token | b64enc }}
-      {{- end }}
     extraCiliumNetworkPolicyEgress: |
       {{- with .Values.surveyor.pegman.scaleway }}
       - toFQDNs:
