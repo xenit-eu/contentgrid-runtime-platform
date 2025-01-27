@@ -92,7 +92,7 @@ data:
       server:
         port: 8081
     logging.level:
-      com.contentgrid.surveyor: DEBUG
+      com.contentgrid.surveyor: INFO
 ---
 apiVersion: v1
 kind: Secret
