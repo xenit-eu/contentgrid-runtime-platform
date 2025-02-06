@@ -74,9 +74,11 @@ data:
             gateway:
                 namespace: '{{ .Values.userapps.namespace }}'
                 resync-interval-seconds: 300
-        {{ if .Values.liaison.renditions.uriTemplate -}}
-        additionalProperties:
-            renditionUriTemplate: '{{ .Values.liaison.renditions.uriTemplate }}'
+        {{ with .Values.liaison.renditions.uriTemplate -}}
+        additionalProperties.renditionUriTemplate: '{{ . }}'
+        {{- end }}
+        {{ with .Values.liaison.extract.baseUrl -}}
+        additionalProperties.extractServiceBaseUrl: '{{ . }}'
         {{- end }}
 ---
 apiVersion: v1
