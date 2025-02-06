@@ -39,3 +39,5 @@ tokenmonger:
 liaison:
   renditions:
     uriTemplate: https://renditions.sandbox.contentgrid.cloud/renditions/get/pdf{?url}
+  extract:
+    baseUrl: https://extract.sandbox.contentgrid.app/extract/
