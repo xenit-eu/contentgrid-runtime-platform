@@ -1,0 +1,52 @@
+plugins {
+    id 'java-library'
+    id 'io.freefair.lombok' version '8.12.1'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation platform("org.springframework.boot:spring-boot-dependencies:3.4.2")
+    implementation platform("io.fabric8:kubernetes-client-bom:7.1.0")
+
+
+    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-junit-jupiter-k8s:0.0.2'
+    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-helm-client:0.0.2'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'io.fabric8:kubernetes-junit-jupiter'
+
+
+    testRuntimeOnly 'org.slf4j:slf4j-simple'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+}
+
+test {
+    useJUnitPlatform()
+
+    // This environment variable is used to construct links to services running in testcontainers
+    // In a default setup, this defaults to 'localhost', but we need a host that resolves from both the
+    // junit-platform-runner and from within other containers to the same mapped docker container ports
+    // Suggestions:
+    // - using Linux, set this to the docker0 bridge gateway ip address, usually 172.17.0.1
+    // - using Windows: try 'gateway.docker.internal'
+    environment('TESTCONTAINERS_HOST_OVERRIDE', '172.17.0.1')
+
+    if (project.findProperty('disableDockerRegistryCache') ?: false) {
+        systemProperty 'contentgrid.registryCache.disabled', 'true'
+    }
+}
+
