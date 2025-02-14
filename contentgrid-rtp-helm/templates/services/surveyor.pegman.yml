@@ -128,8 +128,7 @@ spec:
     name: {{ .Values.secretStoreName }}
   dataFrom:
     - extract:
-        key: name:surveyor-scaleway-token
-        version: latest_enabled
+        key: {{ .Values.surveyor.pegman.systems.secretKey }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

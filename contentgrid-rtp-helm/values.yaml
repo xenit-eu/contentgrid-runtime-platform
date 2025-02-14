@@ -43,6 +43,8 @@ surveyor:
               - port: "443"
                 protocol: TCP
       {{- end }}
+    systems:
+      secretKey: name:surveyor-scaleway-token
 #    scaleway:
 #      region: fr-par
 #      token:
@@ -63,6 +65,8 @@ development: true
 
 keycloak:
   host: ~
+  db:
+    secretKey: path:/rtp/keycloak-db-password
 
 certificates:
   defaultIssuer: letsencrypt-production
