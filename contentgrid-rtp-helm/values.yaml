@@ -1,3 +1,5 @@
+ingressClassName: nginx
+
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:18731ace0d9993fd8d3ec56d7a239e5bb42e52d56bea8e09b292226c67a30f5a
 tokenmonger:
@@ -65,6 +67,7 @@ development: true
 
 keycloak:
   host: ~
+  protocol: https
   db:
     secretKey: path:/rtp/keycloak-db-password
 

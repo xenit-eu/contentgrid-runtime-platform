@@ -69,7 +69,8 @@ class HelmIntegrationTest {
                         "keycloak.host", "auth.contentgrid.test",
                         "surveyor.pegman.host", "metrics.contentgrid.test",
                         "tokenmonger.host", "extensions.contentgrid.test",
-                        "solon.image", "ghcr.io/xenit-eu/contentgrid-solon:0.0.1-SNAPSHOT"
+                        "ingressClassName", "",
+                        "keycloak.protocol", "http"
                 )));
 
         K8sTestUtils.waitUntilDeploymentsReady(10 * 60,
