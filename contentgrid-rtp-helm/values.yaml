@@ -70,6 +70,7 @@ keycloak:
   protocol: https
   db:
     secretKey: path:/rtp/keycloak-db-password
+  extraRealms: {}
 
 certificates:
   defaultIssuer: letsencrypt-production

@@ -9,16 +9,24 @@ import com.contentgrid.junit.jupiter.helm.HelmClient;
 import com.contentgrid.junit.jupiter.k8s.K8sTestUtils;
 import com.contentgrid.junit.jupiter.k8s.KubernetesTestCluster;
 import com.contentgrid.junit.jupiter.k8s.providers.K3sCiliumDefaultDenyCoreDNSClusterProvider;
+import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+
+
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io")
@@ -39,7 +47,7 @@ class HelmIntegrationTest {
             .withUsername("keycloak")
             .withPassword("keycloak");
 
-    static KubernetesClient client;
+    static KubernetesClient kubernetesClient;
 
     static ClusterSecretStore fakeClusterSecretStore;
 
@@ -70,18 +78,35 @@ class HelmIntegrationTest {
                         "surveyor.pegman.host", "metrics.contentgrid.test",
                         "tokenmonger.host", "extensions.contentgrid.test",
                         "ingressClassName", "",
-                        "keycloak.protocol", "http"
-                )));
+                        "keycloak.protocol", "http")),
+                InstallOption.values(Map.of(
+                        "keycloakx.extraEnv",
+                            """
+                                - name: KEYCLOAK_ADMIN
+                                  value: "admin"
+                                - name: KEYCLOAK_ADMIN_PASSWORD
+                                  value: "admin"
+                                - name: JAVA_OPTS_APPEND
+                                  value: >-
+                                    -XX:+UseContainerSupport
+                                    -XX:MaxRAMPercentage=50.0
+                                    -Djava.awt.headless=true
+                                    -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+                                """
+                )),
+                InstallOption.arguments("--set-file", "keycloak.extraRealms.apprealm\\.json="+
+                        Path.of("src/test/resources/keycloak/apprealm.json").toAbsolutePath().normalize()));
 
         K8sTestUtils.waitUntilDeploymentsReady(10 * 60,
                 List.of("gateway", "liaison", "navigator", "pathfinder", "pathfinder-for-webapp",
                         "slingshot", "surveyor-cgapp-api-exporter", "surveyor-pegman",
-                        "surveyor-postgres-exporter", "solon" ,"tokenmonger"), client);
+                        "surveyor-postgres-exporter", "solon" ,"tokenmonger"), kubernetesClient);
     }
 
 
     @Test
-    void testHelm() {
+    void testHelm() throws UnknownHostException {
 
     }
+
 }

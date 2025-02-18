@@ -10,7 +10,6 @@ java {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -27,7 +26,6 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'io.fabric8:kubernetes-junit-jupiter'
-
 
     testRuntimeOnly 'org.slf4j:slf4j-simple'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
