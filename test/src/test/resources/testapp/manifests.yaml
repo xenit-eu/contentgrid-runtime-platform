@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    prometheus.io/path: actuator/prometheus
+    prometheus.io/port: "8081"
+    prometheus.io/scrape: "true"
+  labels:
+    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/deployment-request-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
+    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+  name: api-d-7631ce24-4843-4661-814a-19fea8f0b470
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+      app.contentgrid.com/service-type: api
+      app.kubernetes.io/managed-by: contentgrid
+      captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+        app.contentgrid.com/service-type: api
+        app.kubernetes.io/managed-by: contentgrid
+        captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/etc/app/config/*/
+        - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
+          value: 7631ce24-4843-4661-814a-19fea8f0b470
+        - name: CONTENTGRID_SYSTEM_APPLICATIONID
+          value: 3e5ad186-1fe3-40d5-8891-404571597e30
+        - name: CONTENTGRID_SYSTEM_POLICYPACKAGE
+          value: contentgrid.userapps.x7631ce2448434661814a19fea8f0b470
+        - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
+          value: http://api-d-7631ce24-4843-4661-814a-19fea8f0b470.default.svc.cluster.local:8081/actuator/webhooks
+        image: ghcr.io/xenit-eu/contentgrid-rtp-test-app:latest
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: api
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 8081
+          name: management
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 768Mi
+          requests:
+            cpu: 5m
+            memory: 64Mi
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+            scheme: HTTP
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/app/config/runtime
+          name: rtp-shared-config
+          readOnly: true
+        - mountPath: /etc/app/config/db
+          name: app-db-secrets
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      initContainers:
+      - env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/etc/app/config/*/
+        - name: SPRING_PROFILES_ACTIVE
+          value: initContainer
+        - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
+          value: 7631ce24-4843-4661-814a-19fea8f0b470
+        - name: CONTENTGRID_SYSTEM_APPLICATIONID
+          value: 3e5ad186-1fe3-40d5-8891-404571597e30
+        image: ghcr.io/xenit-eu/contentgrid-rtp-test-app:latest
+        imagePullPolicy: IfNotPresent
+        name: api-initcontainer
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/app/config/runtime
+          name: rtp-shared-config
+          readOnly: true
+        - mountPath: /etc/app/config/db
+          name: app-db-secrets
+          readOnly: true
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: runtime-platform-config
+          optional: true
+        name: rtp-shared-config
+      - name: app-db-secrets
+        secret:
+          defaultMode: 420
+          secretName: 3e5ad186-1fe3-40d5-8891-404571597e30-db

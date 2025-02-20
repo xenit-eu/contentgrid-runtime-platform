@@ -70,7 +70,7 @@ data:
         com.contentgrid.solon: DEBUG
     solon:
       kubernetes:
-        namespace: default
+        namespace: {{ .Values.userapps.namespace }}
 ---
 apiVersion: v1
 kind: Service
