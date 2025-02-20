@@ -26,6 +26,9 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'io.fabric8:kubernetes-junit-jupiter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-oauth2-client'
+    testImplementation 'org.apache.httpcomponents.client5:httpclient5'
 
     testRuntimeOnly 'org.slf4j:slf4j-simple'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

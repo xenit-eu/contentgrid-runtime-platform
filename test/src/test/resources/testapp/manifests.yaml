@@ -143,3 +143,61 @@ spec:
         secret:
           defaultMode: 420
           secretName: 3e5ad186-1fe3-40d5-8891-404571597e30-db
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    authz.contentgrid.com/policy-package: contentgrid.userapps.x7631ce2448434661814a19fea8f0b470
+  labels:
+    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/deployment-request-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
+    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+  name: api-d-7631ce24-4843-4661-814a-19fea8f0b470
+spec:
+  #  clusterIP: 10.35.236.33
+  #  clusterIPs:
+  #  - 10.35.236.33
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+    - name: management
+      port: 8081
+      protocol: TCP
+      targetPort: management
+  selector:
+    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
+    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: v1
+data:
+  contentgrid.cors.origins: ""
+  contentgrid.routing.domains: "3e5ad186-1fe3-40d5-8891-404571597e30.apps.contentgrid.test"
+kind: ConfigMap
+metadata:
+  #  annotations:
+  #    cert-manager.io/cluster-issuer: gcloud-ca-production
+  finalizers:
+    - pathfinder.contentgrid.com/ingress
+  labels:
+    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/service-type: gateway
+    app.kubernetes.io/managed-by: contentgrid
+    captain.contentgrid.com/resource-id: b83bc515-65ff-45b9-84cd-05fa002104dd
+  name: b83bc515-65ff-45b9-84cd-05fa002104dd-gw

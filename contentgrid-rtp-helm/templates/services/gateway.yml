@@ -337,4 +337,4 @@ spec:
         - matchName: "{{ .Values.tokenmonger.host }}"
       toPorts:
         - ports:
-            - port: "443"
+            - port: {{ if eq .Values.keycloak.protocol "http" }} "80" {{ else }} "443" {{ end }}
