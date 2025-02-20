@@ -1,6 +1,6 @@
 package com.contentgrid.platform.runtime.helm;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.contentgrid.helm.Helm;
