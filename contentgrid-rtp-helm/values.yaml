@@ -3,7 +3,7 @@ ingressClassName: nginx
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:18731ace0d9993fd8d3ec56d7a239e5bb42e52d56bea8e09b292226c67a30f5a
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:06e9a470fc7778d3339c5f8534789a39b4b5f56f1adcea15d03717b030790ae5
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:30f4af648a8dcf0edaa6e278506d2acb7c96e7029fa19b5519a1f3aa33bbc961
   host: ~
 opa:
   image: docker.io/openpolicyagent/opa:0.70.0
