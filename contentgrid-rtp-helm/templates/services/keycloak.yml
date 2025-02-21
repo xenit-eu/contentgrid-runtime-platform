@@ -16,7 +16,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingressClassName }}
   rules:
   - host: {{ .Values.keycloak.host }}
     http:
@@ -40,6 +40,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
 {{ (.Files.Glob "definitions/keycloak-realm-*.json").AsConfig | indent 2}}
+
+{{- range $key, $value := .Values.keycloak.extraRealms }}
+  {{ $key }}: |-
+{{ $value | indent 4 }}
+{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -112,3 +117,25 @@ spec:
             - port: "2465"
               protocol: TCP
 {{ end }}
+---
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: keycloak-database
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/component: keycloak
+    app.kubernetes.io/part-of: contentgrid-runtime
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  secretStoreRef:
+    name: {{ .Values.secretStoreName }}
+    kind: ClusterSecretStore
+  target:
+    name: {{ .Values.keycloakx.database.existingSecret }}
+    creationPolicy: Owner
+  data:
+    - secretKey: password
+      remoteRef:
+        key: {{ .Values.keycloak.db.secretKey }}

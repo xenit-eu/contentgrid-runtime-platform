@@ -44,7 +44,7 @@ spec:
               port: 8081
           env:
             - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER'
-              value: 'https://{{ .Values.keycloak.host }}/realms/extensions'
+              value: '{{ .Values.keycloak.protocol }}://{{ .Values.keycloak.host }}/realms/extensions'
             - name: 'CONTENTGRID_CONFIGURATION_DISCOVERY_KUBERNETES_NAMESPACE'
               value: '{{ .Values.userapps.namespace }}'
             - name: 'TOKENMONGER_HOST'
@@ -154,7 +154,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ $.Values.ingressClassName }}
   rules:
   - host: {{ . }}
     http:
@@ -262,7 +262,7 @@ spec:
         - matchName: "{{ .Values.keycloak.host }}"
       toPorts:
         - ports:
-            - port: "443"
+            - port: {{ if eq .Values.keycloak.protocol "http" }} "80" {{ else }} "443" {{ end }}
 ---
 apiVersion: v1
 kind: ServiceAccount

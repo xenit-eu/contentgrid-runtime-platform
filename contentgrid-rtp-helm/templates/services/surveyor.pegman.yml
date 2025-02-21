@@ -128,8 +128,7 @@ spec:
     name: {{ .Values.secretStoreName }}
   dataFrom:
     - extract:
-        key: name:surveyor-scaleway-token
-        version: latest_enabled
+        key: {{ .Values.surveyor.pegman.systems.secretKey }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -187,7 +186,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ $.Release.Service }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingressClassName }}
   rules:
   - host: {{ .Values.surveyor.pegman.host }}
     http:
