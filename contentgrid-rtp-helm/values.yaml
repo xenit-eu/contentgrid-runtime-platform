@@ -116,8 +116,6 @@ keycloakx:
     relativePath: /
   service:
     httpPort: 8080
-  extraPorts:
-    - containerPort: 7800
   extraInitContainers: |
     - name: theme-provider
       image: ghcr.io/xenit-eu/contentgrid-keycloak-themes:0.0.1-snapshot
