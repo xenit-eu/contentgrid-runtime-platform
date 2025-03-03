@@ -68,10 +68,10 @@ spec:
       port: 8080
     - protocol: TCP
       port: 8443
-    {{ range $.Values.keycloakx.extraPorts }}
-    - protocol: {{ default "TCP" .protocol }}
-      port: {{ .containerPort }}
-    {{- end }}
+    - port: 7800
+      protocol: TCP
+    - port: 57800
+      protocol: TCP
   egress:
   - to:
     - ipBlock:
@@ -92,6 +92,8 @@ spec:
           app.kubernetes.io/name: keycloakx
     ports:
     - port: 7800
+      protocol: TCP
+    - port: 57800
       protocol: TCP
 ---
 apiVersion: cilium.io/v2
