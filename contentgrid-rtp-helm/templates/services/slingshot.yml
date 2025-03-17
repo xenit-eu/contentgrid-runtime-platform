@@ -36,7 +36,9 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
+          {{ if not .Values.slingshot.debug -}}
           {{- include "contentgrid.probes" "management" | indent 10 }}
+          {{- end }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'configtree:/etc/slingshot/*/'
@@ -44,6 +46,10 @@ spec:
               value: '8081'
             - name: 'MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE'
               value: 'health,info,prometheus,metrics'
+            {{ if .Values.slingshot.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
           volumeMounts:
             - name: slingshot-config-volume
               mountPath: /etc/slingshot/application
