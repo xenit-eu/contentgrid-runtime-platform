@@ -38,10 +38,16 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
+          {{ if not .Values.surveyor.cgappApiExporter.debug -}}
           {{- include "contentgrid.probes" "management" | indent 10 }}
+          {{- end }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/surveyor/application.yml,configtree:/etc/surveyor/*/'
+            {{ if .Values.surveyor.cgappApiExporter.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
           volumeMounts:
             - name: surveyor-config-volume
               mountPath: /etc/surveyor/

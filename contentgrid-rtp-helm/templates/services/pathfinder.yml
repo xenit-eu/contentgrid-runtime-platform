@@ -36,12 +36,18 @@ spec:
           ports:
             - name: management
               containerPort: 8080
+          {{ if not .Values.pathfinder.debug -}}
           {{- include "contentgrid.probes" "management" | indent 10 }}
+          {{- end }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pathfinder/application.yml'
             - name: 'SPRING_PROFILES_ACTIVE'
               value: 'api'
+            {{ if .Values.pathfinder.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
           volumeMounts:
             - name: pathfinder-config-volume
               mountPath: /etc/pathfinder/

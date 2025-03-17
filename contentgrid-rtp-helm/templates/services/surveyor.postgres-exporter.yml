@@ -38,12 +38,18 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
+          {{ if not .Values.surveyor.postgresExporter.debug -}}
           {{- include "contentgrid.probes" "management" | indent 10 }}
+          {{- end }}
           env:
             - name: 'MANAGEMENT_SERVER_PORT'
               value: '8081'
             - name: 'SURVEYOR_EXPORTER_KUBERNETES_NAMESPACE'
               value: '{{ .Values.userapps.namespace }}'
+            {{ if .Values.surveyor.postgresExporter.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
       enableServiceLinks: false
       serviceAccountName: surveyor-postgres-exporter-serviceaccount
       automountServiceAccountToken: true

@@ -34,6 +34,7 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
+          {{ if not .Values.tokenmonger.debug -}}
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -42,6 +43,7 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: 8081
+          {{- end }}
           env:
             - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER'
               value: '{{ .Values.keycloak.protocol }}://{{ .Values.keycloak.host }}/realms/extensions'
@@ -51,6 +53,10 @@ spec:
               value: '{{ .Values.tokenmonger.host }}'
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/tokenmonger/application.yml,configtree:/etc/tokenmonger/config/*/'
+            {{ if .Values.tokenmonger.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
           volumeMounts:
             - name: tokenmonger-config
               mountPath: /etc/tokenmonger/

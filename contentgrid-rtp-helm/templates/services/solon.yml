@@ -37,10 +37,16 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
+          {{ if not .Values.solon.debug -}}
           {{- include "contentgrid.probes" "management" | indent 10 }}
+          {{- end }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/solon/application.yml'
+            {{ if .Values.solon.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
           volumeMounts:
             - name: solon-config-volume
               mountPath: /etc/solon/
