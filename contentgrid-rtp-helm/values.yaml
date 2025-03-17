@@ -13,6 +13,7 @@ slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:f6ff45072af005a27d1cc7c060cea8d62f2d04c85f3adcfb8108569bb9d84a3e
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:75a15a285d04e7e6900ed07428ec1c0e117816fc00fdc84542beafe92b1a27ab
+  debug: false
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:db9f98847e6ae93af39542ecfd8c48c2b9d9220eb616f92fd18ae5578ad3ced7
 navigator:
@@ -52,6 +53,7 @@ surveyor:
 #      token:
   postgresExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:9d2ea45e4bf7dd259894610ca92d7eca20a1d9e06fe40575eaf7f0f9d303de82
+    debug: false
   cgappApiExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:ba01962c8bfd0455291ddc5bd40ef1be993071dc2bb2d412ac14ca733607b118
 
