@@ -38,10 +38,16 @@ spec:
               containerPort: 8080
             - name: management
               containerPort: 8081
+          {{ if not .Values.surveyor.pegman.debug -}}
           {{- include "contentgrid.probes" "management" | indent 10 }}
+          {{- end }}
           env:
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/pegman/config/application.yml,configtree:/etc/pegman/config/*/'
+            {{ if .Values.surveyor.pegman.debug -}}
+            - name: 'JAVA_TOOL_OPTIONS'
+              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+            {{- end }}
           volumeMounts:
             - name: pegman-config
               mountPath: /etc/pegman/config

@@ -24,6 +24,7 @@ surveyor:
   pegman:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:a654b20019bdf14597be34fc6cd594c90534f2a0985ee678f5cc749d50a605fd
     host: ~
+    debug: false
     extraConfig: |
       {{- with .Values.surveyor.pegman.scaleway }}
       surveyor.systems.prometheus.scaleway-metrics.name: runtime
@@ -56,6 +57,7 @@ surveyor:
     debug: false
   cgappApiExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:ba01962c8bfd0455291ddc5bd40ef1be993071dc2bb2d412ac14ca733607b118
+    debug: false
 
 userapps:
   namespace: default
