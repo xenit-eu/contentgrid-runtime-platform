@@ -61,7 +61,7 @@ surveyor:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:f4e0525c431ed7c8205d8056530c18f16fb0800ea55782a92060faa6dd56089d
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:ba01962c8bfd0455291ddc5bd40ef1be993071dc2bb2d412ac14ca733607b118
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:5665225be3005e8d9f5c8d8ad473f0488c7aabd6f125cb2e2529c14eac38951c
     debug: false
 
 userapps:
