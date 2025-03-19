@@ -19,7 +19,7 @@ pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:75a15a285d04e7e6900ed07428ec1c0e117816fc00fdc84542beafe92b1a27ab
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:228d9887d16b503a985e7ac20da7eaa05a1a65e6ec1e3ee99d05333e11313b29
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:6ad98840b2b82842a72cbc50590cc9c75ce11affe2340cad4684ec7a3f075e88
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:92d3b21bb806573095725dd71a6b77139240222226bae48014a7583b456472d1
