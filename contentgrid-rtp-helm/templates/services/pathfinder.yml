@@ -141,7 +141,7 @@ data:
                     {{- with .Values.certificates.defaultIssuer }}
                         - '{{ . }}'
                     {{- end }}
-                    {{- range (keys (.Values.certificates.issuers | default dict)) }}
+                    {{- range (keys (.Values.certificates.issuers | default dict) | sortAlpha) }}
                         - '{{ . }}'
                     {{- end }}
             {{- with .Values.userapps.defaultDomainSuffix }}
