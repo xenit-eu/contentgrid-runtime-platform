@@ -22,7 +22,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:68b87f5a60854ecbc3639218e7bbc891662b8a22cb052ef9ff466fb94fe0f855
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:302ed0d101ba1cdae7bda7b235aaedcaa356dc3a9da0dcc5752bada6bc7aece0
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:91a20c655137b7e7392feedc6457cf1d99ff467876027e5cc8113e0836e038fb
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:3b9b2a15d376334da8c286d995777d3b9315aa666d2311170ada6059a517b74f
