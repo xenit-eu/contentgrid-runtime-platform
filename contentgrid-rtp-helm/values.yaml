@@ -4,7 +4,7 @@ gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:9d949bd57e936f40f8cb592f5ffc573e4e906597d58e314a43baf95359bb7939
   debug: false
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:506d0b450b53e6742dc140a30ce16a814fb4a0ed55c1fab879afc53d3c7b14f2
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:6d842a6f3d02166d2cb2373591c9060f1fe3edc324ac24651738ae0466fd29f6
   host: ~
   debug: false
 opa:
