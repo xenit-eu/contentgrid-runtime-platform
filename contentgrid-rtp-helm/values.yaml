@@ -10,7 +10,7 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:0.70.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:1e0cac98fe7edf406bcea0a4f085746c407180ef8cb5cb74b1df61de1edfc7ad
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:888b29d3d18bf0fa681938bcc658d3a1feda60c7505dace764d6cd735a65ee40
   debug: false
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:d946fc785b10ce838baa3acbda417fa97d51693cc06927298473fe72ff66bad1
