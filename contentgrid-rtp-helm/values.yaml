@@ -13,7 +13,7 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:888b29d3d18bf0fa681938bcc658d3a1feda60c7505dace764d6cd735a65ee40
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:d946fc785b10ce838baa3acbda417fa97d51693cc06927298473fe72ff66bad1
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:2b03ef7b0fc062b0a8eb05ecbdc98078a1b8daeafe7734028f07b82599b8e2a7
   debug: false
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:03cdd30733cdb85cadffccbde79348f28f843c84fcffcb1ea31c7700dd8cb7e9
