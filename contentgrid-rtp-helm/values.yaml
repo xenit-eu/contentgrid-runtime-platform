@@ -16,7 +16,7 @@ slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:2b03ef7b0fc062b0a8eb05ecbdc98078a1b8daeafe7734028f07b82599b8e2a7
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:03cdd30733cdb85cadffccbde79348f28f843c84fcffcb1ea31c7700dd8cb7e9
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:7ef208b52970ef797c1733f8d9e6ee259f31a48d3b782e1c470fbf2874852c7d
   debug: false
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:c3433f4aaada13cfd337b5857f85460290b9bdee4de7af69036a126a54e817ed
