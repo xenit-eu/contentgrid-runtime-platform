@@ -1,7 +1,7 @@
 ingressClassName: nginx
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:fd19daf350369440bd12b99f8095947f8a31e7d1506d7ac36ee8f44217051f8b
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:b44b3b937e92835623be781ed9127d242bbd2296a303d4b61219cc3972a3afb8
   debug: false
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:fdc2fe254f450e944ecd966625ada5c769cae7ccff7b1c3d3349640142aca1d3
