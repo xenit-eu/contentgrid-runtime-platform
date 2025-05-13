@@ -9,17 +9,9 @@
         "docker"
       ],
       "matchPackageNames": [
-        "ghcr.io/xenit-eu/contentgrid-gateway",
-        "ghcr.io/xenit-eu/contentgrid-tokenmonger",
-        "ghcr.io/xenit-eu/contentgrid-solon",
-        "ghcr.io/xenit-eu/contentgrid-slingshot",
-        "ghcr.io/xenit-eu/contentgrid-pathfinder",
-        "ghcr.io/xenit-eu/contentgrid-liaison",
-        "ghcr.io/xenit-eu/contentgrid-navigator",
-        "ghcr.io/xenit-eu/contentgrid-surveyor-pegman",
-        "ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres",
-        "ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api"
+        "ghcr.io/xenit-eu/contentgrid-*",
       ],
+      "groupName": "contentgrid",
       "pinDigests": true,
       "automerge": true
     },
