@@ -2,7 +2,9 @@ name: 'Integration Tests'
 on:
   push:
 
-
+concurrency:
+  group: ${{ github.triggering_actor == 'renovate[bot]' && 'renovate' || github.run_id }}
+  
 defaults:
   run:
     working-directory: ./test
@@ -20,6 +22,9 @@ jobs:
           distribution: liberica
           java-version: 17
           cache: gradle
+      - name: "Print actor"
+        run: echo "${{ github.triggering_actor }}"
+
       - name: Login to docker.contentgrid.com
         run: echo "${{ secrets.CLOUDSMITH_APIKEY }}" | docker login docker.contentgrid.com --username "${{ secrets.CLOUDSMITH_USER }}" --password-stdin
       - name: Test
