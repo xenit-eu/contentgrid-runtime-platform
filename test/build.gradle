@@ -19,8 +19,9 @@ dependencies {
     implementation platform("io.fabric8:kubernetes-client-bom:7.2.0")
 
 
-    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-junit-jupiter-k8s:0.0.3'
-    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-helm-client:0.0.3'
+    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-junit-jupiter-k8s:0.0.6'
+    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-helm-client:0.0.6'
+    testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-testcontainers-k3s-cilium:0.0.6'
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter'
