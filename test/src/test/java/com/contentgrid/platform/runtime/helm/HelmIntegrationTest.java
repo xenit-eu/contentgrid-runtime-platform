@@ -11,7 +11,9 @@ import com.contentgrid.junit.jupiter.externalsecrets.FakeSecretStore;
 import com.contentgrid.junit.jupiter.helm.HelmClient;
 import com.contentgrid.junit.jupiter.k8s.K8sTestUtils;
 import com.contentgrid.junit.jupiter.k8s.KubernetesTestCluster;
-import com.contentgrid.junit.jupiter.k8s.providers.K3sCiliumDefaultDenyCoreDNSClusterProvider;
+import com.contentgrid.junit.jupiter.k8s.providers.K3sTestcontainersClusterProvider;
+import com.contentgrid.platform.runtime.helm.HelmIntegrationTest.K3sCiliumWithMyCustomDNSProvider;
+import com.contentgrid.testcontainers.k3s.K3sCiliumContainer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
@@ -21,6 +23,7 @@ import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +46,7 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.MountableFile;
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io" )
@@ -50,10 +54,25 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DockerRegistryCache(name = "ghcr.io", proxy = "https://ghcr.io" )
 @DockerRegistryCache(name = "docker.contentgrid.com", proxy = "https://docker.contentgrid.com" )
 @Testcontainers
-@KubernetesTestCluster(providers = K3sCiliumDefaultDenyCoreDNSClusterProvider.class)
+@KubernetesTestCluster(providers = K3sCiliumWithMyCustomDNSProvider.class)
 @HelmClient
 @FakeSecretStore
 class HelmIntegrationTest {
+
+    //TODO: cleanup after refactoring helm-integration-testing
+    public static class K3sCiliumWithMyCustomDNSProvider extends K3sTestcontainersClusterProvider {
+        public  K3sCiliumWithMyCustomDNSProvider() {
+            super(new K3sCiliumContainer(K3sTestcontainersClusterProvider.IMAGE_RANCHER_K3S, true)
+                    .withClusterDomains(
+                            "auth.contentgrid.test",
+                            "metrics.contentgrid.test",
+                            "extensions.contentgrid.test"
+                    )
+                    .withCopyFileToContainer(MountableFile.forClasspathResource("k3s/cilium.yaml"),
+                            "/var/lib/rancher/k3s/server/manifests/cilium-default-deny.yaml")
+                    .withStartupTimeout(Duration.ofMinutes(15)));
+        }
+    }
 
     static Helm helm;
 
