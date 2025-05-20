@@ -59,6 +59,7 @@ import org.testcontainers.utility.MountableFile;
 class HelmIntegrationTest {
 
     //TODO: cleanup after refactoring helm-integration-testing
+    @Slf4j
     public static class K3sCiliumWithMyCustomDNSProvider extends K3sTestcontainersClusterProvider {
         public  K3sCiliumWithMyCustomDNSProvider() {
             super(new K3sCiliumContainer(K3sTestcontainersClusterProvider.IMAGE_RANCHER_K3S, true)
@@ -69,7 +70,18 @@ class HelmIntegrationTest {
                     )
                     .withCopyFileToContainer(MountableFile.forClasspathResource("k3s/cilium.yaml"),
                             "/var/lib/rancher/k3s/server/manifests/cilium-default-deny.yaml")
-                    .withStartupTimeout(Duration.ofMinutes(15)));
+                    .withStartupTimeout(Duration.ofMinutes(15))
+                    .withLogConsumer(output -> {
+                        var logger = switch(output.getType()) {
+                            case STDOUT -> log.atInfo();
+                            case STDERR -> log.atError();
+                            case END -> null;
+                        };
+                        if(logger != null) {
+                            logger.log(output::getUtf8StringWithoutLineEnding);
+                        }
+                    })
+            );
         }
     }
 
