@@ -24,7 +24,7 @@ jobs:
     needs: [build]
     name: publish
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag'
+    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,5 +39,6 @@ jobs:
       - name: Package & publish
         run: |
           chart_version=${GITHUB_REF#refs/tags/v}
+          chart_version=${chart_version#refs/heads/}
           helm package contentgrid-rtp-helm --dependency-update --version "$chart_version"
           helm push "contentgrid-rtp-helm-${chart_version}.tgz" oci://ghcr.io/xenit-eu
