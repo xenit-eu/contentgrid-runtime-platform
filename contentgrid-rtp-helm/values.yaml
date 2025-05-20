@@ -6,6 +6,7 @@ gateway:
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:e98a9e47e6606b309dc21486753aea9f6984137cdc503005d3a2307fc7e6709f
   host: ~
+  protocol: https
   debug: false
 opa:
   image: docker.io/openpolicyagent/opa:0.70.0

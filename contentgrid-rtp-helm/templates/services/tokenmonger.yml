@@ -50,7 +50,7 @@ spec:
             - name: 'CONTENTGRID_CONFIGURATION_DISCOVERY_KUBERNETES_NAMESPACE'
               value: '{{ .Values.userapps.namespace }}'
             - name: 'TOKENMONGER_HOST'
-              value: '{{ .Values.tokenmonger.host }}'
+              value: '{{ .Values.tokenmonger.protocol }}://{{ .Values.tokenmonger.host }}'
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/tokenmonger/application.yml,configtree:/etc/tokenmonger/config/*/'
             {{ if .Values.tokenmonger.debug -}}
@@ -115,15 +115,15 @@ data:
         user-application-access:
           jwk-set-uri: http://gateway-jwks/actuator/jwks/authentication
         user-extension-access:
-          issuer: https://${tokenmonger.host}/authentication/external
+          issuer: '${tokenmonger.host}/authentication/external'
           active-signing-keys: file:/etc/tokenmonger/keys/jwt-external/active-*.pem
           retired-signing-keys: file:/etc/tokenmonger/keys/jwt-external/*.pem
         extension-delegated-application-access:
-          issuer: https://${tokenmonger.host}/authentication/delegated
+          issuer: '${tokenmonger.host}/authentication/delegated'
           active-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/active-*.pem
           retired-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/*.pem
         extension-application-access:
-          issuer: https://${tokenmonger.host}/authentication/system
+          issuer: '${tokenmonger.host}/authentication/system'
           active-signing-keys: file:/etc/tokenmonger/keys/jwt-system/active-*.pem
           retired-signing-keys: file:/etc/tokenmonger/keys/jwt-system/*.pem
 ---
