@@ -52,7 +52,6 @@ import org.testcontainers.utility.MountableFile;
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io" )
 @DockerRegistryCache(name = "quay.io", proxy = "https://quay.io" )
 @DockerRegistryCache(name = "ghcr.io", proxy = "https://ghcr.io" )
-@DockerRegistryCache(name = "docker.contentgrid.com", proxy = "https://docker.contentgrid.com" )
 @Testcontainers
 @KubernetesTestCluster(providers = K3sCiliumWithMyCustomDNSProvider.class)
 @HelmClient

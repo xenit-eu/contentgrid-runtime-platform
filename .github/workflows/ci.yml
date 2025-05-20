@@ -18,15 +18,13 @@ jobs:
           distribution: liberica
           java-version: 17
           cache: gradle
-      - name: Login to docker.contentgrid.com
-        run: echo "${{ secrets.CLOUDSMITH_APIKEY }}" | docker login docker.contentgrid.com --username "${{ secrets.CLOUDSMITH_USER }}" --password-stdin
       - name: Test
         run: ./gradlew check --info -PdisableDockerRegistryCache=true
   publish:
     needs: [build]
     name: publish
     runs-on: ubuntu-latest
-    if: github.ref_type == "tag"
+    if: github.ref_type == 'tag'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
