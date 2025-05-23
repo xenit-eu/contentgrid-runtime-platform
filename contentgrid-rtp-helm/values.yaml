@@ -14,7 +14,7 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:4785ed6348e94425a34d01f05c86017a4b1c3e65a29a173b20ca67d131d36a43
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:af2179ae5fa7007110e579763e8dc7a4b99dc72c933474c96972fefa18c07be1
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:83a77a5716c8e2727e1c77571812cd766f4a575d8191d9031dad4f41f576345b
   debug: false
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:ddb15cbf4a1f2f00b4905f3a56b3b65c9cd915f163773fca0144615e69c80ad9
@@ -23,12 +23,12 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:f2ef3ae7fcd98012410fa67ef7b4ab2696d7672406947ac89bde9be84f6eaebd
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:194596474a853cb9850e0fff0ac49062a03e428579c16cfa89daad3bb774c88d
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:bac324bbb116f5fad05ac10a3063e71933311b438b97a69cd192efe5d8917835
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:78ed1f9050eb9eaf766af6e580230b1c4965728650e332cd1ee918c0c4699775
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:02c65c1658222e0f58a1e3e200d0b57168ebc1c9f4d689cb8e5ebc7d215ae39c
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:468c90b739758c46b0c799c1fff8bbe0f979129e1b7e13e16bbde35504deeea1
     host: ~
     debug: false
     extraConfig: |
@@ -59,7 +59,7 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:8d29b446863a8d4acfce9b84caaed4fa417f817a8f0aba7e5e6db8059af55c6f
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:bda19999e710ad52b26416f7f039e2906fcdcf486932b4f7e8894b6170bec7c3
     debug: false
   cgappApiExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:82f8f68b7227fd238ca8ecd28c051eef2864db5b81dd08fb69d725ba38364665
