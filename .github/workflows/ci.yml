@@ -40,4 +40,4 @@ jobs:
         run: |
           chart_version=${GITHUB_REF#refs/tags/v}
           helm package contentgrid-rtp-helm --dependency-update --version "$chart_version"
-          helm publish "contentgrid-rtp-helm-${chart_version}.tgz" oci://ghcr.io/xenit-eu
+          helm push "contentgrid-rtp-helm-${chart_version}.tgz" oci://ghcr.io/xenit-eu
