@@ -14,8 +14,7 @@ data:
   spring.datasource.hikari.minimum-idle: "0"
 {{- if default true .Values.rabbitmq.enabled }}
   spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
-  spring.rabbitmq.username: guest
-  spring.rabbitmq.password: guest
+  spring.rabbitmq.username: apps
   spring.rabbitmq.template.exchange: 'contentgrid.apps'
   contentgrid.audit.messaging.source: "https://{{ required "userapps.defaultDomainSuffix is required" .Values.userapps.defaultDomainSuffix }}"
   contentgrid.audit.messaging.destination: 'contentgrid.audit'
