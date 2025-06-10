@@ -140,6 +140,22 @@ rules:
     - slingshot-rabbitmq
     - surveyor-cgapp-api-exporter-rabbitmq
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Values.userapps.namespace }}
+  name: setup-rabbitmq-role
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - get
+    - patch
+  resourceNames:
+    - runtime-platform-config
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -162,6 +178,20 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: setup-rabbitmq-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: setup-rabbitmq-role-binding
+  namespace: {{ .Values.userapps.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: setup-rabbitmq-role
+subjects:
+- kind: ServiceAccount
+  name: setup-rabbitmq-sa
+  namespace: {{ .Release.Namespace }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -193,6 +223,23 @@ data:
           kubectl patch secret $secret --patch-file=/dev/stdin
       fi
     done
+
+    if [ -z "$(kubectl get --namespace {{ .Values.userapps.namespace }} configmap runtime-platform-config -o jsonpath='{.data.spring\.rabbitmq\.password}')" ]; then
+      username="$(kubectl get --namespace {{ .Values.userapps.namespace }} configmap runtime-platform-config  -o jsonpath='{.data.spring\.rabbitmq\.username}')"
+      generated_pwd="$(openssl rand -base64 30)"
+
+      echo "$generated_pwd" | jq -R '{ password: ., tags: [] }' | \
+        curl -u user:"$RABBITMQ_PASSWORD" \
+          --fail-with-body \
+          --silent \
+          -X PUT \
+          --json @- \
+          http://rabbitmq:15672/api/users/$username
+
+      echo "$generated_pwd" | jq -R '{data : {"spring.rabbitmq.password": . } }' | \
+        kubectl patch --namespace {{ .Values.userapps.namespace }} configmap runtime-platform-config  --patch-file=/dev/stdin
+    fi
+
 
     # Set up definitions
     curl -u user:"$RABBITMQ_PASSWORD" \
