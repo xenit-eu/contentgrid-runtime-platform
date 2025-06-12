@@ -1,3 +1,4 @@
+{{ if .Values.rabbitmq.enabled }}
 # Sets up rabbitmq secrets before rabbitmq is installed
 # And loads rabbitmq definitions after rabbitmq is up and running
 ---
@@ -355,3 +356,4 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}

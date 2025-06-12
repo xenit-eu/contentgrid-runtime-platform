@@ -12,7 +12,7 @@ data:
   management.endpoints.web.exposure.include: '*'
   management.server.port: '8081'
   spring.datasource.hikari.minimum-idle: "0"
-{{- if default true .Values.rabbitmq.enabled }}
+{{- if .Values.rabbitmq.enabled }}
   spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
   spring.rabbitmq.username: apps
   spring.rabbitmq.template.exchange: 'contentgrid.apps'
