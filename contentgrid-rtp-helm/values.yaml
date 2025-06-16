@@ -154,6 +154,7 @@ keycloakx:
         name: keycloak-realms-import
 
 rabbitmq:
+  enabled: true
   fullnameOverride: rabbitmq
   enableServiceLinks: false
   resourcesPreset: medium

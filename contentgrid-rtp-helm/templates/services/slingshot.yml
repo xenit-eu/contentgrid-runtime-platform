@@ -1,3 +1,4 @@
+{{ if .Values.rabbitmq.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -206,3 +207,4 @@ spec:
               app.contentgrid.com/service-type: api
       ports:
         - port: 8081 # Access to management port only
+{{ end }}

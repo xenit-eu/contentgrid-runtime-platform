@@ -109,7 +109,7 @@ metadata:
     app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- if default true .Values.rabbitmq.enabled }}
+{{- if .Values.rabbitmq.enabled }}
 stringData:
   spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
   spring.rabbitmq.username: surveyor
