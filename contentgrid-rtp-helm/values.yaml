@@ -4,26 +4,26 @@ gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:f1ee2fa67e9ca70e97763e174d18c5e16116a669b89fade787245566be0e8f0a
   debug: false
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:c8104ca17669b9f0f977008b0d380e3db2e2c88ccc4f4ef48c7213c09605faff
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:ba177280b03708c46b758d8542ffd8d7072c8ebdb9a2fe5762978eec2da97f98
   host: ~
   protocol: https
   debug: false
 opa:
   image: docker.io/openpolicyagent/opa:0.70.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:091b4f421e004ee90437ea09a78d41dd999d284ccc75145d0ecec8a8cf61d5be
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:6881b42e44f738d5aa57c51fb7e59033dcb5da1095ff787f414dff587f2a3453
   debug: false
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:b372267e83dc791d3f6fc2bddd0272f586bbab0660eda2aab7085a000d484522
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:fcd4f9350620c69ad2012a3e895e52895f14ba21b8f9a6245126f18897456d04
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:6b0e090a907709404236a3c06697fb1c85c899d490ebb44cb5f27810bc034033
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:80ea0051b2cbcedade5ac3cb92d0761aad0b4c4cfd4c33e7c256da85c7afc688
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:c53c89a7a024d0cbf60b24def9737192cbc8b066b13625843bd99388d5d86a51
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:7e21ea8a377a07092c012651d4e271517b60b744fb0b04fb90caad67839966c8
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:8250c228035aa1df700c4ec49c73a5f9220904e44a3f8c2e51fe8e2f44054371
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:9abc6cf6aea7710d163dbb28d8eeb7dc5baef01e38fa4cd146a406dd9f07f70d
