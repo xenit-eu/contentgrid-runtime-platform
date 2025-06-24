@@ -122,6 +122,7 @@ subjects:
   name: surveyor-postgres-exporter-serviceaccount
   namespace: {{ .Release.Namespace }}
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -139,6 +140,7 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

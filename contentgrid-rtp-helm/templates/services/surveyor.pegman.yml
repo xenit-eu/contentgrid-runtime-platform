@@ -159,6 +159,7 @@ spec:
               app.kubernetes.io/name: prometheus
               app.kubernetes.io/component: surveyor
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 {{ with .Values.surveyor.pegman.extraCiliumNetworkPolicyEgress }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -176,6 +177,7 @@ spec:
       app.kubernetes.io/component: surveyor
   egress:
     {{- printf "\n%s" (tpl . $) | indent 4 -}}
+{{ end }}
 {{ end }}
 ---
 apiVersion: networking.k8s.io/v1
@@ -209,6 +211,7 @@ spec:
     hosts:
     - {{ .Values.surveyor.pegman.host }}
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -229,3 +232,4 @@ spec:
       toPorts:
         - ports:
             - port: "443"
+{{ end }}

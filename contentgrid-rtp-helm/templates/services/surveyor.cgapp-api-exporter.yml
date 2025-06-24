@@ -118,6 +118,7 @@ stringData:
   surveyor.exporter.rabbitmq.enabled: 'true'
 {{- end }}
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -138,6 +139,7 @@ spec:
           app.kubernetes.io/name: rabbitmq
           app.kubernetes.io/component: message-queue
           app.kubernetes.io/part-of: contentgrid-runtimeplatform
+{{ end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

@@ -102,6 +102,7 @@ spec:
       #    endPort: 6500
       #  - port: 25672
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -120,4 +121,5 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}
 {{ end }}

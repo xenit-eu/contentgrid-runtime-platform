@@ -163,6 +163,7 @@ subjects:
   name: liaison-serviceaccount
   namespace: {{ .Release.Namespace }}
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -180,3 +181,4 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}
