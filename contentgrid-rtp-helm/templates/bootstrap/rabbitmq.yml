@@ -106,6 +106,7 @@ spec:
           defaultMode: 0777
           name: initialize-rabbitmq-script
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 metadata:
@@ -121,6 +122,7 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -344,6 +346,7 @@ spec:
               app.kubernetes.io/name: rabbitmq
               app.kubernetes.io/component: message-queue
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
 metadata:
@@ -356,4 +359,5 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}
 {{ end }}

@@ -1,3 +1,4 @@
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -174,4 +175,5 @@ spec:
       ports:
         - port: {{ $db.port }}
     {{ end }}
+{{ end }}
 {{ end }}
