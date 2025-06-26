@@ -1,0 +1,37 @@
+secretStoreName: cg-rtp-scw-prod-secretstore
+
+userapps:
+  database:
+    - ip: 195.154.196.110
+      port: "16160"
+  defaultDomainSuffix: eu-west-1-drp.contentgrid.cloud
+
+surveyor:
+  pegman:
+    scaleway:
+      region: fr-par
+    host: metrics.eu-west-1-drp.contentgrid.cloud
+
+keycloak:
+  host: auth.eu-west-1-drp.contentgrid.cloud
+
+keycloakx:
+  database:
+    hostname: 51.159.205.115
+    port: "20965"
+  replicas: 2
+
+certificates:
+  defaultIssuer: letsencrypt-production
+  issuers:
+    letsencrypt-production: {}
+
+tokenmonger:
+  host: extensions.eu-west-1-drp.contentgrid.cloud
+
+liaison:
+  renditions:
+    uriTemplate: >-
+      https://renditions.eu-west-1-drp.contentgrid.cloud/renditions/get/pdf{?url}
+  extract:
+    baseUrl: https://extract.eu-west-1-drp.contentgrid.cloud/extract
