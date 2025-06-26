@@ -22,7 +22,7 @@ keycloakx:
   replicas: 2
 
 certificates:
-  defaultIssuer: gcloud-ca-production
+  defaultIssuer: letsencrypt-production
   issuers:
     gcloud-ca-production:
       acme:
