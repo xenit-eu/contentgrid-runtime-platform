@@ -1,0 +1,37 @@
+# This fake secretstore is deployed separately as fakesecretstore.json
+secretStoreName: xenit-fakesecretstore-ethias
+
+userapps:
+  database:
+    - ip: "10.106.3.165"
+      port: "5432"
+
+pathfinder:
+  disabled: true
+
+surveyor:
+  disabled: true
+
+rabbitmq:
+  enabled: false
+
+keycloak:
+  host: auth.ethias.contentgrid.example
+
+keycloakx:
+  database:
+    hostname: "10.106.3.165"
+    port: "5432"
+  replicas: 1 # we only have a single node, and nodeaffinity means the replicas won't be scheduled on the same one
+
+certificates:
+  issuers: []
+
+tokenmonger:
+  host: extensions.ethias.contentgrid.example
+
+liaison:
+  renditions:
+    uriTemplate: https://renditions.ethias.contentgrid.example/renditions/get/pdf{?url}
+  extract:
+    baseUrl: https://extract.ethias.contentgrid.example/extract
