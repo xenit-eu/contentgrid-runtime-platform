@@ -1,3 +1,4 @@
+{{ if not (default false .Values.surveyor.disabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -191,4 +192,5 @@ spec:
       ports:
         - port: {{ $db.port }}
     {{ end }}
+{{ end }}
 {{ end }}

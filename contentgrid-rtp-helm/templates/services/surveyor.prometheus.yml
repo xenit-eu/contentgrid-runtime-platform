@@ -1,3 +1,4 @@
+{{ if not (default false .Values.surveyor.disabled) }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -196,3 +197,4 @@ spec:
             matchLabels:
               app.kubernetes.io/name: pegman
               app.kubernetes.io/component: surveyor
+{{ end }}

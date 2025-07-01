@@ -1,3 +1,4 @@
+{{ if not (default false .Values.pathfinder.disabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -288,4 +289,5 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ end }}
 {{ end }}

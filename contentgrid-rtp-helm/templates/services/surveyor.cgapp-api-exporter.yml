@@ -1,3 +1,4 @@
+{{ if not (default false .Values.surveyor.disabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -163,3 +164,4 @@ spec:
             matchLabels:
               app.kubernetes.io/name: prometheus
               app.kubernetes.io/component: surveyor
+{{ end }}
