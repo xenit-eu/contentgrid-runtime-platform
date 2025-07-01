@@ -167,7 +167,6 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
-{{ end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -217,3 +216,4 @@ spec:
               app.contentgrid.com/service-type: api
       ports:
         - port: 8081 # Access to management port only
+{{ end }}
