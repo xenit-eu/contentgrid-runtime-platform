@@ -54,6 +54,8 @@ spec:
             - name: 'JAVA_TOOL_OPTIONS'
               value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
             {{- end }}
+            - name: SERVICE_BINDING_ROOT
+              value: /platform/bindings
           volumeMounts:
             - name: gateway-config-volume
               mountPath: /etc/gateway/
@@ -67,6 +69,8 @@ spec:
             - name: jwt-authentication-encryption-keys
               mountPath: /etc/gateway/keys/jwt-authentication-encryption
               readOnly: true
+            - name: auth-pem
+              mountPath: /platform/bindings/ca-certificates/
       volumes:
         - name: gateway-config-volume
           configMap:
@@ -80,6 +84,9 @@ spec:
         - name: jwt-authentication-encryption-keys
           secret:
             secretName: gateway-jwt-authentication-encryption-keys # secret created by templates/bootstrap/gateway.yml
+        - name: auth-pem
+          configMap:
+            name: gateway-auth-pem
       enableServiceLinks: false
       serviceAccountName: contentgrid-gateway
       automountServiceAccountToken: true

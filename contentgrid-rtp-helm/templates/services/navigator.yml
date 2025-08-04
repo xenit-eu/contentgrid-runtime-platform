@@ -31,6 +31,13 @@ spec:
           ports:
             - name: http
               containerPort: 80
+          env:
+            - name: API_BASE_URL
+              value: "https://app.contentgrid-poc.ethias.be"
+            - name: OIDC_AUTHORITY
+              value: https://auth.contentgrid-poc.ethias.be/realms/cg-f1aca8f5-6007-4080-a768-c5575a331e12
+            - name: OIDC_CLIENT_ID
+              value: contentgrid-webapp-bbbaa924-8b2a-46a1-b211-cf7e755898f8
       enableServiceLinks: false
       automountServiceAccountToken: false
 ---
@@ -52,3 +59,29 @@ spec:
       port: 80
       targetPort: http
       appProtocol: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: navigator-ingress
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/component: navigator
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  tls:
+    - hosts:
+        - navigator.contentgrid-poc.ethias.be
+      secretName: keycloak-tls
+  rules:
+    - host: navigator.contentgrid-poc.ethias.be
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: navigator-service
+                port:
+                  number: 80

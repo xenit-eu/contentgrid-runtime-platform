@@ -1,5 +1,7 @@
 ingressClassName: nginx
 
+gatewayIpRange: 100\.64\.\d{1,3}\.\d{1,3}
+
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:8bb46050225afcdfcd4afa4c7efa59c96062a1e01f0052ca2c7144f7ea87e072
   debug: false

@@ -16,7 +16,7 @@ rabbitmq:
   enabled: false
 
 keycloak:
-  host: auth.ethias.contentgrid.example
+  host: auth.contentgrid-poc.ethias.be
 
 keycloakx:
   database:
@@ -35,3 +35,7 @@ liaison:
     uriTemplate: https://renditions.ethias.contentgrid.example/renditions/get/pdf{?url}
   extract:
     baseUrl: https://extract.ethias.contentgrid.example/extract
+
+ingressClassName: ''
+
+gatewayIpRange: 10\.42\.\d{1,3}\.\d{1,3}
