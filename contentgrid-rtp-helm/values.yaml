@@ -11,10 +11,10 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:0.70.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:c6c4b95aa9e4547b83d0f91a7b429bfbf8cb803cb11d4e3adb4fb0b9344895b2
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:9fcec6f1b92297fdd45bea1c1431fb7767825f97b03011d9840a5cead028a782
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:cf1e6bfe834ee3489f5d059e8c0b62ef71c559d3845b220c8a000e1369c8e444
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:e0134b12152d0c6eddc7d8fcb8d4b9b4060c0a81069f145b8c11f815a4acabcd
   debug: false
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:6c44ecff1337b8d9015818e98ff1f2dba7bed9a238806f85e3089461c62ba482
@@ -28,7 +28,7 @@ surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:9abc6cf6aea7710d163dbb28d8eeb7dc5baef01e38fa4cd146a406dd9f07f70d
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:dcf2e6cd7cc71b8b11dedfcb363eedbbad60a335eaeec1e4ae8cf1c4b6feced1
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:e873b4a0f53f7d223807552a40d874b9c5ad6c1a75ba4be9965ef99464d1ca0e
     host: ~
     debug: false
     extraConfig: |
@@ -59,10 +59,10 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:c41aefe2bef4e6276afd6b19ff92e0b9b8a19bd1a9536cdab4e86045eca0e1a7
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:bda2640b0bf5cdeb0998f333a4f0e222710a2803d21e4a7e46ed7e538c8bcc0d
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:73a4fec2caf22597bfcf9f5b8e18544909ef7974fd26127a79404fa129a65411
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:6e5d3b9b7520ee834008433fa99adc495fb81f1acfb84d62a65de6eba7e7207b
     debug: false
 
 userapps:
