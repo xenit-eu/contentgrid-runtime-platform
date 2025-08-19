@@ -40,6 +40,10 @@ spec:
               value: contentgrid-webapp-bbbaa924-8b2a-46a1-b211-cf7e755898f8
       enableServiceLinks: false
       automountServiceAccountToken: false
+      {{ if .Values.navigator.pullSecret -}}
+      imagePullSecrets:
+        - name: {{ .Values.navigator.pullSecret }}
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

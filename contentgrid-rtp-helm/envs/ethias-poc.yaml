@@ -6,6 +6,10 @@ userapps:
     - ip: "10.106.3.165"
       port: "5432"
 
+navigator:
+  image: docker.xenit.eu/customer-ethias/cg-poc/frontend@sha256:06ecfe91cae364ccb3219cf8f4fbf2a4ac0e72bde63ddbac2c76fecac6438774
+  pullSecret: docker.xenit.eu
+
 pathfinder:
   disabled: true
 
