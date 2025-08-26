@@ -8,24 +8,34 @@ import com.contentgrid.helm.HelmInstallCommand.InstallOption;
 import com.contentgrid.junit.jupiter.docker.registry.DockerRegistryCache;
 import com.contentgrid.junit.jupiter.externalsecrets.ClusterSecretStore;
 import com.contentgrid.junit.jupiter.externalsecrets.FakeSecretStore;
+import com.contentgrid.junit.jupiter.helm.HelmChart;
+import com.contentgrid.junit.jupiter.helm.HelmChartHandle;
 import com.contentgrid.junit.jupiter.helm.HelmClient;
-import com.contentgrid.junit.jupiter.k8s.K8sTestUtils;
 import com.contentgrid.junit.jupiter.k8s.KubernetesTestCluster;
 import com.contentgrid.junit.jupiter.k8s.providers.K3sTestcontainersClusterProvider;
-import com.contentgrid.platform.runtime.helm.HelmIntegrationTest.K3sCiliumWithMyCustomDNSProvider;
-import com.contentgrid.testcontainers.k3s.K3sCiliumContainer;
+import com.contentgrid.junit.jupiter.k8s.wait.KubernetesResourceWaiter;
+import com.contentgrid.junit.jupiter.k8s.wait.ResourceMatcher;
+import com.contentgrid.platform.runtime.helm.HelmIntegrationTest.CustomClusterProvider;
+import com.contentgrid.testcontainers.k3s.customizer.ClusterDomainsK3sContainerCustomizer;
+import com.contentgrid.testcontainers.k3s.customizer.LoggingK3sContainerCustomizer;
+import com.contentgrid.testcontainers.k3s.customizer.cilium.DefaultDenyCiliumK3sContainerCustomizer;
+import com.contentgrid.testcontainers.k3s.customizer.ingress.TraefikIngressK3sContainerCustomizer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -46,42 +56,37 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.MountableFile;
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io" )
 @DockerRegistryCache(name = "quay.io", proxy = "https://quay.io" )
 @DockerRegistryCache(name = "ghcr.io", proxy = "https://ghcr.io" )
 @Testcontainers
-@KubernetesTestCluster(providers = K3sCiliumWithMyCustomDNSProvider.class)
+@KubernetesTestCluster(providers = CustomClusterProvider.class)
 @HelmClient
 @FakeSecretStore
 class HelmIntegrationTest {
 
-    //TODO: cleanup after refactoring helm-integration-testing
     @Slf4j
-    public static class K3sCiliumWithMyCustomDNSProvider extends K3sTestcontainersClusterProvider {
-        public  K3sCiliumWithMyCustomDNSProvider() {
-            super(new K3sCiliumContainer(K3sTestcontainersClusterProvider.IMAGE_RANCHER_K3S, true)
-                    .withClusterDomains(
-                            "auth.contentgrid.test",
-                            "metrics.contentgrid.test",
-                            "extensions.contentgrid.test"
-                    )
-                    .withCopyFileToContainer(MountableFile.forClasspathResource("k3s/cilium.yaml"),
-                            "/var/lib/rancher/k3s/server/manifests/cilium-default-deny.yaml")
-                    .withStartupTimeout(Duration.ofMinutes(15))
-                    .withLogConsumer(output -> {
-                        var logger = switch(output.getType()) {
-                            case STDOUT -> log.atInfo();
-                            case STDERR -> log.atError();
-                            case END -> null;
-                        };
-                        if(logger != null) {
-                            logger.log(output::getUtf8StringWithoutLineEnding);
-                        }
-                    })
-            );
+    public static class CustomClusterProvider extends K3sTestcontainersClusterProvider {
+        public CustomClusterProvider() {
+            configure(DefaultDenyCiliumK3sContainerCustomizer.class);
+            configure(ClusterDomainsK3sContainerCustomizer.class, customizer -> customizer.withDomains(
+                    "auth.contentgrid.test",
+                    "metrics.contentgrid.test",
+                    "extensions.contentgrid.test"
+            ));
+            configure(LoggingK3sContainerCustomizer.class, customizer -> customizer.withLogger(log));
+            configure(TraefikIngressK3sContainerCustomizer.class);
+            customize(container -> {
+                container.withStartupTimeout(Duration.ofMinutes(15));
+            });
+            customize(container -> {
+                var args = new ArrayList<>(Arrays.asList(container.getCommandParts()));
+                args.add("--kube-controller-manager-arg=concurrent-deployment-syncs=1");
+                args.add("--kube-controller-manager-arg=concurrent-replicaset-syncs=1");
+                container.setCommandParts(args.toArray(String[]::new));
+            });
         }
     }
 
@@ -103,6 +108,9 @@ class HelmIntegrationTest {
 
     static ClusterSecretStore fakeClusterSecretStore;
 
+    @HelmChart(chart = "file:../contentgrid-rtp-helm")
+    static HelmChartHandle rtpChart;
+
     static final String APP_NAMESPACE = "appnamespace";
 
     @BeforeAll
@@ -110,22 +118,11 @@ class HelmIntegrationTest {
         fakeClusterSecretStore.addSecrets(Map.of(
                 "keycloak.db.password", pgKeycloak.getPassword(),
                 "surveyor.pegman.systems.secret", "{\"hello\": \"world\"}" ));
-
-        var chart = Path.of("../contentgrid-rtp-helm" ).toAbsolutePath().normalize();
-
-        log.info("Build chart dependencies {}", chart);
-        helm.repository().add("rabbitmq", "https://charts.bitnami.com/bitnami" );
-        helm.repository().add("keycloakx", "https://codecentric.github.io/helm-charts" );
-        helm.dependency().build(chart);
-
-        log.info("Install chart {}", chart);
-        var releaseName = "test";
-
         //create the app namespace
         var namespace = new NamespaceBuilder().withNewMetadata().withName(APP_NAMESPACE).endMetadata().build();
         kubernetesClient.namespaces().resource(namespace).serverSideApply();
 
-        helm.install().chart(releaseName, chart,
+        var installed = rtpChart.install(
                 InstallOption.values(Map.of(
                         "secretStoreName", fakeClusterSecretStore.getName(),
                         "keycloak.db.secretKey", "keycloak.db.password",
@@ -162,10 +159,12 @@ class HelmIntegrationTest {
                         "userapps.ingressClassName", ""
                 )));
 
-        K8sTestUtils.waitUntilDeploymentsReady(10 * 60,
-                List.of("gateway", "liaison", "navigator", "pathfinder", "pathfinder-for-webapp",
-                        "slingshot", "surveyor-cgapp-api-exporter", "surveyor-pegman",
-                        "surveyor-postgres-exporter", "solon", "tokenmonger" ), kubernetesClient);
+        new KubernetesResourceWaiter(kubernetesClient)
+                .include(installed)
+                .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"))
+                .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
+
+
     }
 
 
@@ -203,12 +202,11 @@ class HelmIntegrationTest {
                 .getResourceAsStream("testapp/manifests.yaml" );
         appClient.load(manifestInputStream).serverSideApply();
 
-        K8sTestUtils.waitUntilDeploymentsReady(60,
-                List.of("api-d-7631ce24-4843-4661-814a-19fea8f0b470" ), appClient);
+        new KubernetesResourceWaiter(kubernetesClient)
+                .include(Deployment.class, ResourceMatcher.named("api-d-7631ce24-4843-4661-814a-19fea8f0b470").inNamespace(APP_NAMESPACE))
+                        .include(Deployment.class, ResourceMatcher.named("openpolicyagent"))
+                .await(wait -> wait.atMost(1, TimeUnit.MINUTES));
 
-        // OpenPolicyAgent should become ready when the first app is serving policies
-        K8sTestUtils.waitUntilDeploymentsReady(20,
-                List.of("openpolicyagent" ), kubernetesClient);
 
         var gwSecret = new SecretBuilder()
                 .withNewMetadata()
