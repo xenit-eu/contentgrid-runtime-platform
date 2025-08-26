@@ -158,6 +158,8 @@ rabbitmq:
   fullnameOverride: rabbitmq
   enableServiceLinks: false
   resourcesPreset: medium
+  image:
+    repository: bitnamilegacy/rabbitmq
   auth:
     existingPasswordSecret: rabbitmq
     existingErlangSecret: rabbitmq
