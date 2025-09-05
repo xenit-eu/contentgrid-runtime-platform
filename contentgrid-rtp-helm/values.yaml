@@ -1,10 +1,10 @@
 ingressClassName: nginx
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:32e442cb0be7e4d851b068b2da18b633e43b66b714f183499eb79afb0ac3efdf
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:91bc5039c8220031ed3b6cfba2a451cb93a56a2e08fcfbc7b778769a06d20f29
   debug: false
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:043567faa71f120a2e2dc358ab8fed4c3332bad36fcf9b183983da97fcdc5344
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:701f67e97d58b38be2dc589c38c7e7812f70e7d13cace57ef54d458b3ef07f52
   host: ~
   protocol: https
   debug: false
@@ -17,7 +17,7 @@ slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:c310d16b5db41e185b432cc04e7a9ba606db9c3cd7f839b3c2fa919d90a6606a
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:bf66e084fbdb94758bdbdb652477d1b10f472907cc34392668dad228c42885ae
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:40b8e41fff5750095a08ac9394ea89b08f80d839d5d1443154cf066567845ad7
   debug: false
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:21b5e6e6b0ef874ba3632a5d066bb6f1dd78e7a40abf1717d1a0899d769b58c0
