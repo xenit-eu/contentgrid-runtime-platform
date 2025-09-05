@@ -1,10 +1,10 @@
 ingressClassName: nginx
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:234ca679062803349ef482f8adf35e27ee8ce40c802a460d6d1f5cfd4572dbbc
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:32e442cb0be7e4d851b068b2da18b633e43b66b714f183499eb79afb0ac3efdf
   debug: false
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:ca444644fd0ba48235118745486c5c1b28aeec464a99c35c8158ff63249e8b4a
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:043567faa71f120a2e2dc358ab8fed4c3332bad36fcf9b183983da97fcdc5344
   host: ~
   protocol: https
   debug: false
