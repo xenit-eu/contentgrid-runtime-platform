@@ -1,29 +1,29 @@
 ingressClassName: nginx
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:91bc5039c8220031ed3b6cfba2a451cb93a56a2e08fcfbc7b778769a06d20f29
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:42f9ad1e19a7fe2e6aee0a5ca206d4c0f42396c020a9b2170acfcec45f4127ae
   debug: false
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:701f67e97d58b38be2dc589c38c7e7812f70e7d13cace57ef54d458b3ef07f52
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:aec1395e9af01c85e264cbcb9f83b0b916aedb9a1f52cbfd185122ecafff070b
   host: ~
   protocol: https
   debug: false
 opa:
   image: docker.io/openpolicyagent/opa:0.70.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:27f040a3aa158b11e014fc7ee97624cd95a5d102afd8c0ee7f401354f5946357
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:984fc114881a47eaa7adab19d8a727ef9effcbf84cf644772418620c691a8151
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:1b3b24eac2c5362536313a2441317871f17fbc118753ddd51d802fd4386717e4
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:d1ac0257c3d0a5b125482c35cd665860af53311a00f8735afc7b4e86cd335be9
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:40b8e41fff5750095a08ac9394ea89b08f80d839d5d1443154cf066567845ad7
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:e706faa7782f3e970fe9c3571fbb1ab7cb54ff3c6e1148bdbb117339931d3f20
   debug: false
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:10a020bf283e4e1646087e06f709cd0e774990af02153b159276f8a01843e11d
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:369fe14a3a74f0ba5ff76e6f143aa5b637857fb2bed489960bb4118acffc6953
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:ceb51965d3a7e7ac731155063d7ba97625a66f550374869216f65fbbf49ce065
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
