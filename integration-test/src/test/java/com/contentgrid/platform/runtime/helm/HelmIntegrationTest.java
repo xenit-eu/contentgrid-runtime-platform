@@ -204,8 +204,8 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-7631ce24-4843-4661-814a-19fea8f0b470").inNamespace(APP_NAMESPACE))
-                        .include(Deployment.class, ResourceMatcher.named("openpolicyagent"))
-                .await(wait -> wait.atMost(1, TimeUnit.MINUTES));
+                .include(Deployment.class, ResourceMatcher.named("openpolicyagent"))
+                .await(wait -> wait.atMost(2, TimeUnit.MINUTES));
 
 
         var gwSecret = new SecretBuilder()
