@@ -272,22 +272,9 @@ spec:
       restartPolicy: Never
       serviceAccountName: setup-rabbitmq-sa
       automountServiceAccountToken: true
-      initContainers:
-        - name: copy-kubectl
-          image: ghcr.io/xenit-eu/kubectl
-          command:
-            - "/bin/sh"
-            - "-c"
-          args:
-            - |
-              echo "copying 'kubectl' binary to shared volume...";
-              cp -f "$(which kubectl)" /shared-bin/kubectl;
-          volumeMounts:
-            - name: shared-bin
-              mountPath: "/shared-bin/"
       containers:
         - name: setup-rabbitmq-container
-          image: bitnami/os-shell
+          image: ghcr.io/xenit-eu/kubectl
           imagePullPolicy: IfNotPresent
           command: ["/bin/bash", "-c", "/tmp/rabbitmq/setup.sh"]
           env:
@@ -297,14 +284,9 @@ spec:
                   name: rabbitmq
                   key: rabbitmq-password
           volumeMounts:
-            - mountPath: /usr/local/bin/kubectl
-              name: shared-bin
-              subPath: kubectl
             - mountPath: /tmp/rabbitmq
               name: patch
       volumes:
-      - name: shared-bin
-        emptyDir: {}
       - name: patch
         configMap:
           defaultMode: 0777
