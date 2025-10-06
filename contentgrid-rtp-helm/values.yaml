@@ -169,6 +169,8 @@ rabbitmq:
     enabled: true
   volumePermissions:
     enabled: true
+    image:
+      repository: bitnamilegacy/os-shell
   commonLabels:
     app.kubernetes.io/component: message-queue
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
