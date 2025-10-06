@@ -62,6 +62,7 @@ metadata:
 data:
   initialize.sh: |
     #!/bin/sh
+    set -euo pipefail
 
     if ! kubectl get secret tokenmonger-jwt-delegated-keys; then
         openssl genrsa 2048 | \
