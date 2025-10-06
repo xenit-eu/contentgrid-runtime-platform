@@ -94,7 +94,7 @@ spec:
       automountServiceAccountToken: true
       containers:
       - name: initialize-rabbitmq-container
-        image: bitnami/kubectl
+        image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c", "/tmp/rabbitmq/initialize.sh"]
         volumeMounts:
@@ -274,7 +274,7 @@ spec:
       automountServiceAccountToken: true
       initContainers:
         - name: copy-kubectl
-          image: bitnami/kubectl
+          image: ghcr.io/xenit-eu/kubectl
           command:
             - "/bin/sh"
             - "-c"

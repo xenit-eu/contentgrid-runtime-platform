@@ -94,7 +94,7 @@ spec:
       automountServiceAccountToken: true
       containers:
       - name: initialize-tokenmonger-container
-        image: bitnami/kubectl
+        image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh", "-c", "/tmp/tokenmonger/initialize.sh"]
         volumeMounts:

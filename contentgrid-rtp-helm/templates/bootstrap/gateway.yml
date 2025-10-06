@@ -93,7 +93,7 @@ spec:
       automountServiceAccountToken: true
       containers:
       - name: initialize-gateway-container
-        image: bitnami/kubectl
+        image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh", "-c", "/tmp/gateway/initialize.sh"]
         volumeMounts:
