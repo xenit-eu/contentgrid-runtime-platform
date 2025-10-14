@@ -147,6 +147,7 @@ spec:
   egress:
     - toFQDNs:
         - matchPattern: "*.s3.fr-par.scw.cloud"
+        - matchName: "s3.fr-par.scw.cloud"
       toPorts:
         - ports:
           - port: "443"
