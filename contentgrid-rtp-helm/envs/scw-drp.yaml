@@ -34,4 +34,4 @@ liaison:
     uriTemplate: >-
       https://renditions.eu-west-1-drp.contentgrid.cloud/renditions/get/pdf{?url}
   extract:
-    baseUrl: https://extract.eu-west-1-drp.contentgrid.cloud/extract
+    baseUrl: https://extract.eu-west-1-drp.contentgrid.cloud/extract/
