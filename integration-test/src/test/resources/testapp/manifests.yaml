@@ -7,24 +7,22 @@ metadata:
     prometheus.io/port: "8081"
     prometheus.io/scrape: "true"
   labels:
-    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
-    app.contentgrid.com/deployment-request-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-  name: api-d-7631ce24-4843-4661-814a-19fea8f0b470
+  name: api-d-$DEPLOYMENT_ID
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+      app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
       app.contentgrid.com/service-type: api
       app.kubernetes.io/managed-by: contentgrid
-      captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -33,10 +31,9 @@ spec:
   template:
     metadata:
       labels:
-        app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+        app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
         app.contentgrid.com/service-type: api
         app.kubernetes.io/managed-by: contentgrid
-        captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
     spec:
       automountServiceAccountToken: false
       containers:
@@ -44,14 +41,14 @@ spec:
         - name: SPRING_CONFIG_IMPORT
           value: configtree:/etc/app/config/*/
         - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
-          value: 7631ce24-4843-4661-814a-19fea8f0b470
+          value: $DEPLOYMENT_ID
         - name: CONTENTGRID_SYSTEM_APPLICATIONID
-          value: 3e5ad186-1fe3-40d5-8891-404571597e30
+          value: $APP_ID
         - name: CONTENTGRID_SYSTEM_POLICYPACKAGE
-          value: contentgrid.userapps.x7631ce2448434661814a19fea8f0b470
+          value: $POLICY_PACKAGE
         - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
-          value: http://api-d-7631ce24-4843-4661-814a-19fea8f0b470.default.svc.cluster.local:8081/actuator/webhooks
-        image: ghcr.io/xenit-eu/contentgrid-rtp-test-app:latest
+          value: http://api-d-$DEPLOYMENT_ID.default.svc.cluster.local:8081/actuator/webhooks
+        image: $DOCKER_IMAGE
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
@@ -113,10 +110,10 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: initContainer
         - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
-          value: 7631ce24-4843-4661-814a-19fea8f0b470
+          value: $DEPLOYMENT_ID
         - name: CONTENTGRID_SYSTEM_APPLICATIONID
-          value: 3e5ad186-1fe3-40d5-8891-404571597e30
-        image: ghcr.io/xenit-eu/contentgrid-rtp-test-app:latest
+          value: $APP_ID
+        image: $DOCKER_IMAGE
         imagePullPolicy: IfNotPresent
         name: api-initcontainer
         resources: {}
@@ -142,23 +139,22 @@ spec:
       - name: app-db-secrets
         secret:
           defaultMode: 420
-          secretName: 3e5ad186-1fe3-40d5-8891-404571597e30-db
+          secretName: $APP_ID-db
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    authz.contentgrid.com/policy-package: contentgrid.userapps.x7631ce2448434661814a19fea8f0b470
+    authz.contentgrid.com/policy-package: $POLICY_PACKAGE
   labels:
-    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
-    app.contentgrid.com/deployment-request-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-  name: api-d-7631ce24-4843-4661-814a-19fea8f0b470
+  name: api-d-$DEPLOYMENT_ID
 spec:
   #  clusterIP: 10.35.236.33
   #  clusterIPs:
@@ -177,17 +173,16 @@ spec:
       protocol: TCP
       targetPort: management
   selector:
-    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
   sessionAffinity: None
   type: ClusterIP
 ---
 apiVersion: v1
 data:
   contentgrid.cors.origins: ""
-  contentgrid.routing.domains: "3e5ad186-1fe3-40d5-8891-404571597e30.apps.contentgrid.test"
+  contentgrid.routing.domains: "$APP_ID.apps.contentgrid.test"
 kind: ConfigMap
 metadata:
   #  annotations:
@@ -195,9 +190,8 @@ metadata:
   finalizers:
     - pathfinder.contentgrid.com/ingress
   labels:
-    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
     app.contentgrid.com/service-type: gateway
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: b83bc515-65ff-45b9-84cd-05fa002104dd
-  name: b83bc515-65ff-45b9-84cd-05fa002104dd-gw
+  name: $APP_ID-gw
