@@ -1,11 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-    prometheus.io/path: actuator/prometheus
-    prometheus.io/port: "8081"
-    prometheus.io/scrape: "true"
+  name: api-d-$DEPLOYMENT_ID
   labels:
     app.contentgrid.com/app-id: $APP_ID
     app.contentgrid.com/application-id: $APP_ID
@@ -13,21 +9,12 @@ metadata:
     app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-  name: api-d-$DEPLOYMENT_ID
 spec:
-  progressDeadlineSeconds: 600
-  replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
       app.contentgrid.com/service-type: api
       app.kubernetes.io/managed-by: contentgrid
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -49,7 +36,6 @@ spec:
         - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
           value: http://api-d-$DEPLOYMENT_ID.default.svc.cluster.local:8081/actuator/webhooks
         image: $DOCKER_IMAGE
-        imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -92,8 +78,6 @@ spec:
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/app/config/runtime
           name: rtp-shared-config
@@ -101,7 +85,6 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
-      dnsPolicy: ClusterFirst
       enableServiceLinks: false
       initContainers:
       - env:
@@ -116,9 +99,6 @@ spec:
         image: $DOCKER_IMAGE
         imagePullPolicy: IfNotPresent
         name: api-initcontainer
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/app/config/runtime
           name: rtp-shared-config
@@ -126,10 +106,6 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
       volumes:
       - configMap:
           defaultMode: 420
@@ -145,6 +121,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: api-d-$DEPLOYMENT_ID
   annotations:
     authz.contentgrid.com/policy-package: $POLICY_PACKAGE
   labels:
@@ -154,15 +131,11 @@ metadata:
     app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-  name: api-d-$DEPLOYMENT_ID
 spec:
-  #  clusterIP: 10.35.236.33
-  #  clusterIPs:
-  #  - 10.35.236.33
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
+  selector:
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
   ports:
     - name: http
       port: 8080
@@ -172,26 +145,18 @@ spec:
       port: 8081
       protocol: TCP
       targetPort: management
-  selector:
-    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
-    app.contentgrid.com/service-type: api
-    app.kubernetes.io/managed-by: contentgrid
-  sessionAffinity: None
-  type: ClusterIP
 ---
 apiVersion: v1
-data:
-  contentgrid.cors.origins: ""
-  contentgrid.routing.domains: "$APP_ID.apps.contentgrid.test"
 kind: ConfigMap
 metadata:
+  name: $APP_ID-gw
   #  annotations:
   #    cert-manager.io/cluster-issuer: gcloud-ca-production
-  finalizers:
-    - pathfinder.contentgrid.com/ingress
   labels:
     app.contentgrid.com/app-id: $APP_ID
     app.contentgrid.com/application-id: $APP_ID
     app.contentgrid.com/service-type: gateway
     app.kubernetes.io/managed-by: contentgrid
-  name: $APP_ID-gw
+data:
+  contentgrid.cors.origins: ""
+  contentgrid.routing.domains: "$APP_ID.apps.contentgrid.test"
