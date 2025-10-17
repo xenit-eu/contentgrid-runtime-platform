@@ -4,7 +4,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.contentgrid.helm.Helm;
 import com.contentgrid.helm.HelmInstallCommand.InstallOption;
 import com.contentgrid.junit.jupiter.docker.registry.DockerRegistryCache;
 import com.contentgrid.junit.jupiter.externalsecrets.ClusterSecretStore;
@@ -28,6 +27,8 @@ import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioAsyncClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -58,6 +59,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -95,8 +97,6 @@ class HelmIntegrationTest {
         }
     }
 
-    static Helm helm;
-
     @Container
     static PostgreSQLContainer<?> pgKeycloak = new PostgreSQLContainer<>("postgres:15" )
             .withDatabaseName("keycloak" )
@@ -109,6 +109,9 @@ class HelmIntegrationTest {
             .withUsername("appuser" )
             .withPassword("apppassword" );
 
+    @Container
+    static MinIOContainer minio = new MinIOContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z");
+
     static KubernetesClient kubernetesClient;
 
     static ClusterSecretStore fakeClusterSecretStore;
@@ -117,9 +120,11 @@ class HelmIntegrationTest {
     static HelmChartHandle rtpChart;
 
     static final String APP_NAMESPACE = "appnamespace";
+    public static final String APP_BUCKET = "app-bucket";
 
     @BeforeAll
-    static void beforeAll() {
+    static void beforeAll()
+            throws Exception {
         fakeClusterSecretStore.addSecrets(Map.of(
                 "keycloak.db.password", pgKeycloak.getPassword(),
                 "surveyor.pegman.systems.secret", "{\"hello\": \"world\"}" ));
@@ -169,6 +174,16 @@ class HelmIntegrationTest {
                 .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"))
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
 
+        try(var mc = MinioAsyncClient.builder()
+                .endpoint(minio.getS3URL())
+                .credentials(minio.getUserName(), minio.getPassword())
+                .build()) {
+
+            mc.makeBucket(MakeBucketArgs.builder()
+                    .bucket(APP_BUCKET)
+                    .build());
+
+        }
 
     }
 
@@ -282,6 +297,27 @@ class HelmIntegrationTest {
                 .build();
         //deploy the secret
         appClient.secrets().resource(dbSecret).create();
+
+        var s3Secret = new SecretBuilder()
+                .withNewMetadata()
+                .withName(applicationId+"-sto")
+                .withLabels(Map.of(
+                        "app.contentgrid.com/app-id", applicationId,
+                        "app.contentgrid.com/application-id", applicationId,
+                        "app.contentgrid.com/service-type", "api",
+                        "app.kubernetes.io/managed-by", "contentgrid"
+                ))
+                .endMetadata()
+                .withType("Opaque" )
+                .addToStringData("spring.content.storage.type.default", "s3")
+                .addToStringData("spring.content.s3.endpoint", minio.getS3URL())
+                .addToStringData("spring.content.s3.bucket", APP_BUCKET)
+                .addToStringData("spring.content.s3.region", "none")
+                .addToStringData("spring.content.s3.accessKey", minio.getUserName())
+                .addToStringData("spring.content.s3.secretKey", minio.getPassword())
+                .build();
+
+        appClient.secrets().resource(s3Secret).create();
 
         //deploy src/test/resources/testapp/manifest.yaml
         var manifestInputStream = HelmIntegrationTest.class.getClassLoader()

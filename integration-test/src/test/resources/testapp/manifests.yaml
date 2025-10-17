@@ -85,6 +85,9 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
+        - mountPath: /etc/app/config/objectstorage
+          name: app-sto-secrets
+          readOnly: true
       enableServiceLinks: false
       initContainers:
       - env:
@@ -106,6 +109,9 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
+        - mountPath: /etc/app/config/objectstorage
+          name: app-sto-secrets
+          readOnly: true
       volumes:
       - configMap:
           defaultMode: 420
@@ -116,6 +122,38 @@ spec:
         secret:
           defaultMode: 420
           secretName: $APP_ID-db
+      - name: app-sto-secrets
+        secret:
+          defaultMode: 420
+          secretName: $APP_ID-sto
+          items:
+            # V1 configuration keys
+            - key: spring.content.storage.type.default
+              path: spring.content.storage.type.default
+            - key: spring.content.s3.endpoint
+              path: spring.content.s3.endpoint
+            - key: spring.content.s3.bucket
+              path: spring.content.s3.bucket
+            - key: spring.content.s3.region
+              path: spring.content.s3.region
+            - key: spring.content.s3.accessKey
+              path: spring.content.s3.accessKey
+            - key: spring.content.s3.secretKey
+              path: spring.content.s3.secretKey
+            # V2 configuration keys
+            - key: spring.content.storage.type.default
+              path: contentgrid.appserver.content-store.type
+            - key: spring.content.s3.endpoint
+              path: contentgrid.appserver.content.s3.url
+            - key: spring.content.s3.bucket
+              path: contentgrid.appserver.content.s3.bucket
+            - key: spring.content.s3.region
+              path: contentgrid.appserver.content.s3.region
+            - key: spring.content.s3.accessKey
+              path: contentgrid.appserver.content.s3.accessKey
+            - key: spring.content.s3.secretKey
+              path: contentgrid.appserver.content.s3.secretKey
+
 
 ---
 apiVersion: v1
