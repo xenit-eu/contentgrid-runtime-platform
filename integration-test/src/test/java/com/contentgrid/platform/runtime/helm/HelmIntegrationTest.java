@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
@@ -270,7 +271,8 @@ class HelmIntegrationTest {
         return restClientBuilder.build();
     }
 
-    private String deployApplication(String dockerImage) throws IOException {
+    @SneakyThrows
+    private String deployApplication(String dockerImage) {
 
         var applicationId = UUID.randomUUID().toString();
         var deploymentId = UUID.randomUUID().toString();
@@ -349,6 +351,8 @@ class HelmIntegrationTest {
                         .flatMap(AwaitableResource::logs)
                         .anyMatch(logLine -> logLine.line().contains("+ "+deploymentId))
                 );
+
+        Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
 
 
         var gwSecret = new SecretBuilder()

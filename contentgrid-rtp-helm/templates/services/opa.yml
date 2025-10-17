@@ -96,6 +96,7 @@ data:
         polling:
           min_delay_seconds: 5
           max_delay_seconds: 10
+          long_polling_timeout_seconds: 20
     decision_logs:
       console: true
   system.rego: |
