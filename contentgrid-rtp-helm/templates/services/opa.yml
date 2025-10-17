@@ -35,6 +35,7 @@ spec:
             '--log-format=json',
             '--log-level=error',
             '--authorization=basic',
+            '--v0-compatible',
             '--config-file', '/config/config.yml',
             'file:/config/system.rego'
           ]
