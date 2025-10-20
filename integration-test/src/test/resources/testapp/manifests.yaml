@@ -1,42 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-    prometheus.io/path: actuator/prometheus
-    prometheus.io/port: "8081"
-    prometheus.io/scrape: "true"
+  name: api-d-$DEPLOYMENT_ID
   labels:
-    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
-    app.contentgrid.com/deployment-request-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-  name: api-d-7631ce24-4843-4661-814a-19fea8f0b470
 spec:
-  progressDeadlineSeconds: 600
-  replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+      app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
       app.contentgrid.com/service-type: api
       app.kubernetes.io/managed-by: contentgrid
-      captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
-        app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
+        app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
         app.contentgrid.com/service-type: api
         app.kubernetes.io/managed-by: contentgrid
-        captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
     spec:
       automountServiceAccountToken: false
       containers:
@@ -44,15 +28,14 @@ spec:
         - name: SPRING_CONFIG_IMPORT
           value: configtree:/etc/app/config/*/
         - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
-          value: 7631ce24-4843-4661-814a-19fea8f0b470
+          value: $DEPLOYMENT_ID
         - name: CONTENTGRID_SYSTEM_APPLICATIONID
-          value: 3e5ad186-1fe3-40d5-8891-404571597e30
+          value: $APP_ID
         - name: CONTENTGRID_SYSTEM_POLICYPACKAGE
-          value: contentgrid.userapps.x7631ce2448434661814a19fea8f0b470
+          value: $POLICY_PACKAGE
         - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
-          value: http://api-d-7631ce24-4843-4661-814a-19fea8f0b470.default.svc.cluster.local:8081/actuator/webhooks
-        image: ghcr.io/xenit-eu/contentgrid-rtp-test-app:latest
-        imagePullPolicy: IfNotPresent
+          value: http://api-d-$DEPLOYMENT_ID.default.svc.cluster.local:8081/actuator/webhooks
+        image: $DOCKER_IMAGE
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -95,8 +78,6 @@ spec:
           periodSeconds: 5
           successThreshold: 1
           timeoutSeconds: 1
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/app/config/runtime
           name: rtp-shared-config
@@ -104,7 +85,9 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
-      dnsPolicy: ClusterFirst
+        - mountPath: /etc/app/config/objectstorage
+          name: app-sto-secrets
+          readOnly: true
       enableServiceLinks: false
       initContainers:
       - env:
@@ -113,15 +96,12 @@ spec:
         - name: SPRING_PROFILES_ACTIVE
           value: initContainer
         - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
-          value: 7631ce24-4843-4661-814a-19fea8f0b470
+          value: $DEPLOYMENT_ID
         - name: CONTENTGRID_SYSTEM_APPLICATIONID
-          value: 3e5ad186-1fe3-40d5-8891-404571597e30
-        image: ghcr.io/xenit-eu/contentgrid-rtp-test-app:latest
+          value: $APP_ID
+        image: $DOCKER_IMAGE
         imagePullPolicy: IfNotPresent
         name: api-initcontainer
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/app/config/runtime
           name: rtp-shared-config
@@ -129,10 +109,9 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
-      restartPolicy: Always
-      schedulerName: default-scheduler
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
+        - mountPath: /etc/app/config/objectstorage
+          name: app-sto-secrets
+          readOnly: true
       volumes:
       - configMap:
           defaultMode: 420
@@ -142,31 +121,59 @@ spec:
       - name: app-db-secrets
         secret:
           defaultMode: 420
-          secretName: 3e5ad186-1fe3-40d5-8891-404571597e30-db
+          secretName: $APP_ID-db
+      - name: app-sto-secrets
+        secret:
+          defaultMode: 420
+          secretName: $APP_ID-sto
+          items:
+            # V1 configuration keys
+            - key: spring.content.storage.type.default
+              path: spring.content.storage.type.default
+            - key: spring.content.s3.endpoint
+              path: spring.content.s3.endpoint
+            - key: spring.content.s3.bucket
+              path: spring.content.s3.bucket
+            - key: spring.content.s3.region
+              path: spring.content.s3.region
+            - key: spring.content.s3.accessKey
+              path: spring.content.s3.accessKey
+            - key: spring.content.s3.secretKey
+              path: spring.content.s3.secretKey
+            # V2 configuration keys
+            - key: spring.content.storage.type.default
+              path: contentgrid.appserver.content-store.type
+            - key: spring.content.s3.endpoint
+              path: contentgrid.appserver.content.s3.url
+            - key: spring.content.s3.bucket
+              path: contentgrid.appserver.content.s3.bucket
+            - key: spring.content.s3.region
+              path: contentgrid.appserver.content.s3.region
+            - key: spring.content.s3.accessKey
+              path: contentgrid.appserver.content.s3.accessKey
+            - key: spring.content.s3.secretKey
+              path: contentgrid.appserver.content.s3.secretKey
+
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  name: api-d-$DEPLOYMENT_ID
   annotations:
-    authz.contentgrid.com/policy-package: contentgrid.userapps.x7631ce2448434661814a19fea8f0b470
+    authz.contentgrid.com/policy-package: $POLICY_PACKAGE
   labels:
-    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
-    app.contentgrid.com/deployment-request-id: 7631ce24-4843-4661-814a-19fea8f0b470
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
     app.contentgrid.com/service-type: api
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-  name: api-d-7631ce24-4843-4661-814a-19fea8f0b470
 spec:
-  #  clusterIP: 10.35.236.33
-  #  clusterIPs:
-  #  - 10.35.236.33
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-    - IPv4
-  ipFamilyPolicy: SingleStack
+  selector:
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
   ports:
     - name: http
       port: 8080
@@ -176,28 +183,18 @@ spec:
       port: 8081
       protocol: TCP
       targetPort: management
-  selector:
-    app.contentgrid.com/deployment-id: 7631ce24-4843-4661-814a-19fea8f0b470
-    app.contentgrid.com/service-type: api
-    app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-  sessionAffinity: None
-  type: ClusterIP
 ---
 apiVersion: v1
-data:
-  contentgrid.cors.origins: ""
-  contentgrid.routing.domains: "3e5ad186-1fe3-40d5-8891-404571597e30.apps.contentgrid.test"
 kind: ConfigMap
 metadata:
+  name: $APP_ID-gw
   #  annotations:
   #    cert-manager.io/cluster-issuer: gcloud-ca-production
-  finalizers:
-    - pathfinder.contentgrid.com/ingress
   labels:
-    app.contentgrid.com/app-id: 3e5ad186-1fe3-40d5-8891-404571597e30
-    app.contentgrid.com/application-id: 3e5ad186-1fe3-40d5-8891-404571597e30
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
     app.contentgrid.com/service-type: gateway
     app.kubernetes.io/managed-by: contentgrid
-    captain.contentgrid.com/resource-id: b83bc515-65ff-45b9-84cd-05fa002104dd
-  name: b83bc515-65ff-45b9-84cd-05fa002104dd-gw
+data:
+  contentgrid.cors.origins: ""
+  contentgrid.routing.domains: "$APP_ID.apps.contentgrid.test"
