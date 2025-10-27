@@ -172,7 +172,6 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
-                .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"))
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
 
         try(var mc = MinioAsyncClient.builder()
@@ -338,7 +337,6 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-"+deploymentId).inNamespace(APP_NAMESPACE))
-                .include(Deployment.class, ResourceMatcher.named("openpolicyagent"))
                 .await(wait -> wait.atMost(2, TimeUnit.MINUTES));
 
         var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
