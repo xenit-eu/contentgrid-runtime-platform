@@ -194,12 +194,7 @@ class HelmIntegrationTest {
 
         var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:"+dockerImageTag);
 
-        var dockerHostAddress = InetAddress.getByName(DockerClientFactory.instance().dockerHostIpAddress());
-
-        var client = getRestClient(Map.of(
-                "auth.contentgrid.test", new InetAddress[]{dockerHostAddress},
-                applicationId+".apps.contentgrid.test", new InetAddress[]{dockerHostAddress}
-        ), "rtp-integration-tester", "rtp-integration-tester");
+        var client = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
         var suppliersResponse = client
                 .get()
@@ -224,7 +219,13 @@ class HelmIntegrationTest {
     }
 
     @SneakyThrows
-    static RestClient getRestClient(Map<String, InetAddress[]> hosts, String clientId, String clientSecret) {
+    static RestClient getRestClient(String applicationId, String clientId, String clientSecret) {
+        var dockerHostAddress = InetAddress.getByName(DockerClientFactory.instance().dockerHostIpAddress());
+        var hosts = Map.of(
+                "auth.contentgrid.test", new InetAddress[]{dockerHostAddress},
+                applicationId+".apps.contentgrid.test", new InetAddress[]{dockerHostAddress}
+        );
+
         var connectionManager = BasicHttpClientConnectionManager.create(null,
                 new SystemDefaultDnsResolver() {
                     @Override
