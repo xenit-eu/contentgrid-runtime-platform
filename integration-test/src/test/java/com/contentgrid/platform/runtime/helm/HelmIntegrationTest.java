@@ -199,28 +199,11 @@ class HelmIntegrationTest {
         var client = getRestClient(Map.of(
                 "auth.contentgrid.test", new InetAddress[]{dockerHostAddress},
                 applicationId+".apps.contentgrid.test", new InetAddress[]{dockerHostAddress}
-        ));
-
-        var response = client
-                .post()
-                .uri("http://auth.contentgrid.test/realms/cg-fff710df-7947-403a-8f45-a3fa97b9b4b2/protocol/openid-connect/token" )
-                .body(new LinkedMultiValueMap(Map.of(
-                        "grant_type", List.of("client_credentials"),
-                        "client_id", List.of("rtp-integration-tester"),
-                        "client_secret", List.of("rtp-integration-tester")
-                )))
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .retrieve()
-                .toEntity(String.class);
-
-        var objectMapper = new ObjectMapper();
-        var jsonNode = objectMapper.readTree(response.getBody());
-        var accessToken = jsonNode.get("access_token").asText();
+        ), "rtp-integration-tester", "rtp-integration-tester");
 
         var suppliersResponse = client
                 .get()
                 .uri("http://"+applicationId+".apps.contentgrid.test/suppliers" )
-                .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .toEntity(String.class);
 
@@ -231,7 +214,6 @@ class HelmIntegrationTest {
         HttpClientErrorException exception = assertThrows(HttpClientErrorException.Forbidden.class, () -> {
             client.get()
                     .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
-                    .header("Authorization", "Bearer " + accessToken)
                     .retrieve()
                     .toEntity(String.class); // This line throws the exception
         });
@@ -241,7 +223,8 @@ class HelmIntegrationTest {
 
     }
 
-    static RestClient getRestClient(Map<String, InetAddress[]> hosts) {
+    @SneakyThrows
+    static RestClient getRestClient(Map<String, InetAddress[]> hosts, String clientId, String clientSecret) {
         var connectionManager = BasicHttpClientConnectionManager.create(null,
                 new SystemDefaultDnsResolver() {
                     @Override
@@ -266,6 +249,29 @@ class HelmIntegrationTest {
 
         var restClientBuilder = RestClient.builder()
                 .requestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
+
+        var client = restClientBuilder.build();
+
+        var response = client
+                .post()
+                .uri("http://auth.contentgrid.test/realms/cg-fff710df-7947-403a-8f45-a3fa97b9b4b2/protocol/openid-connect/token" )
+                .body(new LinkedMultiValueMap(Map.of(
+                        "grant_type", List.of("client_credentials"),
+                        "client_id", List.of(clientId),
+                        "client_secret", List.of(clientSecret)
+                )))
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .retrieve()
+                .toEntity(String.class);
+
+        var objectMapper = new ObjectMapper();
+        var jsonNode = objectMapper.readTree(response.getBody());
+        var accessToken = jsonNode.get("access_token").asText();
+
+        restClientBuilder.requestInterceptor((request, body, execution) -> {
+            request.getHeaders().setBearerAuth(accessToken);
+            return execution.execute(request, body);
+        });
 
         return restClientBuilder.build();
     }
