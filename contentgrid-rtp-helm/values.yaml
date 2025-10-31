@@ -1,10 +1,10 @@
 ingressClassName: nginx
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:183744a301e6a06a4ee7e4dd9d02ad42f5a55b818485a68e4734528389965fc3
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:fb0834abfa361879082504e7288fdf54a4cec63e640d8ad96e6a5973bd11a473
   debug: false
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:a91604baa8dbf5656bc30cb586132b427834a36653806549b053e3da0ae68530
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:8bb7c46e144aa69d60a1882b0c40f5a46c0f2657ba893099d2c267cc3590bb1e
   host: ~
   protocol: https
   debug: false
@@ -23,7 +23,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:7fda3ef3b1dc31a823455e155e78a2be73a68b82eece3ce73eca7e79fefb461a
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:65258d9c1edcf0cc60c7b3782d9deff794cebec19b2ff945eb5dfe5186c84f78
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:88e5d80145abf4c67fe256946a542e345c4612f46bd8e2e5631640be21ab719a
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
