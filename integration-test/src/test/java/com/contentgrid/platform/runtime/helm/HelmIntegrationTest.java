@@ -2,7 +2,9 @@ package com.contentgrid.platform.runtime.helm;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.contentgrid.helm.HelmInstallCommand.InstallOption;
 import com.contentgrid.junit.jupiter.docker.registry.DockerRegistryCache;
@@ -21,16 +23,23 @@ import com.contentgrid.testcontainers.k3s.customizer.ClusterDomainsK3sContainerC
 import com.contentgrid.testcontainers.k3s.customizer.LoggingK3sContainerCustomizer;
 import com.contentgrid.testcontainers.k3s.customizer.cilium.DefaultDenyCiliumK3sContainerCustomizer;
 import com.contentgrid.testcontainers.k3s.customizer.ingress.TraefikIngressK3sContainerCustomizer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.networking.v1.IPBlockBuilder;
+import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyBuilder;
+import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyEgressRuleBuilder;
+import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyPeerBuilder;
+import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyPortBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioAsyncClient;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -59,6 +68,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -105,7 +115,7 @@ class HelmIntegrationTest {
             .withPassword("keycloak" );
 
     @Container
-    static PostgreSQLContainer<?> appDatabase = new PostgreSQLContainer<>("postgres:15" )
+    PostgreSQLContainer<?> appDatabase = new PostgreSQLContainer<>("postgres:15" )
             .withDatabaseName("appdb" )
             .withUsername("appuser" )
             .withPassword("apppassword" );
@@ -163,8 +173,6 @@ class HelmIntegrationTest {
                 InstallOption.arguments("--set-file", "keycloak.extraRealms.apprealm\\.json=" +
                         Path.of("src/test/resources/keycloak/apprealm.json" ).toAbsolutePath().normalize()),
                 InstallOption.values(Map.of(
-                        "userapps.database[0].ip", appDatabase.getHost(),
-                        "userapps.database[0].port", appDatabase.getFirstMappedPort().toString(),
                         "userapps.namespace", APP_NAMESPACE,
                         "userapps.defaultDomainSuffix", "apps.contentgrid.test",
                         "userapps.ingressClassName", ""
@@ -187,16 +195,16 @@ class HelmIntegrationTest {
 
     }
 
-
     @ParameterizedTest
     @CsvSource({"v1", "v2"})
-    void testDeployApplication(String dockerImageTag) throws IOException {
+    void testDeployApplication(String dockerImageTag) {
 
+        // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
         var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:"+dockerImageTag);
 
-        var client = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
+        var suppliersAdminClient = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
-        var suppliersResponse = client
+        var suppliersResponse = suppliersAdminClient
                 .get()
                 .uri("http://"+applicationId+".apps.contentgrid.test/suppliers" )
                 .retrieve()
@@ -207,7 +215,7 @@ class HelmIntegrationTest {
 
         // Expect an exception due to 403 response. The client has no access to invoices via the policies in the app
         HttpClientErrorException exception = assertThrows(HttpClientErrorException.Forbidden.class, () -> {
-            client.get()
+            suppliersAdminClient.get()
                     .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
                     .retrieve()
                     .toEntity(String.class); // This line throws the exception
@@ -215,6 +223,91 @@ class HelmIntegrationTest {
 
         // Assert that the response status was 403
         assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+
+        // Admin client can do everything on suppliers and invoices. We use it to setup this scenario.
+        var adminClient = getRestClient(applicationId, "invoice-manager", "invoice-manager");
+
+        // we create 3 suppliers
+        var xenitSupplier = createSupplier(adminClient, applicationId, "xenit", "123456", "986532");
+        var amexioSupplier =  createSupplier(adminClient, applicationId, "amexio", "785421", "55555");
+        var otherSupplier = createSupplier(adminClient, applicationId, "other", "987654321", "444444");
+
+        // creating 4 different invoices
+        var xenitInvoiceUnder500 = createInvoice(adminClient, applicationId, xenitSupplier, 400);
+        var xenitInvoiceOver500 = createInvoice(adminClient, applicationId, xenitSupplier, 600);
+        var amexioInvoice = createInvoice(adminClient, applicationId, amexioSupplier, 400);
+        var otherInvoice = createInvoice(adminClient, applicationId, otherSupplier, 300);
+
+        // invoice-maintainer can see invoices of xenit and amexio, under total_amount 500
+        var invoiceMaintainerClient =  getRestClient(applicationId, "invoice-maintainer", "invoice-maintainer");
+        var invoicesResponse = invoiceMaintainerClient.get()
+                .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
+                .retrieve()
+                .toEntity(String.class);
+
+        assertEquals(HttpStatus.OK, invoicesResponse.getStatusCode());
+        var invoicesBody = invoicesResponse.getBody();
+        assertTrue(invoicesBody.contains(xenitInvoiceUnder500));
+        assertTrue(invoicesBody.contains(amexioInvoice));
+        assertFalse(invoicesBody.contains(otherInvoice));
+        assertFalse(invoicesBody.contains(xenitInvoiceOver500));
+    }
+
+    static ObjectMapper mapper =  new ObjectMapper();
+
+    @SneakyThrows
+    private String createInvoice(RestClient client, String applicationId, String supplier, double totalAmount) {
+        var invoice = String.format("""
+                {
+                "received": "2024-06-30T21:59:59Z",
+                "pay_before": "2025-06-30T21:59:59Z",
+                "total_amount": %,.2f,
+                "supplier": "%s"
+                }
+                """,
+                totalAmount, supplier
+        );
+
+        var createInvoice = client.post()
+                .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(invoice)
+                .retrieve()
+                .toEntity(String.class);
+
+        if (!HttpStatus.CREATED.equals(createInvoice.getStatusCode())) {
+            assert false;
+        }
+        assertEquals(HttpStatus.CREATED, createInvoice.getStatusCode());
+        var root = mapper.readTree(createInvoice.getBody());
+        return root.path("_links").path("self").path("href").asText();
+    }
+
+    @SneakyThrows
+    static String createSupplier(RestClient client, String applicationId, String name, String telephone, String bankAccount) {
+        var supplier = String.format("""
+                {
+                 "name": "%s",
+                 "telephone": "%s",
+                 "bank_account": "%s"
+                 }
+                """, name, telephone, bankAccount);
+
+        try {
+            var createSupplier = client.post()
+                    .uri("http://"+applicationId+".apps.contentgrid.test/suppliers")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(supplier)
+                    .retrieve()
+                    .toEntity(String.class);
+
+            assertEquals(HttpStatus.CREATED, createSupplier.getStatusCode());
+
+            JsonNode root = mapper.readTree(createSupplier.getBody());
+            return root.path("_links").path("self").path("href").asText();
+        } catch (RestClientResponseException e) {
+          throw e;
+        }
 
     }
 
@@ -326,6 +419,33 @@ class HelmIntegrationTest {
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
+
+
+        var dbNetworkPolicy = new NetworkPolicyBuilder()
+                .withNewMetadata()
+                .withName(deploymentId + "-db")
+                .endMetadata()
+                .withNewSpec()
+                .withPodSelector(new LabelSelectorBuilder()
+                        .addToMatchLabels("app.contentgrid.com/deployment-id", deploymentId)
+                        .build())
+                .withPolicyTypes("Egress")
+                .withEgress(new NetworkPolicyEgressRuleBuilder()
+                        .withTo(new NetworkPolicyPeerBuilder()
+                                .withIpBlock(new IPBlockBuilder()
+                                        .withCidr(appDatabase.getHost() + "/32")
+                                        .build())
+                                .build())
+                        .withPorts(new NetworkPolicyPortBuilder()
+                                .withProtocol("TCP")
+                                .withPort(new IntOrString(appDatabase.getFirstMappedPort()))
+                                .build())
+                        .build())
+                .endSpec()
+                .build();
+
+        appClient.network().v1().networkPolicies().resource(dbNetworkPolicy).create();
+
 
         //deploy src/test/resources/testapp/manifest.yaml
         var manifestInputStream = HelmIntegrationTest.class.getClassLoader()

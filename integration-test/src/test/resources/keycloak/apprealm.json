@@ -946,7 +946,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "nvoice-manager",
+      "secret": "invoice-manager",
       "redirectUris": [
         "/*"
       ],
