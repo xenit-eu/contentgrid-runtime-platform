@@ -76,9 +76,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Slf4j
-@DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io" )
-@DockerRegistryCache(name = "quay.io", proxy = "https://quay.io" )
-@DockerRegistryCache(name = "ghcr.io", proxy = "https://ghcr.io" )
+@DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io")
+@DockerRegistryCache(name = "quay.io", proxy = "https://quay.io")
+@DockerRegistryCache(name = "ghcr.io", proxy = "https://ghcr.io")
 @Testcontainers
 @KubernetesTestCluster(providers = CustomClusterProvider.class)
 @HelmClient
@@ -87,6 +87,7 @@ class HelmIntegrationTest {
 
     @Slf4j
     public static class CustomClusterProvider extends K3sTestcontainersClusterProvider {
+
         public CustomClusterProvider() {
             configure(DefaultDenyCiliumK3sContainerCustomizer.class);
             configure(ClusterDomainsK3sContainerCustomizer.class, customizer -> customizer.withDomains(
@@ -109,16 +110,16 @@ class HelmIntegrationTest {
     }
 
     @Container
-    static PostgreSQLContainer<?> pgKeycloak = new PostgreSQLContainer<>("postgres:15" )
-            .withDatabaseName("keycloak" )
-            .withUsername("keycloak" )
-            .withPassword("keycloak" );
+    static PostgreSQLContainer<?> pgKeycloak = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("keycloak")
+            .withUsername("keycloak")
+            .withPassword("keycloak");
 
     @Container
-    PostgreSQLContainer<?> appDatabase = new PostgreSQLContainer<>("postgres:15" )
-            .withDatabaseName("appdb" )
-            .withUsername("appuser" )
-            .withPassword("apppassword" );
+    PostgreSQLContainer<?> appDatabase = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("appdb")
+            .withUsername("appuser")
+            .withPassword("apppassword");
 
     @Container
     static MinIOContainer minio = new MinIOContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z");
@@ -138,7 +139,7 @@ class HelmIntegrationTest {
             throws Exception {
         fakeClusterSecretStore.addSecrets(Map.of(
                 "keycloak.db.password", pgKeycloak.getPassword(),
-                "surveyor.pegman.systems.secret", "{\"hello\": \"world\"}" ));
+                "surveyor.pegman.systems.secret", "{\"hello\": \"world\"}"));
         //create the app namespace
         var namespace = new NamespaceBuilder().withNewMetadata().withName(APP_NAMESPACE).endMetadata().build();
         kubernetesClient.namespaces().resource(namespace).serverSideApply();
@@ -154,7 +155,7 @@ class HelmIntegrationTest {
                         "surveyor.pegman.host", "metrics.contentgrid.test",
                         "tokenmonger.host", "extensions.contentgrid.test",
                         "ingressClassName", "",
-                        "keycloak.protocol", "http" )),
+                        "keycloak.protocol", "http")),
                 InstallOption.values(Map.of(
                         "keycloakx.extraEnv",
                         """
@@ -171,7 +172,7 @@ class HelmIntegrationTest {
                                 """
                 )),
                 InstallOption.arguments("--set-file", "keycloak.extraRealms.apprealm\\.json=" +
-                        Path.of("src/test/resources/keycloak/apprealm.json" ).toAbsolutePath().normalize()),
+                        Path.of("src/test/resources/keycloak/apprealm.json").toAbsolutePath().normalize()),
                 InstallOption.values(Map.of(
                         "userapps.namespace", APP_NAMESPACE,
                         "userapps.defaultDomainSuffix", "apps.contentgrid.test",
@@ -182,7 +183,7 @@ class HelmIntegrationTest {
                 .include(installed)
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
 
-        try(var mc = MinioAsyncClient.builder()
+        try (var mc = MinioAsyncClient.builder()
                 .endpoint(minio.getS3URL())
                 .credentials(minio.getUserName(), minio.getPassword())
                 .build()) {
@@ -200,13 +201,13 @@ class HelmIntegrationTest {
     void testDeployApplication(String dockerImageTag) {
 
         // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
-        var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:"+dockerImageTag);
+        var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:" + dockerImageTag);
 
         var suppliersAdminClient = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
         var suppliersResponse = suppliersAdminClient
                 .get()
-                .uri("http://"+applicationId+".apps.contentgrid.test/suppliers" )
+                .uri("http://" + applicationId + ".apps.contentgrid.test/suppliers")
                 .retrieve()
                 .toEntity(String.class);
 
@@ -216,7 +217,7 @@ class HelmIntegrationTest {
         // Expect an exception due to 403 response. The client has no access to invoices via the policies in the app
         HttpClientErrorException exception = assertThrows(HttpClientErrorException.Forbidden.class, () -> {
             suppliersAdminClient.get()
-                    .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
+                    .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
                     .retrieve()
                     .toEntity(String.class); // This line throws the exception
         });
@@ -229,7 +230,7 @@ class HelmIntegrationTest {
 
         // we create 3 suppliers
         var xenitSupplier = createSupplier(adminClient, applicationId, "xenit", "123456", "986532");
-        var amexioSupplier =  createSupplier(adminClient, applicationId, "amexio", "785421", "55555");
+        var amexioSupplier = createSupplier(adminClient, applicationId, "amexio", "785421", "55555");
         var otherSupplier = createSupplier(adminClient, applicationId, "other", "987654321", "444444");
 
         // creating 4 different invoices
@@ -239,9 +240,9 @@ class HelmIntegrationTest {
         var otherInvoice = createInvoice(adminClient, applicationId, otherSupplier, 300);
 
         // invoice-maintainer can see invoices of xenit and amexio, under total_amount 500
-        var invoiceMaintainerClient =  getRestClient(applicationId, "invoice-maintainer", "invoice-maintainer");
+        var invoiceMaintainerClient = getRestClient(applicationId, "invoice-maintainer", "invoice-maintainer");
         var invoicesResponse = invoiceMaintainerClient.get()
-                .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
+                .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
                 .retrieve()
                 .toEntity(String.class);
 
@@ -253,23 +254,23 @@ class HelmIntegrationTest {
         assertFalse(invoicesBody.contains(xenitInvoiceOver500));
     }
 
-    static ObjectMapper mapper =  new ObjectMapper();
+    static ObjectMapper mapper = new ObjectMapper();
 
     @SneakyThrows
     private String createInvoice(RestClient client, String applicationId, String supplier, double totalAmount) {
         var invoice = String.format("""
-                {
-                "received": "2024-06-30T21:59:59Z",
-                "pay_before": "2025-06-30T21:59:59Z",
-                "total_amount": %,.2f,
-                "supplier": "%s"
-                }
-                """,
+                        {
+                        "received": "2024-06-30T21:59:59Z",
+                        "pay_before": "2025-06-30T21:59:59Z",
+                        "total_amount": %,.2f,
+                        "supplier": "%s"
+                        }
+                        """,
                 totalAmount, supplier
         );
 
         var createInvoice = client.post()
-                .uri("http://"+applicationId+".apps.contentgrid.test/invoices")
+                .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(invoice)
                 .retrieve()
@@ -284,7 +285,8 @@ class HelmIntegrationTest {
     }
 
     @SneakyThrows
-    static String createSupplier(RestClient client, String applicationId, String name, String telephone, String bankAccount) {
+    static String createSupplier(RestClient client, String applicationId, String name, String telephone,
+            String bankAccount) {
         var supplier = String.format("""
                 {
                  "name": "%s",
@@ -295,7 +297,7 @@ class HelmIntegrationTest {
 
         try {
             var createSupplier = client.post()
-                    .uri("http://"+applicationId+".apps.contentgrid.test/suppliers")
+                    .uri("http://" + applicationId + ".apps.contentgrid.test/suppliers")
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(supplier)
                     .retrieve()
@@ -306,7 +308,7 @@ class HelmIntegrationTest {
             JsonNode root = mapper.readTree(createSupplier.getBody());
             return root.path("_links").path("self").path("href").asText();
         } catch (RestClientResponseException e) {
-          throw e;
+            throw e;
         }
 
     }
@@ -316,7 +318,7 @@ class HelmIntegrationTest {
         var dockerHostAddress = InetAddress.getByName(DockerClientFactory.instance().dockerHostIpAddress());
         var hosts = Map.of(
                 "auth.contentgrid.test", new InetAddress[]{dockerHostAddress},
-                applicationId+".apps.contentgrid.test", new InetAddress[]{dockerHostAddress}
+                applicationId + ".apps.contentgrid.test", new InetAddress[]{dockerHostAddress}
         );
 
         var connectionManager = BasicHttpClientConnectionManager.create(null,
@@ -348,7 +350,7 @@ class HelmIntegrationTest {
 
         var response = client
                 .post()
-                .uri("http://auth.contentgrid.test/realms/cg-fff710df-7947-403a-8f45-a3fa97b9b4b2/protocol/openid-connect/token" )
+                .uri("http://auth.contentgrid.test/realms/cg-fff710df-7947-403a-8f45-a3fa97b9b4b2/protocol/openid-connect/token")
                 .body(new LinkedMultiValueMap(Map.of(
                         "grant_type", List.of("client_credentials"),
                         "client_id", List.of(clientId),
@@ -375,7 +377,7 @@ class HelmIntegrationTest {
 
         var applicationId = UUID.randomUUID().toString();
         var deploymentId = UUID.randomUUID().toString();
-        var policyPackage = "contentgrid.userapps.x"+deploymentId.replace("-", "");
+        var policyPackage = "contentgrid.userapps.x" + deploymentId.replace("-", "");
 
         var k8sAppClientConfig = kubernetesClient.getConfiguration();
         k8sAppClientConfig.setNamespace(APP_NAMESPACE);
@@ -383,7 +385,7 @@ class HelmIntegrationTest {
 
         var dbSecret = new SecretBuilder()
                 .withNewMetadata()
-                .withName(applicationId+"-db" )
+                .withName(applicationId + "-db")
                 .withLabels(Map.of(
                         "app.contentgrid.com/app-id", applicationId,
                         "app.contentgrid.com/application-id", applicationId,
@@ -391,7 +393,7 @@ class HelmIntegrationTest {
                         "app.kubernetes.io/managed-by", "contentgrid"
                 ))
                 .endMetadata()
-                .withType("Opaque" )
+                .withType("Opaque")
                 .addToStringData("spring.datasource.password", appDatabase.getPassword())
                 .addToStringData("spring.datasource.url", appDatabase.getJdbcUrl())
                 .addToStringData("spring.datasource.username", appDatabase.getUsername())
@@ -401,7 +403,7 @@ class HelmIntegrationTest {
 
         var s3Secret = new SecretBuilder()
                 .withNewMetadata()
-                .withName(applicationId+"-sto")
+                .withName(applicationId + "-sto")
                 .withLabels(Map.of(
                         "app.contentgrid.com/app-id", applicationId,
                         "app.contentgrid.com/application-id", applicationId,
@@ -409,7 +411,7 @@ class HelmIntegrationTest {
                         "app.kubernetes.io/managed-by", "contentgrid"
                 ))
                 .endMetadata()
-                .withType("Opaque" )
+                .withType("Opaque")
                 .addToStringData("spring.content.storage.type.default", "s3")
                 .addToStringData("spring.content.s3.endpoint", minio.getS3URL())
                 .addToStringData("spring.content.s3.bucket", APP_BUCKET)
@@ -419,7 +421,6 @@ class HelmIntegrationTest {
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
-
 
         var dbNetworkPolicy = new NetworkPolicyBuilder()
                 .withNewMetadata()
@@ -446,10 +447,9 @@ class HelmIntegrationTest {
 
         appClient.network().v1().networkPolicies().resource(dbNetworkPolicy).create();
 
-
         //deploy src/test/resources/testapp/manifest.yaml
         var manifestInputStream = HelmIntegrationTest.class.getClassLoader()
-                .getResourceAsStream("testapp/manifests.yaml" );
+                .getResourceAsStream("testapp/manifests.yaml");
         String manifestContent = new String(manifestInputStream.readAllBytes(), StandardCharsets.UTF_8);
 
         // Replace variables
@@ -463,7 +463,7 @@ class HelmIntegrationTest {
                 .serverSideApply();
 
         new KubernetesResourceWaiter(kubernetesClient)
-                .include(Deployment.class, ResourceMatcher.named("api-d-"+deploymentId).inNamespace(APP_NAMESPACE))
+                .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
                 .await(wait -> wait.atMost(2, TimeUnit.MINUTES));
 
         var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
@@ -474,15 +474,14 @@ class HelmIntegrationTest {
                 .atMost(1, TimeUnit.MINUTES)
                 .until(() -> solonWaiter.resources()
                         .flatMap(AwaitableResource::logs)
-                        .anyMatch(logLine -> logLine.line().contains("+ "+deploymentId))
+                        .anyMatch(logLine -> logLine.line().contains("+ " + deploymentId))
                 );
 
         Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
 
-
         var gwSecret = new SecretBuilder()
                 .withNewMetadata()
-                .withGenerateName("gateway-iam-" )
+                .withGenerateName("gateway-iam-")
                 .withLabels(Map.of(
                         "app.contentgrid.com/app-id", applicationId,
                         "app.contentgrid.com/application-id", applicationId,
@@ -490,12 +489,12 @@ class HelmIntegrationTest {
                         "app.kubernetes.io/managed-by", "contentgrid"
                 ))
                 .endMetadata()
-                .withType("Opaque" )
+                .withType("Opaque")
                 .addToStringData("contentgrid.idp.client-id",
-                        "contentgrid-app-gateway-ccaa8db6-2514-4680-a2ad-01de8cab8922" )
-                .addToStringData("contentgrid.idp.client-secret", "7fe30b6e-f104-4bf4-9510-e1165eb12865" )
+                        "contentgrid-app-gateway-ccaa8db6-2514-4680-a2ad-01de8cab8922")
+                .addToStringData("contentgrid.idp.client-secret", "7fe30b6e-f104-4bf4-9510-e1165eb12865")
                 .addToStringData("contentgrid.idp.issuer-uri",
-                        "http://auth.contentgrid.test/realms/cg-fff710df-7947-403a-8f45-a3fa97b9b4b2" )
+                        "http://auth.contentgrid.test/realms/cg-fff710df-7947-403a-8f45-a3fa97b9b4b2")
                 .build();
 
         appClient.secrets().resource(gwSecret).create();
