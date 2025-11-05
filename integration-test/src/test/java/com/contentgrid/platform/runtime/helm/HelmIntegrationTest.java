@@ -479,6 +479,7 @@ class HelmIntegrationTest {
 
         Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
 
+        // we use client credentials, so the secret is not actually used yet by the Gateway
         var gwSecret = new SecretBuilder()
                 .withNewMetadata()
                 .withGenerateName("gateway-iam-")

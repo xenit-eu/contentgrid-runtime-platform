@@ -783,7 +783,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "7fe30b6e-f104-4bf4-9510-e1165eb12865",
       "redirectUris": [
         "http://*.apps.contentgrid.test/*"
       ],
