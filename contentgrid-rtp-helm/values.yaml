@@ -11,7 +11,7 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:1.9.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:1fcfed6c7eceebbb6dad228feb7d9f9a031127c95a56f7f2a3426c3f5a80f78a
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:83831e6dfc48db5a81fb1b6ddad4d17a0e18d4d6d7caa2088a1aedc508b9ec35
   debug: false
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:83aec9b86e9e80a3d244496b7e60128d616119cef675436250b51f996d7e88b4
@@ -23,12 +23,12 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:a52ac5cd5a95f090e059a234e2a380368b271c62ef435e0feeac147176bf9588
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:884df0aee761ea9a6c041bedf2d6bb64afb1d77d4a42b484ba0d9ad28c8e103f
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:91de57ff96ccde0ef0418447d48cee40b3e28a9029c81af5b3126e53284456d9
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:3f779ffc9133da5cd79ab4aed66825d499fd0846701298164cd96a594d3b900e
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:452e81420c9593053692412d348daea1df324f7de536174b6afbe9eb396f1adc
     host: ~
     debug: false
     extraConfig: |
@@ -59,10 +59,10 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:6d07a5149c6d572f6f85b30b6dbf11560d98d9bd940cbf4d0332162e90cedee2
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:4003bb11092738f282942281ea33915873f78c63b134c97a97013a178b21b91d
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:c5e16fe4415a92674af8a69539af60a3a8c4738097a9f309e0723a4a7faaa34f
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:4ffadde5cdf0d477178b2f0a0ecfd9c7f5e134a54374c1566175103aeb2426bf
     debug: false
 
 userapps:
