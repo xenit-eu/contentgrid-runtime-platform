@@ -28,7 +28,7 @@ surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:452e81420c9593053692412d348daea1df324f7de536174b6afbe9eb396f1adc
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:62dbc6bef05c9666b0b0ff4ec0afad27b7b10b0824eddd0c8c102fe50f673d2c
     host: ~
     debug: false
     extraConfig: |
@@ -59,10 +59,10 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:4003bb11092738f282942281ea33915873f78c63b134c97a97013a178b21b91d
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:35b17be4ec65f4919792c0a368aedd525f58db19bad80572e219cae8dcc8dd03
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:4ffadde5cdf0d477178b2f0a0ecfd9c7f5e134a54374c1566175103aeb2426bf
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:aaab48eec29ff63347e8660e6d27418f2cd5a1e205b6ee1600a2f745e653702d
     debug: false
 
 userapps:
