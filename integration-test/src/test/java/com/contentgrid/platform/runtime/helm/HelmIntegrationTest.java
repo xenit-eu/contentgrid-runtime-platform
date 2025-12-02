@@ -177,7 +177,9 @@ class HelmIntegrationTest {
                 InstallOption.values(Map.of(
                         "userapps.namespace", APP_NAMESPACE,
                         "userapps.defaultDomainSuffix", "apps.contentgrid.test",
-                        "userapps.ingressClassName", ""
+                        "userapps.ingressClassName", "",
+                        "userapps.objectstorage[0].ip", minio.getHost(),
+                        "userapps.objectstorage[0].port", minio.getFirstMappedPort().toString()
                 )));
 
         new KubernetesResourceWaiter(kubernetesClient)

@@ -11,6 +11,11 @@ userapps:
     - ip: 51.159.75.175
       port: "21065"
   defaultDomainSuffix: sandbox.contentgrid.cloud
+  objectstorage:
+    - fqdn:
+        name: "s3.fr-par.scw.cloud"
+        pattern: "*.s3.fr-par.scw.cloud"
+      port: "443"
 
 keycloak:
   host: auth.sandbox.contentgrid.cloud

@@ -131,6 +131,7 @@ spec:
               app.kubernetes.io/component: proxy
       ports:
         - port: 8081
+{{ if .Values.userapps.objectstorage }}
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -145,13 +146,28 @@ spec:
     matchLabels:
       app.contentgrid.com/service-type: api
   egress:
+    {{ range $objectstorage := .Values.userapps.objectstorage }}
+    {{ if $objectstorage.fqdn }}
     - toFQDNs:
-        - matchPattern: "*.s3.fr-par.scw.cloud"
-        - matchName: "s3.fr-par.scw.cloud"
+        {{ if $objectstorage.fqdn.pattern }}
+        - matchPattern: {{ $objectstorage.fqdn.pattern }}
+        {{ end }}
+        {{ if $objectstorage.fqdn.name }}
+        - matchName: {{ $objectstorage.fqdn.name }}
+        {{ end }}
       toPorts:
         - ports:
-          - port: "443"
-
+          - port: {{ $objectstorage.port }}
+    {{ end }}
+    {{ if $objectstorage.ip }}
+    - to:
+        - ipBlock:
+            cidr: {{ $objectstorage.ip }}/24
+      ports:
+        - port: {{ $objectstorage.port }}
+    {{ end }}
+    {{ end }}
+{{ end }}
 {{ if .Values.userapps.database }}
 ---
 apiVersion: networking.k8s.io/v1
