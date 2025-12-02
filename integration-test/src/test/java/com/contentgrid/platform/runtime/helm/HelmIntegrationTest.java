@@ -418,6 +418,12 @@ class HelmIntegrationTest {
                 .addToStringData("spring.content.s3.region", "none")
                 .addToStringData("spring.content.s3.accessKey", minio.getUserName())
                 .addToStringData("spring.content.s3.secretKey", minio.getPassword())
+                .addToStringData("contentgrid.appserver.content-store.type", "s3")
+                .addToStringData("contentgrid.appserver.content.s3.url", minio.getS3URL())
+                .addToStringData("contentgrid.appserver.content.s3.bucket", APP_BUCKET)
+                .addToStringData("contentgrid.appserver.content.s3.region", "none")
+                .addToStringData("contentgrid.appserver.content.s3.accessKey", minio.getUserName())
+                .addToStringData("contentgrid.appserver.content.s3.secretKey", minio.getPassword())
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
