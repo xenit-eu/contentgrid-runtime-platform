@@ -62,6 +62,7 @@ import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -258,20 +259,17 @@ class HelmIntegrationTest {
 
     @SneakyThrows
     private String createInvoice(RestClient client, String applicationId, String supplier, double totalAmount) {
-        var invoice = String.format("""
-                        {
-                        "received": "2024-06-30T21:59:59Z",
-                        "pay_before": "2025-06-30T21:59:59Z",
-                        "total_amount": %,.2f,
-                        "supplier": "%s"
-                        }
-                        """,
-                totalAmount, supplier
-        );
+        var invoice = new LinkedMultiValueMap<String, Object>();
+        invoice.add("received", "2024-06-30T21:59:59Z");
+        invoice.add("pay_before", "2025-06-30T21:59:59Z");
+        invoice.add("total_amount", "%,.2f".formatted(totalAmount));
+        invoice.add("supplier", supplier);
+        var resource = new ClassPathResource("/document/test.txt");
+        invoice.add("document", resource);
 
         var createInvoice = client.post()
                 .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(invoice)
                 .retrieve()
                 .toEntity(String.class);
