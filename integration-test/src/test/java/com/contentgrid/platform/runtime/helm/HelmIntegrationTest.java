@@ -72,10 +72,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io")
@@ -124,7 +126,9 @@ class HelmIntegrationTest {
             .withPassword("apppassword");
 
     @Container
-    MinIOContainer minio = new MinIOContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z");
+    LocalStackContainer appObjectStorage = new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.11.1"))
+            .withServices(Service.S3)
+            .withEnv("ALLOW_NONSTANDARD_REGIONS", "1");
 
     static KubernetesClient kubernetesClient;
 
@@ -425,23 +429,23 @@ class HelmIntegrationTest {
                 .endMetadata()
                 .withType("Opaque")
                 .addToStringData("spring.content.storage.type.default", "s3")
-                .addToStringData("spring.content.s3.endpoint", minio.getS3URL())
+                .addToStringData("spring.content.s3.endpoint", appObjectStorage.getEndpoint().toString())
                 .addToStringData("spring.content.s3.bucket", APP_BUCKET)
                 .addToStringData("spring.content.s3.region", "none")
-                .addToStringData("spring.content.s3.accessKey", minio.getUserName())
-                .addToStringData("spring.content.s3.secretKey", minio.getPassword())
+                .addToStringData("spring.content.s3.accessKey", appObjectStorage.getAccessKey())
+                .addToStringData("spring.content.s3.secretKey", appObjectStorage.getSecretKey())
                 .addToStringData("contentgrid.appserver.content-store.type", "s3")
-                .addToStringData("contentgrid.appserver.content.s3.url", minio.getS3URL())
+                .addToStringData("contentgrid.appserver.content.s3.url", appObjectStorage.getEndpoint().toString())
                 .addToStringData("contentgrid.appserver.content.s3.bucket", APP_BUCKET)
                 .addToStringData("contentgrid.appserver.content.s3.region", "none")
-                .addToStringData("contentgrid.appserver.content.s3.accessKey", minio.getUserName())
-                .addToStringData("contentgrid.appserver.content.s3.secretKey", minio.getPassword())
+                .addToStringData("contentgrid.appserver.content.s3.accessKey", appObjectStorage.getAccessKey())
+                .addToStringData("contentgrid.appserver.content.s3.secretKey", appObjectStorage.getSecretKey())
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
 
         createEgressNetworkPolicy(appClient, deploymentId + "-db", deploymentId, appDatabase.getHost(), appDatabase.getFirstMappedPort());
-        createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, minio.getHost(), minio.getFirstMappedPort());
+        createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, appObjectStorage.getHost(), appObjectStorage.getFirstMappedPort());
 
         //deploy src/test/resources/testapp/manifest.yaml
         var manifestInputStream = HelmIntegrationTest.class.getClassLoader()
@@ -460,8 +464,8 @@ class HelmIntegrationTest {
 
         // Create s3 bucket
         try (var mc = MinioAsyncClient.builder()
-                .endpoint(minio.getS3URL())
-                .credentials(minio.getUserName(), minio.getPassword())
+                .endpoint(appObjectStorage.getEndpoint().toURL())
+                .credentials(appObjectStorage.getAccessKey(), appObjectStorage.getSecretKey())
                 .build()) {
             mc.makeBucket(MakeBucketArgs.builder()
                     .bucket(APP_BUCKET)
