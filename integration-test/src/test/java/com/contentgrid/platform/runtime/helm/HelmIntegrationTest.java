@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
@@ -255,6 +256,30 @@ class HelmIntegrationTest {
         assertTrue(invoicesBody.contains(amexioInvoice));
         assertFalse(invoicesBody.contains(otherInvoice));
         assertFalse(invoicesBody.contains(xenitInvoiceOver500));
+
+        // check we can access document of xenit and amexio, under total_amount 500
+        for (var invoiceUrl : List.of(xenitInvoiceUnder500, amexioInvoice)) {
+            var invoiceDocumentResponse = invoiceMaintainerClient.get()
+                    .uri(invoiceUrl + "/document")
+                    .retrieve()
+                    .toEntity(String.class);
+
+            assertEquals(HttpStatus.OK, invoiceDocumentResponse.getStatusCode());
+            assertEquals("Hello world!", invoiceDocumentResponse.getBody());
+        }
+
+        // check we are not allowed to access the other documents
+        for (var invoiceUrl : List.of(xenitInvoiceOver500, otherInvoice)) {
+            var exception1 = assertThrows(HttpClientErrorException.class, () -> {
+                invoiceMaintainerClient.get()
+                        .uri(invoiceUrl + "/document")
+                        .retrieve()
+                        .toEntity(String.class); // this line throws the exception
+            });
+            // v1 returns 404, v2 returns 403
+            assertTrue(Stream.of(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+                    .anyMatch(status -> exception1.getStatusCode().isSameCodeAs(status)));
+        }
     }
 
     static ObjectMapper mapper = new ObjectMapper();
