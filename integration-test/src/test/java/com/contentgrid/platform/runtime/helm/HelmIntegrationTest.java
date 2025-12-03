@@ -124,7 +124,7 @@ class HelmIntegrationTest {
             .withPassword("apppassword");
 
     @Container
-    static MinIOContainer minio = new MinIOContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z");
+    MinIOContainer minio = new MinIOContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z");
 
     static KubernetesClient kubernetesClient;
 
@@ -178,25 +178,12 @@ class HelmIntegrationTest {
                 InstallOption.values(Map.of(
                         "userapps.namespace", APP_NAMESPACE,
                         "userapps.defaultDomainSuffix", "apps.contentgrid.test",
-                        "userapps.ingressClassName", "",
-                        "userapps.objectstorage[0].ip", minio.getHost(),
-                        "userapps.objectstorage[0].port", minio.getFirstMappedPort().toString()
+                        "userapps.ingressClassName", ""
                 )));
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
-
-        try (var mc = MinioAsyncClient.builder()
-                .endpoint(minio.getS3URL())
-                .credentials(minio.getUserName(), minio.getPassword())
-                .build()) {
-
-            mc.makeBucket(MakeBucketArgs.builder()
-                    .bucket(APP_BUCKET)
-                    .build());
-
-        }
 
     }
 
@@ -453,30 +440,8 @@ class HelmIntegrationTest {
 
         appClient.secrets().resource(s3Secret).create();
 
-        var dbNetworkPolicy = new NetworkPolicyBuilder()
-                .withNewMetadata()
-                .withName(deploymentId + "-db")
-                .endMetadata()
-                .withNewSpec()
-                .withPodSelector(new LabelSelectorBuilder()
-                        .addToMatchLabels("app.contentgrid.com/deployment-id", deploymentId)
-                        .build())
-                .withPolicyTypes("Egress")
-                .withEgress(new NetworkPolicyEgressRuleBuilder()
-                        .withTo(new NetworkPolicyPeerBuilder()
-                                .withIpBlock(new IPBlockBuilder()
-                                        .withCidr(appDatabase.getHost() + "/32")
-                                        .build())
-                                .build())
-                        .withPorts(new NetworkPolicyPortBuilder()
-                                .withProtocol("TCP")
-                                .withPort(new IntOrString(appDatabase.getFirstMappedPort()))
-                                .build())
-                        .build())
-                .endSpec()
-                .build();
-
-        appClient.network().v1().networkPolicies().resource(dbNetworkPolicy).create();
+        createEgressNetworkPolicy(appClient, deploymentId + "-db", deploymentId, appDatabase.getHost(), appDatabase.getFirstMappedPort());
+        createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, minio.getHost(), minio.getFirstMappedPort());
 
         //deploy src/test/resources/testapp/manifest.yaml
         var manifestInputStream = HelmIntegrationTest.class.getClassLoader()
@@ -492,6 +457,16 @@ class HelmIntegrationTest {
 
         appClient.load(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)))
                 .serverSideApply();
+
+        // Create s3 bucket
+        try (var mc = MinioAsyncClient.builder()
+                .endpoint(minio.getS3URL())
+                .credentials(minio.getUserName(), minio.getPassword())
+                .build()) {
+            mc.makeBucket(MakeBucketArgs.builder()
+                    .bucket(APP_BUCKET)
+                    .build());
+        }
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
@@ -532,6 +507,33 @@ class HelmIntegrationTest {
         appClient.secrets().resource(gwSecret).create();
 
         return applicationId;
+    }
+
+    private void createEgressNetworkPolicy(KubernetesClient client, String name, String deploymentId, String ip, int port) {
+        var networkPolicy = new NetworkPolicyBuilder()
+                .withNewMetadata()
+                .withName(name)
+                .endMetadata()
+                .withNewSpec()
+                .withPodSelector(new LabelSelectorBuilder()
+                        .addToMatchLabels("app.contentgrid.com/deployment-id", deploymentId)
+                        .build())
+                .withPolicyTypes("Egress")
+                .withEgress(new NetworkPolicyEgressRuleBuilder()
+                        .withTo(new NetworkPolicyPeerBuilder()
+                                .withIpBlock(new IPBlockBuilder()
+                                        .withCidr(ip + "/32")
+                                        .build())
+                                .build())
+                        .withPorts(new NetworkPolicyPortBuilder()
+                                .withProtocol("TCP")
+                                .withPort(new IntOrString(port))
+                                .build())
+                        .build())
+                .endSpec()
+                .build();
+
+        client.network().v1().networkPolicies().resource(networkPolicy).create();
     }
 
 }
