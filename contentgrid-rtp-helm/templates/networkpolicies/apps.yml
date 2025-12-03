@@ -146,27 +146,27 @@ spec:
     matchLabels:
       app.contentgrid.com/service-type: api
   egress:
-    {{ range $objectstorage := .Values.userapps.objectstorage }}
-    {{ if $objectstorage.fqdn }}
+    {{- range $objectstorage := .Values.userapps.objectstorage }}
+    {{- if $objectstorage.fqdn }}
     - toFQDNs:
-        {{ if $objectstorage.fqdn.pattern }}
-        - matchPattern: {{ $objectstorage.fqdn.pattern }}
-        {{ end }}
-        {{ if $objectstorage.fqdn.name }}
-        - matchName: {{ $objectstorage.fqdn.name }}
-        {{ end }}
+        {{- if $objectstorage.fqdn.pattern }}
+        - matchPattern: "{{ $objectstorage.fqdn.pattern }}"
+        {{- end }}
+        {{- if $objectstorage.fqdn.name }}
+        - matchName: "{{ $objectstorage.fqdn.name }}"
+        {{- end }}
       toPorts:
         - ports:
-          - port: {{ $objectstorage.port }}
-    {{ end }}
-    {{ if $objectstorage.ip }}
-    - to:
-        - ipBlock:
-            cidr: {{ $objectstorage.ip }}/24
-      ports:
-        - port: {{ $objectstorage.port }}
-    {{ end }}
-    {{ end }}
+          - port: "{{ $objectstorage.port }}"
+    {{- end }}
+    {{- if $objectstorage.ip }}
+    - toCIDR:
+        - {{ $objectstorage.ip }}/24
+      toPorts:
+        - ports:
+          - port: "{{ $objectstorage.port }}"
+    {{- end }}
+    {{- end }}
 {{ end }}
 {{ if .Values.userapps.database }}
 ---
@@ -185,12 +185,12 @@ spec:
     matchLabels:
       app.contentgrid.com/service-type: api
   egress:
-    {{ range $db := .Values.userapps.database }}
+    {{- range $db := .Values.userapps.database }}
     - to:
         - ipBlock:
             cidr: {{ $db.ip }}/24
       ports:
         - port: {{ $db.port }}
-    {{ end }}
+    {{- end }}
 {{ end }}
 {{ end }}
