@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.SystemDefaultDnsResolver;
@@ -62,6 +63,7 @@ import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -70,10 +72,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io")
@@ -122,7 +126,9 @@ class HelmIntegrationTest {
             .withPassword("apppassword");
 
     @Container
-    static MinIOContainer minio = new MinIOContainer("minio/minio:RELEASE.2025-09-07T16-13-09Z");
+    LocalStackContainer appObjectStorage = new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.11.1"))
+            .withServices(Service.S3)
+            .withEnv("ALLOW_NONSTANDARD_REGIONS", "1");
 
     static KubernetesClient kubernetesClient;
 
@@ -183,17 +189,6 @@ class HelmIntegrationTest {
                 .include(installed)
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
 
-        try (var mc = MinioAsyncClient.builder()
-                .endpoint(minio.getS3URL())
-                .credentials(minio.getUserName(), minio.getPassword())
-                .build()) {
-
-            mc.makeBucket(MakeBucketArgs.builder()
-                    .bucket(APP_BUCKET)
-                    .build());
-
-        }
-
     }
 
     @ParameterizedTest
@@ -252,26 +247,47 @@ class HelmIntegrationTest {
         assertTrue(invoicesBody.contains(amexioInvoice));
         assertFalse(invoicesBody.contains(otherInvoice));
         assertFalse(invoicesBody.contains(xenitInvoiceOver500));
+
+        // check we can access document of xenit and amexio, under total_amount 500
+        for (var invoiceUrl : List.of(xenitInvoiceUnder500, amexioInvoice)) {
+            var invoiceDocumentResponse = invoiceMaintainerClient.get()
+                    .uri(invoiceUrl + "/document")
+                    .retrieve()
+                    .toEntity(String.class);
+
+            assertEquals(HttpStatus.OK, invoiceDocumentResponse.getStatusCode());
+            assertEquals("Hello world!", invoiceDocumentResponse.getBody());
+        }
+
+        // check we are not allowed to access the other documents
+        for (var invoiceUrl : List.of(xenitInvoiceOver500, otherInvoice)) {
+            var exception1 = assertThrows(HttpClientErrorException.class, () -> {
+                invoiceMaintainerClient.get()
+                        .uri(invoiceUrl + "/document")
+                        .retrieve()
+                        .toEntity(String.class); // this line throws the exception
+            });
+            // v1 returns 404, v2 returns 403
+            assertTrue(Stream.of(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
+                    .anyMatch(status -> exception1.getStatusCode().isSameCodeAs(status)));
+        }
     }
 
     static ObjectMapper mapper = new ObjectMapper();
 
     @SneakyThrows
     private String createInvoice(RestClient client, String applicationId, String supplier, double totalAmount) {
-        var invoice = String.format("""
-                        {
-                        "received": "2024-06-30T21:59:59Z",
-                        "pay_before": "2025-06-30T21:59:59Z",
-                        "total_amount": %,.2f,
-                        "supplier": "%s"
-                        }
-                        """,
-                totalAmount, supplier
-        );
+        var invoice = new LinkedMultiValueMap<String, Object>();
+        invoice.add("received", "2024-06-30T21:59:59Z");
+        invoice.add("pay_before", "2025-06-30T21:59:59Z");
+        invoice.add("total_amount", "%,.2f".formatted(totalAmount));
+        invoice.add("supplier", supplier);
+        var resource = new ClassPathResource("/document/test.txt");
+        invoice.add("document", resource);
 
         var createInvoice = client.post()
                 .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(invoice)
                 .retrieve()
                 .toEntity(String.class);
@@ -413,39 +429,23 @@ class HelmIntegrationTest {
                 .endMetadata()
                 .withType("Opaque")
                 .addToStringData("spring.content.storage.type.default", "s3")
-                .addToStringData("spring.content.s3.endpoint", minio.getS3URL())
+                .addToStringData("spring.content.s3.endpoint", appObjectStorage.getEndpoint().toString())
                 .addToStringData("spring.content.s3.bucket", APP_BUCKET)
                 .addToStringData("spring.content.s3.region", "none")
-                .addToStringData("spring.content.s3.accessKey", minio.getUserName())
-                .addToStringData("spring.content.s3.secretKey", minio.getPassword())
+                .addToStringData("spring.content.s3.accessKey", appObjectStorage.getAccessKey())
+                .addToStringData("spring.content.s3.secretKey", appObjectStorage.getSecretKey())
+                .addToStringData("contentgrid.appserver.content-store.type", "s3")
+                .addToStringData("contentgrid.appserver.content.s3.url", appObjectStorage.getEndpoint().toString())
+                .addToStringData("contentgrid.appserver.content.s3.bucket", APP_BUCKET)
+                .addToStringData("contentgrid.appserver.content.s3.region", "none")
+                .addToStringData("contentgrid.appserver.content.s3.accessKey", appObjectStorage.getAccessKey())
+                .addToStringData("contentgrid.appserver.content.s3.secretKey", appObjectStorage.getSecretKey())
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
 
-        var dbNetworkPolicy = new NetworkPolicyBuilder()
-                .withNewMetadata()
-                .withName(deploymentId + "-db")
-                .endMetadata()
-                .withNewSpec()
-                .withPodSelector(new LabelSelectorBuilder()
-                        .addToMatchLabels("app.contentgrid.com/deployment-id", deploymentId)
-                        .build())
-                .withPolicyTypes("Egress")
-                .withEgress(new NetworkPolicyEgressRuleBuilder()
-                        .withTo(new NetworkPolicyPeerBuilder()
-                                .withIpBlock(new IPBlockBuilder()
-                                        .withCidr(appDatabase.getHost() + "/32")
-                                        .build())
-                                .build())
-                        .withPorts(new NetworkPolicyPortBuilder()
-                                .withProtocol("TCP")
-                                .withPort(new IntOrString(appDatabase.getFirstMappedPort()))
-                                .build())
-                        .build())
-                .endSpec()
-                .build();
-
-        appClient.network().v1().networkPolicies().resource(dbNetworkPolicy).create();
+        createEgressNetworkPolicy(appClient, deploymentId + "-db", deploymentId, appDatabase.getHost(), appDatabase.getFirstMappedPort());
+        createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, appObjectStorage.getHost(), appObjectStorage.getFirstMappedPort());
 
         //deploy src/test/resources/testapp/manifest.yaml
         var manifestInputStream = HelmIntegrationTest.class.getClassLoader()
@@ -461,6 +461,16 @@ class HelmIntegrationTest {
 
         appClient.load(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)))
                 .serverSideApply();
+
+        // Create s3 bucket
+        try (var mc = MinioAsyncClient.builder()
+                .endpoint(appObjectStorage.getEndpoint().toURL())
+                .credentials(appObjectStorage.getAccessKey(), appObjectStorage.getSecretKey())
+                .build()) {
+            mc.makeBucket(MakeBucketArgs.builder()
+                    .bucket(APP_BUCKET)
+                    .build());
+        }
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
@@ -501,6 +511,33 @@ class HelmIntegrationTest {
         appClient.secrets().resource(gwSecret).create();
 
         return applicationId;
+    }
+
+    private void createEgressNetworkPolicy(KubernetesClient client, String name, String deploymentId, String ip, int port) {
+        var networkPolicy = new NetworkPolicyBuilder()
+                .withNewMetadata()
+                .withName(name)
+                .endMetadata()
+                .withNewSpec()
+                .withPodSelector(new LabelSelectorBuilder()
+                        .addToMatchLabels("app.contentgrid.com/deployment-id", deploymentId)
+                        .build())
+                .withPolicyTypes("Egress")
+                .withEgress(new NetworkPolicyEgressRuleBuilder()
+                        .withTo(new NetworkPolicyPeerBuilder()
+                                .withIpBlock(new IPBlockBuilder()
+                                        .withCidr(ip + "/32")
+                                        .build())
+                                .build())
+                        .withPorts(new NetworkPolicyPortBuilder()
+                                .withProtocol("TCP")
+                                .withPort(new IntOrString(port))
+                                .build())
+                        .build())
+                .endSpec()
+                .build();
+
+        client.network().v1().networkPolicies().resource(networkPolicy).create();
     }
 
 }

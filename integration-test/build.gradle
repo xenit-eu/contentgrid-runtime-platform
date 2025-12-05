@@ -24,7 +24,7 @@ dependencies {
     testImplementation 'com.contentgrid.helm.integrationtesting:contentgrid-testcontainers-k3s-cilium:0.1.2'
     testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.testcontainers:postgresql'
-    testImplementation 'org.testcontainers:minio'
+    testImplementation 'org.testcontainers:localstack'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'io.fabric8:kubernetes-junit-jupiter'

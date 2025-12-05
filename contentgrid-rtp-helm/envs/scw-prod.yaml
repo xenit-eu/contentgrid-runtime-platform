@@ -5,6 +5,11 @@ userapps:
     - ip: 51.159.205.58
       port: "19477"
   defaultDomainSuffix: eu-west-1.contentgrid.cloud
+  objectstorage:
+    - fqdn:
+        name: "s3.fr-par.scw.cloud"
+        pattern: "*.s3.fr-par.scw.cloud"
+      port: "443"
 
 surveyor:
   pegman:
