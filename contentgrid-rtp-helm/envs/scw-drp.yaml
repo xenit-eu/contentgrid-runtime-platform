@@ -2,9 +2,9 @@ secretStoreName: cg-rtp-scw-prod-secretstore
 
 userapps:
   database:
-    - ip: 195.154.196.110
-      port: "16160"
-  defaultDomainSuffix: eu-west-1-drp.contentgrid.cloud
+    - ip: 51.159.11.111
+      port: "4373"
+  defaultDomainSuffix: drp.contentgrid.cloud
   objectstorage:
     - fqdn:
         name: "s3.fr-par.scw.cloud"
@@ -15,15 +15,15 @@ surveyor:
   pegman:
     scaleway:
       region: fr-par
-    host: metrics.eu-west-1-drp.contentgrid.cloud
+    host: metrics.drp.contentgrid.cloud
 
 keycloak:
-  host: auth.eu-west-1-drp.contentgrid.cloud
+  host: auth.drp.contentgrid.cloud
 
 keycloakx:
   database:
-    hostname: 51.159.205.115
-    port: "20965"
+    hostname: 163.172.159.202
+    port: "4056"
   replicas: 2
 
 certificates:
@@ -32,11 +32,11 @@ certificates:
     letsencrypt-production: {}
 
 tokenmonger:
-  host: extensions.eu-west-1-drp.contentgrid.cloud
+  host: extensions.drp.contentgrid.cloud
 
 liaison:
   renditions:
     uriTemplate: >-
-      https://renditions.eu-west-1-drp.contentgrid.cloud/renditions/get/pdf{?url}
+      https://renditions.drp.contentgrid.cloud/renditions/get/pdf{?url}
   extract:
-    baseUrl: https://extract.eu-west-1-drp.contentgrid.cloud/extract/
+    baseUrl: https://extract.drp.contentgrid.cloud/extract/
