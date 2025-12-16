@@ -14,13 +14,13 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:de60ee68926ee31033741ab23f655dd068b1e35faec12fc2aea23dbd32b76ca9
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:1c408ffd78ea84aa01a9c1e9d905ecac7106c2505db7514ffb2b2b58b3f62ee3
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:215f8412e2fbf36faaa45134a14dff2bb48c4b864bf1003c4005957f18013e8d
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:bca65bc132de34fb1ae942a3a8d68eebeafa6f1ef30c75b122de22f1af08bac3
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:c85b378106928ef6dc739214fd2789353629aeb99a287e4f76f0d7eee9ac88d4
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:ea4b558b6a59c4bc84336165077c0376d2c988f5b216514366dbed1e00154930
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:7775ae72507627e17738fc4b119ecb975797efb17f7a4efd1236d5653ff1835a
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:9d7fa66643a98aa1f0d42c79ba53039cc31c5ed39c745d622220a00a5be1dc55
