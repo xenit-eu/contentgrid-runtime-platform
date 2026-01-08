@@ -23,7 +23,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          ingressClassName: nginx
+          ingressClassName: {{ $.Values.userapps.ingressClassName }}
 {{ end }}
 {{ end }}
 {{ end }}
