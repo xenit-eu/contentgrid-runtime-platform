@@ -1,4 +1,5 @@
 secretStoreName: xenit-secretstore-accesskey
+ingressClassName: haproxy
 
 surveyor:
   pegman:
@@ -11,6 +12,7 @@ userapps:
     - ip: 51.159.75.175
       port: "21065"
   defaultDomainSuffix: sandbox.contentgrid.cloud
+  ingressClassName: haproxy
   objectstorage:
     - fqdn:
         name: "s3.fr-par.scw.cloud"
