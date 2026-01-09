@@ -275,6 +275,10 @@ subjects:
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: pathfinder-to-apiserver
   labels:
@@ -283,11 +287,25 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/component: pathfinder
   egress:
     - toEntities:
         - kube-apiserver
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: pathfinder
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.apiserver.cidr }}
+      ports:
+      - protocol: TCP
+        port: 6443
 {{ end }}
 {{ end }}

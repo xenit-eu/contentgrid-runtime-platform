@@ -46,7 +46,6 @@ data:
 {{ $value | indent 4 }}
 {{- end }}
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -97,8 +96,13 @@ spec:
     - port: 57800
       protocol: TCP
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: keycloak-to-smtp
   labels:
@@ -107,6 +111,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: keycloakx
@@ -119,6 +124,22 @@ spec:
               protocol: TCP
             - port: "2465"
               protocol: TCP
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: proxy
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.keycloak.smtp_ip.cidr }}
+      ports:
+        - port: "465"
+          protocol: TCP
+        - port: "2465"
+          protocol: TCP
 {{ end }}
 {{ end }}
 ---

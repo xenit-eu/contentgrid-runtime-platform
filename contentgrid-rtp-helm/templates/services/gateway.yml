@@ -186,6 +186,10 @@ metadata:
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: gateway-to-apiserver
   labels:
@@ -194,6 +198,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: gateway
@@ -201,6 +206,21 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: proxy
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.apiserver.cidr }}
+      ports:
+      - protocol: TCP
+        port: 6443
+{{ end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -323,8 +343,13 @@ spec:
       ports:
         - port: 8081 # Access to management port only
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: gateway-to-auth
   labels:
@@ -333,6 +358,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: gateway
@@ -345,4 +371,18 @@ spec:
       toPorts:
         - ports:
             - port: {{ if eq .Values.keycloak.protocol "http" }} "80" {{ else }} "443" {{ end }}
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: proxy
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.ingress.public_ip.cidr }}
+      ports:
+      - protocol: TCP
+        port: {{ if eq .Values.keycloak.protocol "http" }} 80 {{ else }} 443 {{ end }}
 {{ end }}

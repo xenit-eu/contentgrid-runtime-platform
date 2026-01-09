@@ -124,7 +124,6 @@ data:
         input.path == ["metrics"]
     }
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -172,4 +171,3 @@ spec:
               app.kubernetes.io/component: proxy
       ports:
         - port: 8181
-{{ end }}

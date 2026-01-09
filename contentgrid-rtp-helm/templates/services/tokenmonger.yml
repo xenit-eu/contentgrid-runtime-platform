@@ -192,7 +192,6 @@ spec:
     - {{ . }}
 {{ end }}
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -236,8 +235,13 @@ spec:
       ports:
         - port: 8081 # Management port only for jwks
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: tokenmonger-to-apiserver
   labels:
@@ -245,15 +249,35 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: tokenmonger
   egress:
     - toEntities:
         - kube-apiserver
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.apiserver.cidr }}
+      ports:
+      - protocol: TCP
+        port: 6443
+{{ end }}
 ---
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: tokenmonger-to-auth
   labels:
@@ -261,6 +285,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: tokenmonger
@@ -270,6 +295,19 @@ spec:
       toPorts:
         - ports:
             - port: {{ if eq .Values.keycloak.protocol "http" }} "80" {{ else }} "443" {{ end }}
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: tokenmonger
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.ingress.public_ip.cidr }}
+      ports:
+      - protocol: TCP
+        port: {{ if eq .Values.keycloak.protocol "http" }} 80 {{ else }} 443 {{ end }}
 {{ end }}
 ---
 apiVersion: v1

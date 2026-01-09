@@ -109,6 +109,10 @@ spec:
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: "cilium.io/v2"
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: initialize-rabbitmq-to-kube-apiserver
   annotations:
@@ -116,12 +120,26 @@ metadata:
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       job-name: initialize-rabbitmq
   egress:
     - toEntities:
         - kube-apiserver
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      job-name: initialize-rabbitmq
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.apiserver.cidr }}
+      ports:
+      - protocol: TCP
+        port: 6443
 {{ end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -329,11 +347,16 @@ spec:
               app.kubernetes.io/component: message-queue
 ---
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: "cilium.io/v2"
+apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: setup-rabbitmq-to-kube-apiserver
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: rabbitmq
@@ -341,5 +364,19 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: setup
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.apiserver.cidr }}
+      ports:
+      - protocol: TCP
+        port: 6443
 {{ end }}
 {{ end }}

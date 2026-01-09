@@ -126,6 +126,10 @@ subjects:
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
+{{ else }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+{{ end }}
 metadata:
   name: surveyor-postgres-exporter-to-apiserver
   labels:
@@ -134,6 +138,7 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: postgres-exporter
@@ -141,6 +146,20 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+{{ else }}
+  policyTypes:
+    - Egress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-exporter
+      app.kubernetes.io/component: surveyor
+  egress:
+    - to:
+      - ipBlock:
+          cidr: {{ .Values.apiserver.cidr }}
+      ports:
+      - protocol: TCP
+        port: 6443
 {{ end }}
 ---
 apiVersion: networking.k8s.io/v1
