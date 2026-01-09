@@ -365,3 +365,37 @@ spec:
       - protocol: TCP
         port: {{ if eq .Values.keycloak.protocol "http" }} 80 {{ else }} 443 {{ end }}
 {{ end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gateway-role
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gateway-rolebinding
+  labels:
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/component: proxy
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gateway-role
+subjects:
+- kind: ServiceAccount
+  name: contentgrid-gateway
