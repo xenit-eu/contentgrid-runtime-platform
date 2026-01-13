@@ -123,44 +123,23 @@ subjects:
   name: surveyor-postgres-exporter-serviceaccount
   namespace: {{ .Release.Namespace }}
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-{{ else }}
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-{{ end }}
-metadata:
-  name: surveyor-postgres-exporter-to-apiserver
-  labels:
-    app.kubernetes.io/name: postgres-exporter
-    app.kubernetes.io/component: surveyor
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-spec:
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-  endpointSelector:
-    matchLabels:
-      app.kubernetes.io/name: postgres-exporter
-      app.kubernetes.io/component: surveyor
-  egress:
-    - toEntities:
-        - kube-apiserver
-{{ else }}
-  policyTypes:
-    - Egress
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: postgres-exporter
-      app.kubernetes.io/component: surveyor
-  egress:
-    - to:
-      - ipBlock:
-          cidr: {{ .Values.apiserver.cidr }}
-      ports:
-      - protocol: TCP
-        port: 6443
-{{ end }}
+{{/* NetworkPolicy surveyor-postgres-exporter-to-apiserver */}}
+{{- $policyLabels := (list
+    "app.kubernetes.io/name: postgres-exporter"
+    "app.kubernetes.io/component: surveyor"
+    "app.kubernetes.io/part-of: contentgrid-runtimeplatform"
+    ( printf "app.kubernetes.io/managed-by: %s" .Release.Service)
+) | join "\n" | fromYaml -}}
+{{- $selectorLabels := (list
+    "app.kubernetes.io/name: postgres-exporter"
+    "app.kubernetes.io/component: surveyor"
+) | join "\n" | fromYaml -}}
+{{- template "contentgrid.apiserver-network-policy"
+      dict
+        "name" "surveyor-postgres-exporter-to-apiserver"
+        "policyLabels" $policyLabels
+        "selectorLabels" $selectorLabels
+        "rootScope" $ }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

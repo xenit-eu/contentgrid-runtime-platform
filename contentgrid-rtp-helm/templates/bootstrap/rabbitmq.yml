@@ -106,41 +106,21 @@ spec:
           defaultMode: 0777
           name: initialize-rabbitmq-script
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: "cilium.io/v2"
-kind: CiliumNetworkPolicy
-{{ else }}
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-{{ end }}
-metadata:
-  name: initialize-rabbitmq-to-kube-apiserver
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-spec:
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-  endpointSelector:
-    matchLabels:
-      job-name: initialize-rabbitmq
-  egress:
-    - toEntities:
-        - kube-apiserver
-{{ else }}
-  policyTypes:
-    - Egress
-  podSelector:
-    matchLabels:
-      job-name: initialize-rabbitmq
-  egress:
-    - to:
-      - ipBlock:
-          cidr: {{ .Values.apiserver.cidr }}
-      ports:
-      - protocol: TCP
-        port: 6443
-{{ end }}
+{{/* NetworkPolicy initialize-rabbitmq-to-kube-apiserver */}}
+{{- $annotations := (list
+  "helm.sh/hook: pre-install,pre-upgrade"
+  "helm.sh/hook-weight: '-5'"
+  "helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded"
+) | join "\n" | fromYaml -}}
+{{- $selectorLabels := (list
+      "job-name: initialize-rabbitmq"
+) | join "\n" | fromYaml -}}
+{{- template "contentgrid.apiserver-network-policy"
+      dict
+        "name" "initialize-rabbitmq-to-kube-apiserver"
+        "annotations" $annotations
+        "selectorLabels" $selectorLabels
+        "rootScope" $ }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -346,37 +326,14 @@ spec:
               app.kubernetes.io/name: rabbitmq
               app.kubernetes.io/component: message-queue
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-{{ else }}
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-{{ end }}
-metadata:
-  name: setup-rabbitmq-to-kube-apiserver
-spec:
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-  endpointSelector:
-    matchLabels:
-      app.kubernetes.io/name: rabbitmq
-      app.kubernetes.io/component: setup
-  egress:
-    - toEntities:
-        - kube-apiserver
-{{ else }}
-  policyTypes:
-    - Egress
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: rabbitmq
-      app.kubernetes.io/component: setup
-  egress:
-    - to:
-      - ipBlock:
-          cidr: {{ .Values.apiserver.cidr }}
-      ports:
-      - protocol: TCP
-        port: 6443
-{{ end }}
+{{/* NetworkPolicy setup-rabbitmq-to-kube-apiserver */}}
+{{- $selectorLabels := (list
+      "app.kubernetes.io/name: rabbitmq"
+      "app.kubernetes.io/component: setup"
+) | join "\n" | fromYaml -}}
+{{- template "contentgrid.apiserver-network-policy"
+      dict
+        "name" "setup-rabbitmq-to-kube-apiserver"
+        "selectorLabels" $selectorLabels
+        "rootScope" $ }}
 {{ end }}

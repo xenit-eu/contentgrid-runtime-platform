@@ -235,41 +235,21 @@ spec:
       ports:
         - port: 8081 # Management port only for jwks
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-{{ else }}
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-{{ end }}
-metadata:
-  name: tokenmonger-to-apiserver
-  labels:
-    app.kubernetes.io/name: tokenmonger
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-spec:
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-  endpointSelector:
-    matchLabels:
-      app.kubernetes.io/name: tokenmonger
-  egress:
-    - toEntities:
-        - kube-apiserver
-{{ else }}
-  policyTypes:
-    - Egress
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: tokenmonger
-  egress:
-    - to:
-      - ipBlock:
-          cidr: {{ .Values.apiserver.cidr }}
-      ports:
-      - protocol: TCP
-        port: 6443
-{{ end }}
+{{/* NetworkPolicy tokenmonger-to-apiserver */}}
+{{- $policyLabels := (list
+    "app.kubernetes.io/name: tokenmonger"
+    "app.kubernetes.io/part-of: contentgrid-runtimeplatform"
+    ( printf "app.kubernetes.io/managed-by: %s" .Release.Service)
+) | join "\n" | fromYaml -}}
+{{- $selectorLabels := (list
+    "app.kubernetes.io/name: tokenmonger"
+) | join "\n" | fromYaml -}}
+{{- template "contentgrid.apiserver-network-policy"
+      dict
+        "name" "tokenmonger-to-apiserver"
+        "policyLabels" $policyLabels
+        "selectorLabels" $selectorLabels
+        "rootScope" $ }}
 ---
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
 apiVersion: cilium.io/v2
