@@ -119,13 +119,8 @@ stringData:
   surveyor.exporter.rabbitmq.enabled: 'true'
 {{- end }}
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-{{ else }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
-{{ end }}
 metadata:
   name: surveyor-cgapp-api-exporter-to-rabbitmq
   labels:
@@ -134,18 +129,6 @@ metadata:
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-  endpointSelector:
-    matchLabels:
-      app.kubernetes.io/name: cgapp-api-exporter
-      app.kubernetes.io/component: surveyor
-  egress:
-    - toEndpoints:
-      - matchLabels:
-          app.kubernetes.io/name: rabbitmq
-          app.kubernetes.io/component: message-queue
-          app.kubernetes.io/part-of: contentgrid-runtimeplatform
-{{ else }}
   policyTypes:
     - Egress
   podSelector:
@@ -159,7 +142,6 @@ spec:
               app.kubernetes.io/name: rabbitmq
               app.kubernetes.io/component: message-queue
               app.kubernetes.io/part-of: contentgrid-runtimeplatform
-{{ end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

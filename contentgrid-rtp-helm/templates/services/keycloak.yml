@@ -129,8 +129,7 @@ spec:
     - Egress
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
-      app.kubernetes.io/component: proxy
+      app.kubernetes.io/name: keycloakx
   egress:
     - to:
       - ipBlock:
