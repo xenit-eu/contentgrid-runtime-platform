@@ -106,20 +106,18 @@ spec:
           defaultMode: 0777
           name: initialize-gateway-script
 ---
-{{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-apiVersion: "cilium.io/v2"
-kind: CiliumNetworkPolicy
-metadata:
-  name: initialize-gateway-to-kube-apiserver
-  annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-spec:
-  endpointSelector:
-    matchLabels:
-      job-name: initialize-gateway
-  egress:
-    - toEntities:
-        - kube-apiserver
-{{ end }}
+{{/* NetworkPolicy initialize-gateway-to-kube-apiserver */}}
+{{- $annotations := (list
+  "helm.sh/hook: pre-install,pre-upgrade"
+  "helm.sh/hook-weight: '-5'"
+  "helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded"
+) | join "\n" | fromYaml -}}
+{{- $selectorLabels := (list
+      "job-name: initialize-gateway"
+) | join "\n" | fromYaml -}}
+{{- template "contentgrid.apiserver-network-policy"
+      dict
+        "name" "initialize-gateway-to-kube-apiserver"
+        "annotations" $annotations
+        "selectorLabels" $selectorLabels
+        "rootScope" $ }}
