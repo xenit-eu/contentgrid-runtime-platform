@@ -135,9 +135,9 @@ spec:
       - ipBlock:
           cidr: {{ .Values.keycloak.smtp_ip.cidr }}
       ports:
-        - port: "465"
+        - port: 465
           protocol: TCP
-        - port: "2465"
+        - port: 2465
           protocol: TCP
 {{ end }}
 {{ end }}
