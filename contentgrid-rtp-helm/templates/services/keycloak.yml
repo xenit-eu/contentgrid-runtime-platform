@@ -141,14 +141,10 @@ spec:
           protocol: TCP
 {{ end }}
 {{ end }}
----
 {{ if .Capabilities.APIVersions.Has "external-secrets.io/v1" }}
+---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
-{{ else }}
-apiVersion: v1
-kind: Secret
-{{ end }}
 metadata:
   name: keycloak-database
   labels:
@@ -156,7 +152,6 @@ metadata:
     app.kubernetes.io/component: keycloak
     app.kubernetes.io/part-of: contentgrid-runtime
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{ if .Capabilities.APIVersions.Has "external-secrets.io/v1" }}
 spec:
   secretStoreRef:
     name: {{ .Values.secretStoreName }}
@@ -168,7 +163,4 @@ spec:
     - secretKey: password
       remoteRef:
         key: {{ .Values.keycloak.db.secretKey }}
-{{ else }}
-stringData:
-  password: {{ .Values.keycloakx.database.password }}
 {{ end }}
