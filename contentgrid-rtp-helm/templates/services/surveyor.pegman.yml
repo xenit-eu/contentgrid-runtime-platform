@@ -120,8 +120,13 @@ data:
   {{- tpl . $ | indent 2 -}}
   {{- end }}
 ---
+{{ if .Capabilities.APIVersions.Has "external-secrets.io/v1" }}
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
+{{ else }}
+apiVersion: v1
+kind: Secret
+{{ end }}
 metadata:
   name: surveyor-pegman-systems
   labels:
@@ -129,6 +134,7 @@ metadata:
     app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ if .Capabilities.APIVersions.Has "external-secrets.io/v1" }}
 spec:
   secretStoreRef:
     kind: ClusterSecretStore
@@ -136,6 +142,10 @@ spec:
   dataFrom:
     - extract:
         key: {{ .Values.surveyor.pegman.systems.secretKey }}
+{{ else }}
+stringData:
+  {{ .Values.surveyor.pegman.systems.secret | toYaml | nindent 2 }}
+{{ end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
