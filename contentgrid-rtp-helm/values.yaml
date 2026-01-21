@@ -11,7 +11,7 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:1.12.2
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:ce397f19ab76786a36fbfb7ecb0915fb4168c4833b6fe0e84786db4738aa173a
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:a563b39516711698ec392eb38f1bcd8ceb4e7f9e670eb0f7704c7b876f94cd66
   debug: false
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:e7be4ea3c5f2b8340cc7e86b89bb516c233300e1bc6738fdef8d8747cabf2183
@@ -23,7 +23,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:69afa3c2ff3128f0a4c9e20f5df97a54cde81ada54eae995706c45155360964d
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:48611b9a97c350342b8f114bec1182f4e10441e4bbc23d76cefacf2c48dd90b7
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:bbedf742062c08c1caa8dd2f736cd9ba995d2ee097e2bc46122d7c78a56060ff
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
