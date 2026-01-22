@@ -1,4 +1,4 @@
-ingressClassName: nginx
+ingressClassName: haproxy
 
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:e1ef01900eff3d7b173a84748c70e6d4784400a43e248647091c74ff22f0e0ca
@@ -67,7 +67,7 @@ surveyor:
 
 userapps:
   namespace: default
-  ingressClassName: nginx
+  ingressClassName: haproxy
   #defaultDomainSuffix: ~
   #database:
     #- ip: ~

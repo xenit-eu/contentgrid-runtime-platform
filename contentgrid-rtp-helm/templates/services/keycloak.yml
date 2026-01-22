@@ -6,7 +6,6 @@ metadata:
   name: contentgrid-keycloak
   namespace: {{ .Release.Namespace }}
   annotations:
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
     {{- with .Values.certificates.defaultIssuer }}
     cert-manager.io/cluster-issuer: {{ . }}
     {{- end }}

@@ -1,5 +1,4 @@
 secretStoreName: xenit-secretstore-accesskey
-ingressClassName: haproxy
 
 surveyor:
   pegman:
