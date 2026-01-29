@@ -1,0 +1,130 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-receiver
+  labels:
+    app: webhook-receiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook-receiver
+  template:
+    metadata:
+      labels:
+        app: webhook-receiver
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "500m"
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 32Mi
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: webhook-receiver-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webhook-receiver-config
+  labels:
+    app: webhook-receiver
+data:
+  default.conf: |
+    log_format detailed '[WEBHOOK] $request app_id=$http_contentgrid_application_id';
+
+    server {
+        listen 80;
+        server_name _;
+        access_log /dev/stdout detailed;
+
+        location /receive {
+            return 200 "OK\n";
+            add_header Content-Type text/plain;
+        }
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+        }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-receiver
+  labels:
+    app: webhook-receiver
+spec:
+  selector:
+    app: webhook-receiver
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webhook-receiver
+  labels:
+    app: webhook-receiver
+spec:
+  rules:
+  - host: webhook-receiver.contentgrid.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webhook-receiver
+            port:
+              number: 80
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: webhook-receiver-from-slingshot
+  labels:
+    app: webhook-receiver
+spec:
+  endpointSelector:
+    matchLabels:
+      app: webhook-receiver
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app.kubernetes.io/name: slingshot
+        app.kubernetes.io/component: webhook-invoker
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: slingshot-to-any
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: slingshot
+      app.kubernetes.io/component: webhook-invoker
+  egress:
+    - toEntities:
+        - cluster
+        - world
+---
