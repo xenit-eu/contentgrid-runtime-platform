@@ -34,7 +34,7 @@ spec:
         - name: CONTENTGRID_SYSTEM_POLICYPACKAGE
           value: $POLICY_PACKAGE
         - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
-          value: http://api-d-$DEPLOYMENT_ID.default.svc.cluster.local:8081/actuator/webhooks
+          value: http://api-d-$DEPLOYMENT_ID.appnamespace.svc.cluster.local:8081/actuator/webhooks
         image: $DOCKER_IMAGE
         livenessProbe:
           failureThreshold: 3

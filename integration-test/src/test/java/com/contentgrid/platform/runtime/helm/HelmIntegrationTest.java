@@ -1,5 +1,6 @@
 package com.contentgrid.platform.runtime.helm;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,7 +40,9 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioAsyncClient;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -51,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +64,7 @@ import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
 import org.apache.hc.client5.http.ssl.TlsSocketStrategy;
 import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -97,7 +102,8 @@ class HelmIntegrationTest {
             configure(ClusterDomainsK3sContainerCustomizer.class, customizer -> customizer.withDomains(
                     "auth.contentgrid.test",
                     "metrics.contentgrid.test",
-                    "extensions.contentgrid.test"
+                    "extensions.contentgrid.test",
+                    "webhook-receiver.contentgrid.test"
             ));
             configure(LoggingK3sContainerCustomizer.class, customizer -> customizer.withLogger(log));
             configure(TraefikIngressK3sContainerCustomizer.class);
@@ -185,15 +191,21 @@ class HelmIntegrationTest {
                         "userapps.ingressClassName", ""
                 )));
 
+
+        // Apply webhook-receiver manifest
+        var webhookReceiverManifestInputStream = HelmIntegrationTest.class.getClassLoader()
+                .getResourceAsStream("testapp/webhook-receiver.yaml");
+        var output = kubernetesClient.load(webhookReceiverManifestInputStream)
+                .serverSideApply();
+
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
-
     }
 
     @ParameterizedTest
     @CsvSource({"v1", "v2"})
-    void testDeployApplication(String dockerImageTag) {
+    void testDeployApplication(String dockerImageTag) throws IOException {
 
         // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
         var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:" + dockerImageTag);
@@ -271,6 +283,46 @@ class HelmIntegrationTest {
             assertTrue(Stream.of(HttpStatus.FORBIDDEN, HttpStatus.NOT_FOUND)
                     .anyMatch(status -> exception1.getStatusCode().isSameCodeAs(status)));
         }
+
+        // Check events for 3 suppliers + 4 invoices events received
+        // A log line from nginx looks like this:
+        // [WEBHOOK] POST /receive?entity=invoice HTTP/1.1 app_id=be814930-6ccc-4ac1-ad5d-700d020f88ec
+        record WebhookRequest(String method, String url, String appId) {}
+
+        try(var rawReceiverLogs = kubernetesClient.apps().deployments()
+                .withName("webhook-receiver")
+                .getLogReader();
+            var reader = new BufferedReader(rawReceiverLogs)
+        ) {
+            var requestPattern = Pattern.compile("\\[(\\w+)\\]\\s+(\\w+)\\s+([^\\s]+)\\s+HTTP.*app_id=([^\\s]+)");
+
+            var requests = reader.lines()
+                    .filter(l -> l.contains("[WEBHOOK]"))
+                    .map(line -> {
+                        var matcher = requestPattern.matcher(line);
+                        if (matcher.find()) {
+                            return new WebhookRequest(
+                                    matcher.group(2),
+                                    matcher.group(3),
+                                    matcher.group(4)
+                            );
+                        }
+                        return null;
+                    })
+                    .filter(req -> req != null)
+                    .filter(req -> req.appId().equals(applicationId))
+                    .toList();
+
+            // v1 events are slightly broken: creating an invoice with content in one request
+            // will trigger both a create and an update event
+            var expectedInvoiceEvents = dockerImageTag.equals("v1") ? 8 : 4;
+            assertThat(requests)
+                    .areExactly(3, new Condition<>(r -> r.url().equals("/receive?entity=supplier"), "supplier webhooks"))
+                    .areExactly(expectedInvoiceEvents, new Condition<>(r -> r.url().equals("/receive?entity=invoice"), "invoice webhooks"));
+
+        };
+
+
     }
 
     static ObjectMapper mapper = new ObjectMapper();
