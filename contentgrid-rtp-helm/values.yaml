@@ -20,10 +20,10 @@ pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:06f1cf23a82748be6a69d16c9cdf1be70bc0ff3222e380e5f8bd8c93feeea7df
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:5e1b3354ed5c5ac56758959a61e65ab785f7a894ff7b4418cc5599ca99c87e43
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:e111f4ad18ee0aff537e7f6e181174015d65350706a9575af13535c3282f3bbb
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:f0f245f7a98f3157008833b58be87c8622c4a8f79f8ccd450c535060fe730e59
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:09e671dceaaa11f894bfc202071e45c06524c83e25cbeb461a3c6af1cd13e86c
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
