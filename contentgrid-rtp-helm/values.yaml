@@ -1,7 +1,7 @@
 ingressClassName: haproxy
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:7a89144a9aeca2e66f7fbbc146184ba162726ab6e6031c1874963e99033f51b7
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:d543114d3cf3cbf33c7c5180f1e981bf527683311f8ac8d4adf4321860e56c9c
   debug: false
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:b731d85e316c42aee7d840837df6c39e78273acfe646410794f26aa081b9b5a5
