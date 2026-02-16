@@ -94,6 +94,14 @@ certificates:
 #          keyId: ~
 #          secretName: ~
 
+pods:
+#  nodeSelector:
+#    example.com/node-role: contentgrid
+#  tolerations:
+#    - key: "example.com/node-role"
+#      operator: "Equal"
+#      value: "contentgrid"
+
 
 keycloakx:
   enabled: true
