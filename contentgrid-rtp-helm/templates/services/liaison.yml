@@ -59,6 +59,7 @@ spec:
       enableServiceLinks: false
       serviceAccountName: liaison-serviceaccount
       automountServiceAccountToken: true
+{{ include "nodeSelection" . | indent 6}}
 
 ---
 apiVersion: v1

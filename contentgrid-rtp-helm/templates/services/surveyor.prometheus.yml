@@ -68,6 +68,7 @@ spec:
             claimName: surveyor-prometheus-tsdb
       enableServiceLinks: false
       automountServiceAccountToken: false
+{{ include "nodeSelection" . | indent 6}}
   volumeClaimTemplates:
     - metadata:
         name: tsdb-storage

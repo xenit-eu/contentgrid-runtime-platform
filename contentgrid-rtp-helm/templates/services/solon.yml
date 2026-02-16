@@ -58,6 +58,7 @@ spec:
       enableServiceLinks: false
       serviceAccountName: solon-serviceaccount
       automountServiceAccountToken: true
+{{ include "nodeSelection" . | indent 6}}
 
 ---
 apiVersion: v1
