@@ -17,3 +17,14 @@ readinessProbe:
         path: /actuator/health/readiness
         port: {{ print . }}
 {{ end }}
+
+{{- define "nodeSelection" -}}
+{{- if and .Values.pods .Values.pods.tolerations }}
+tolerations:
+{{ toYaml .Values.pods.tolerations | indent 2 }}
+{{- end }}
+{{- if and .Values.pods .Values.pods.nodeSelector }}
+nodeSelector:
+{{ toYaml .Values.pods.nodeSelector | indent 2 }}
+{{- end }}
+{{- end }}
