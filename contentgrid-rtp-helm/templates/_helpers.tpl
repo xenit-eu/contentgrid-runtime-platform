@@ -19,12 +19,12 @@ readinessProbe:
 {{ end }}
 
 {{- define "nodeSelection" -}}
-{{- if .Values.tolerations }}
+{{- if and .Values.pods .Values.pods.tolerations }}
 tolerations:
-{{ toYaml .Values.tolerations | indent 2 }}
+{{ toYaml .Values.pods.tolerations | indent 2 }}
 {{- end }}
-{{- if .Values.nodeSelector }}
+{{- if and .Values.pods .Values.pods.nodeSelector }}
 nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 2 }}
+{{ toYaml .Values.pods.nodeSelector | indent 2 }}
 {{- end }}
 {{- end }}
