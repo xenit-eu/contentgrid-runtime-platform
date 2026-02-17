@@ -3,6 +3,9 @@ ingressClassName: haproxy
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:f87534c4432ef790585e74bfc36b7eb64f5a059c36e50caafb986e857b103daf
   debug: false
+#  resourceLimits:
+#    cpu: "1000m"
+#    memory: "1Gi"
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:9faf6b35f2c0222a1219bfecf3075ff6c1334f26a7c9f47abe551f4e63a952ce
   host: ~

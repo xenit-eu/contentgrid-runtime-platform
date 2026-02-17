@@ -34,6 +34,12 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
+          {{- with .Values.pathfinder.resourceLimits }}
+          resources:
+            limits:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+          {{- end }}
           ports:
             - name: management
               containerPort: 8080
@@ -95,6 +101,12 @@ spec:
           image: {{ .Values.pathfinder.image }}
           {{ if .Values.development -}}
           imagePullPolicy: Always
+          {{- end }}
+          {{- with .Values.pathfinder.resourceLimits }}
+          resources:
+            limits:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
           {{- end }}
           ports:
             - name: management
