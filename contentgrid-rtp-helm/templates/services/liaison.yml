@@ -33,6 +33,12 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
+          {{- with .Values.liaison.resourceLimits }}
+          resources:
+            limits:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 8080

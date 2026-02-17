@@ -39,6 +39,12 @@ spec:
       containers:
         - name: prometheus
           image: {{ .Values.surveyor.prometheus.image }}
+          {{- with .Values.surveyor.prometheus.resourceLimits }}
+          resources:
+            limits:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+          {{- end }}
           ports:
             - name: management
               containerPort: 9090

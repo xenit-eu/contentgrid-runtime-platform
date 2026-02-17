@@ -29,6 +29,12 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
+          {{- with .Values.opa.resourceLimits }}
+          resources:
+            limits:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+          {{- end }}
           args: [
             'run',
             '--server',
