@@ -97,6 +97,12 @@ spec:
       - name: initialize-tokenmonger-container
         image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
+        {{- with .Values.tokenmonger.resourceLimits }}
+        resources:
+          limits:
+            cpu: {{ .cpu }}
+            memory: {{ .memory }}
+        {{- end }}
         command: ["/bin/sh", "-c", "/tmp/tokenmonger/initialize.sh"]
         volumeMounts:
           - mountPath: /tmp/tokenmonger
@@ -106,6 +112,7 @@ spec:
         configMap:
           defaultMode: 0777
           name: initialize-tokenmonger-script
+{{ include "nodeSelection" . | indent 6}}
 ---
 {{/* NetworkPolicy initialize-tokenmonger-to-kube-apiserver */}}
 {{- $annotations := (list
