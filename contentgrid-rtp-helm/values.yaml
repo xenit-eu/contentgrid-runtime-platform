@@ -79,6 +79,11 @@ userapps:
 
 development: true
 
+jobs:
+  resourceLimits:
+    cpu: 200m
+    memory: 512Mi
+
 keycloak:
   host: ~
   protocol: https

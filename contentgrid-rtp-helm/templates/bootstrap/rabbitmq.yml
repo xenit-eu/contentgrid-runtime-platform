@@ -96,6 +96,12 @@ spec:
       - name: initialize-rabbitmq-container
         image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
+        {{- with .Values.jobs.resourceLimits }}
+        resources:
+          limits:
+            cpu: {{ .cpu }}
+            memory: {{ .memory }}
+        {{- end }}
         command: ["/bin/bash", "-c", "/tmp/rabbitmq/initialize.sh"]
         volumeMounts:
           - mountPath: /tmp/rabbitmq
@@ -105,6 +111,7 @@ spec:
         configMap:
           defaultMode: 0777
           name: initialize-rabbitmq-script
+{{ include "nodeSelection" . | indent 6}}
 ---
 {{/* NetworkPolicy initialize-rabbitmq-to-kube-apiserver */}}
 {{- $annotations := (list
