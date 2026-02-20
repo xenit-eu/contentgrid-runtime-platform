@@ -96,7 +96,7 @@ spec:
       - name: initialize-rabbitmq-container
         image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
-        {{- with .Values.rabbitmq.resourceLimits }}
+        {{- with .Values.jobs.resourceLimits }}
         resources:
           limits:
             cpu: {{ .cpu }}

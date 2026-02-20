@@ -96,7 +96,7 @@ spec:
       - name: initialize-gateway-container
         image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
-        {{- with .Values.gateway.resourceLimits }}
+        {{- with .Values.jobs.resourceLimits }}
         resources:
           limits:
             cpu: {{ .cpu }}

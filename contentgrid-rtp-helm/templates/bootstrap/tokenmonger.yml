@@ -97,7 +97,7 @@ spec:
       - name: initialize-tokenmonger-container
         image: ghcr.io/xenit-eu/kubectl
         imagePullPolicy: IfNotPresent
-        {{- with .Values.tokenmonger.resourceLimits }}
+        {{- with .Values.jobs.resourceLimits }}
         resources:
           limits:
             cpu: {{ .cpu }}
