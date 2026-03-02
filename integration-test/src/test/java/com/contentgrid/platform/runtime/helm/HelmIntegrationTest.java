@@ -15,6 +15,7 @@ import com.contentgrid.junit.jupiter.helm.HelmChart;
 import com.contentgrid.junit.jupiter.helm.HelmChartHandle;
 import com.contentgrid.junit.jupiter.helm.HelmClient;
 import com.contentgrid.junit.jupiter.k8s.KubernetesTestCluster;
+import com.contentgrid.junit.jupiter.k8s.log.KubernetesResourceLogger;
 import com.contentgrid.junit.jupiter.k8s.providers.K3sTestcontainersClusterProvider;
 import com.contentgrid.junit.jupiter.k8s.wait.KubernetesResourceWaiter;
 import com.contentgrid.junit.jupiter.k8s.resource.ResourceMatcher;
@@ -142,6 +143,8 @@ class HelmIntegrationTest {
 
     @HelmChart(chart = "file:../contentgrid-rtp-helm")
     static HelmChartHandle rtpChart;
+
+    static KubernetesResourceLogger kubernetesLogger;
 
     static final String APP_NAMESPACE = "appnamespace";
     public static final String APP_BUCKET = "app-bucket";
@@ -446,6 +449,7 @@ class HelmIntegrationTest {
         var applicationId = UUID.randomUUID().toString();
         var deploymentId = UUID.randomUUID().toString();
         var policyPackage = "contentgrid.userapps.x" + deploymentId.replace("-", "");
+        kubernetesLogger.include(Deployment.class, ResourceMatcher.labelled(Map.of("app.contentgrid.com/app-id", applicationId)).inNamespace(APP_NAMESPACE));
 
         var k8sAppClientConfig = kubernetesClient.getConfiguration();
         k8sAppClientConfig.setNamespace(APP_NAMESPACE);
@@ -524,9 +528,13 @@ class HelmIntegrationTest {
                     .build());
         }
 
+        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("solon"))
+                .include(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
                 .await(wait -> wait.atMost(2, TimeUnit.MINUTES));
+
 
         var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("solon"));
@@ -540,6 +548,9 @@ class HelmIntegrationTest {
                 );
 
         Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
+
+        kubernetesLogger.exclude(Deployment.class, ResourceMatcher.named("solon"))
+                .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"));
 
         // we use client credentials, so the secret is not actually used yet by the Gateway
         var gwSecret = new SecretBuilder()
