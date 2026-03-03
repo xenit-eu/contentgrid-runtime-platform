@@ -32,11 +32,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.slingshot.resourceLimits }}
+          {{- if or .Values.slingshot.resourceLimits .Values.slingshot.resourceRequests }}
           resources:
+            {{- with .Values.slingshot.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.slingshot.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: http

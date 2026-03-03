@@ -34,11 +34,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.pathfinder.resourceLimits }}
+          {{- if or .Values.pathfinder.resourceLimits .Values.pathfinder.resourceRequests }}
           resources:
+            {{- with .Values.pathfinder.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.pathfinder.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: management
@@ -102,11 +109,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.pathfinder.resourceLimits }}
+          {{- if or .Values.pathfinder.resourceLimits .Values.pathfinder.resourceRequests }}
           resources:
+            {{- with .Values.pathfinder.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.pathfinder.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: management

@@ -34,11 +34,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.surveyor.postgresExporter.resourceLimits }}
+          {{- if or .Values.surveyor.postgresExporter.resourceLimits .Values.surveyor.postgresExporter.resourceRequests }}
           resources:
+            {{- with .Values.surveyor.postgresExporter.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.surveyor.postgresExporter.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: http
