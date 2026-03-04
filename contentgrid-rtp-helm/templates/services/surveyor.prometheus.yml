@@ -39,11 +39,18 @@ spec:
       containers:
         - name: prometheus
           image: {{ .Values.surveyor.prometheus.image }}
-          {{- with .Values.surveyor.prometheus.resourceLimits }}
+          {{- if or .Values.surveyor.prometheus.resourceLimits .Values.surveyor.prometheus.resourceRequests }}
           resources:
+            {{- with .Values.surveyor.prometheus.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.surveyor.prometheus.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: management

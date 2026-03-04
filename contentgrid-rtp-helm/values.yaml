@@ -6,6 +6,9 @@ gateway:
 #  resourceLimits:
 #    cpu: "1000m"
 #    memory: "1Gi"
+#  resourceRequests:
+#    cpu: "100m"
+#    memory: "512Mi"
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:9faf6b35f2c0222a1219bfecf3075ff6c1334f26a7c9f47abe551f4e63a952ce
   host: ~

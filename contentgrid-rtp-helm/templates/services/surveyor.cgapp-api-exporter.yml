@@ -34,11 +34,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.surveyor.cgappApiExporter.resourceLimits }}
+          {{- if or .Values.surveyor.cgappApiExporter.resourceLimits .Values.surveyor.cgappApiExporter.resourceRequests }}
           resources:
+            {{- with .Values.surveyor.cgappApiExporter.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.surveyor.cgappApiExporter.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: http

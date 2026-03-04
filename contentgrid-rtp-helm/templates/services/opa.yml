@@ -29,11 +29,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.opa.resourceLimits }}
+          {{- if or .Values.opa.resourceLimits .Values.opa.resourceRequests }}
           resources:
+            {{- with .Values.opa.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.opa.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           args: [
             'run',

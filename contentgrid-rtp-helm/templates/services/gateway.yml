@@ -31,11 +31,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.gateway.resourceLimits }}
+          {{- if or .Values.gateway.resourceLimits .Values.gateway.resourceRequests }}
           resources:
+            {{- with .Values.gateway.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.gateway.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: http

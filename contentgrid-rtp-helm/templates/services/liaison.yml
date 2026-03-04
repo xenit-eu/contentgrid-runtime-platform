@@ -33,11 +33,18 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- with .Values.liaison.resourceLimits }}
+          {{- if or .Values.liaison.resourceLimits .Values.liaison.resourceRequests }}
           resources:
+            {{- with .Values.liaison.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.liaison.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
           {{- end }}
           ports:
             - name: http
