@@ -26,9 +26,7 @@ rules:
   resourceNames:
     - rabbitmq
     - slingshot-rabbitmq
-    {{- if not (default false .Values.surveyor.disabled) }}
     - surveyor-cgapp-api-exporter-rabbitmq
-    {{- end }}
 - apiGroups:
     - ""
   resources:
@@ -37,9 +35,7 @@ rules:
     - patch
   resourceNames:
     - slingshot-rabbitmq
-    {{- if not (default false .Values.surveyor.disabled) }}
     - surveyor-cgapp-api-exporter-rabbitmq
-    {{- end }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -150,9 +146,7 @@ rules:
     - patch
   resourceNames:
     - slingshot-rabbitmq
-    {{- if not (default false .Values.surveyor.disabled) }}
     - surveyor-cgapp-api-exporter-rabbitmq
-    {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -219,14 +213,8 @@ data:
     #!/bin/bash
     set -euo pipefail
 
-    {{- if not (default false .Values.surveyor.disabled) }}
-    secrets=(slingshot-rabbitmq surveyor-cgapp-api-exporter-rabbitmq)
-    {{- else }}
-    secrets=(slingshot-rabbitmq)
-    {{- end }}
-
     # Set up users
-    for secret in "${secrets[@]}"; do
+    for secret in slingshot-rabbitmq surveyor-cgapp-api-exporter-rabbitmq; do
       if [ -z "$(kubectl get secret $secret -o jsonpath='{.data.spring\.rabbitmq\.password}')" ]; then
         username="$(kubectl get secret $secret -o jsonpath='{.data.spring\.rabbitmq\.username}' | base64 -d)"
         generated_pwd="$(openssl rand -base64 30)"

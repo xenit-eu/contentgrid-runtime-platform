@@ -115,24 +115,6 @@ data:
     logging.level:
       com.contentgrid.surveyor: INFO
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: surveyor-cgapp-api-exporter-rabbitmq
-  labels:
-    app.kubernetes.io/name: cgapp-api-exporter
-    app.kubernetes.io/component: surveyor
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- if .Values.rabbitmq.enabled }}
-stringData:
-  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
-  spring.rabbitmq.username: surveyor
-  #spring.rabbitmq.password: Set by rabbitmq bootstrap
-  surveyor.exporter.rabbitmq.queue: contentgrid.surveyor.cgapp-api-exporter
-  surveyor.exporter.rabbitmq.enabled: 'true'
-{{- end }}
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -180,3 +162,21 @@ spec:
               app.kubernetes.io/name: prometheus
               app.kubernetes.io/component: surveyor
 {{ end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: surveyor-cgapp-api-exporter-rabbitmq
+  labels:
+    app.kubernetes.io/name: cgapp-api-exporter
+    app.kubernetes.io/component: surveyor
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Values.rabbitmq.enabled }}
+stringData:
+  spring.rabbitmq.host: {{ include "rabbitmq_host" .}}
+  spring.rabbitmq.username: surveyor
+  #spring.rabbitmq.password: Set by rabbitmq bootstrap
+  surveyor.exporter.rabbitmq.queue: contentgrid.surveyor.cgapp-api-exporter
+  surveyor.exporter.rabbitmq.enabled: 'true'
+{{- end }}
