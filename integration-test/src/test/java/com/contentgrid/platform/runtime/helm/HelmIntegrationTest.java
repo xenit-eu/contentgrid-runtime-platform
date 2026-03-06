@@ -202,8 +202,6 @@ class HelmIntegrationTest {
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
-
-        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("gateway"));
     }
 
     @ParameterizedTest
@@ -212,6 +210,8 @@ class HelmIntegrationTest {
 
         // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
         var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:" + dockerImageTag);
+
+        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("gateway").inNamespace("default"));
 
         var suppliersAdminClient = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
