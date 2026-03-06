@@ -67,6 +67,10 @@ spec:
             - name: 'JAVA_TOOL_OPTIONS'
               value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
             {{- end }}
+            - name: 'LOGGING_LEVEL_COM_CONTENTGRID'
+              value: INFO
+            - name: 'LOGGING_LEVEL_ORG_SPRINGFRAMEWORK'
+              value: INFO
           volumeMounts:
             - name: gateway-config-volume
               mountPath: /etc/gateway/
