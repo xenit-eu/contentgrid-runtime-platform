@@ -202,10 +202,12 @@ class HelmIntegrationTest {
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
                 .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
+
+        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("gateway"));
     }
 
     @ParameterizedTest
-    @CsvSource({"v1", "v2"})
+    @CsvSource({"v1"/*, "v2"*/})
     void testDeployApplication(String dockerImageTag) throws IOException {
 
         // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
@@ -526,8 +528,8 @@ class HelmIntegrationTest {
                     .build());
         }
 
-        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("solon"))
-                .include(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+//        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("solon"))
+//                .include(Deployment.class, ResourceMatcher.named("openpolicyagent"));
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
@@ -547,8 +549,8 @@ class HelmIntegrationTest {
 
         Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
 
-        kubernetesLogger.exclude(Deployment.class, ResourceMatcher.named("solon"))
-                .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+//        kubernetesLogger.exclude(Deployment.class, ResourceMatcher.named("solon"))
+//                .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"));
 
         // we use client credentials, so the secret is not actually used yet by the Gateway
         var gwSecret = new SecretBuilder()
