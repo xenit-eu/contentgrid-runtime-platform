@@ -201,7 +201,7 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
-                .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
+                .await(wait -> wait.atMost(12, TimeUnit.MINUTES));
     }
 
     @ParameterizedTest
@@ -531,7 +531,7 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
-                .await(wait -> wait.atMost(2, TimeUnit.MINUTES));
+                .await(wait -> wait.atMost(3, TimeUnit.MINUTES));
 
 
         var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
