@@ -95,7 +95,7 @@ import org.testcontainers.utility.DockerImageName;
 @FakeSecretStore
 class HelmIntegrationTest {
 
-    @Slf4j
+//    @Slf4j
     public static class CustomClusterProvider extends K3sTestcontainersClusterProvider {
 
         public CustomClusterProvider() {
@@ -105,7 +105,7 @@ class HelmIntegrationTest {
                     "extensions.contentgrid.test",
                     "webhook-receiver.contentgrid.test"
             ));
-            configure(LoggingK3sContainerCustomizer.class, customizer -> customizer.withLogger(log));
+//            configure(LoggingK3sContainerCustomizer.class, customizer -> customizer.withLogger(log));
             configure(TraefikIngressK3sContainerCustomizer.class);
             customize(container -> {
                 container.withStartupTimeout(Duration.ofMinutes(15));
