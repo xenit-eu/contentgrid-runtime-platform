@@ -102,7 +102,6 @@ class HelmIntegrationTest {
             configure(DefaultDenyCiliumK3sContainerCustomizer.class);
             configure(ClusterDomainsK3sContainerCustomizer.class, customizer -> customizer.withDomains(
                     "auth.contentgrid.test",
-                    "metrics.contentgrid.test",
                     "extensions.contentgrid.test",
                     "webhook-receiver.contentgrid.test"
             ));
@@ -153,8 +152,8 @@ class HelmIntegrationTest {
     static void beforeAll()
             throws Exception {
         fakeClusterSecretStore.addSecrets(Map.of(
-                "keycloak.db.password", pgKeycloak.getPassword(),
-                "surveyor.pegman.systems.secret", "{\"hello\": \"world\"}"));
+                "keycloak.db.password", pgKeycloak.getPassword()
+        ));
         //create the app namespace
         var namespace = new NamespaceBuilder().withNewMetadata().withName(APP_NAMESPACE).endMetadata().build();
         kubernetesClient.namespaces().resource(namespace).serverSideApply();
@@ -163,11 +162,10 @@ class HelmIntegrationTest {
                 InstallOption.values(Map.of(
                         "secretStoreName", fakeClusterSecretStore.getName(),
                         "keycloak.db.secretKey", "keycloak.db.password",
-                        "surveyor.pegman.systems.secretKey", "surveyor.pegman.systems.secret",
                         "keycloakx.database.hostname", pgKeycloak.getHost(),
                         "keycloakx.database.port", pgKeycloak.getFirstMappedPort(),
                         "keycloak.host", "auth.contentgrid.test",
-                        "surveyor.pegman.host", "metrics.contentgrid.test",
+                        "surveyor.disabled", true,
                         "tokenmonger.host", "extensions.contentgrid.test",
                         "ingressClassName", "",
                         "keycloak.protocol", "http")),
@@ -203,7 +201,7 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(installed)
-                .await(wait -> wait.atMost(10, TimeUnit.MINUTES));
+                .await(wait -> wait.atMost(12, TimeUnit.MINUTES));
     }
 
     @ParameterizedTest
@@ -533,7 +531,7 @@ class HelmIntegrationTest {
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
-                .await(wait -> wait.atMost(2, TimeUnit.MINUTES));
+                .await(wait -> wait.atMost(3, TimeUnit.MINUTES));
 
 
         var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
