@@ -60,6 +60,8 @@ spec:
               value: '8081'
             - name: 'MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE'
               value: 'health,info,prometheus,metrics'
+            - name: 'MANAGEMENT_HEALTH_RABBIT_ENABLED'
+              value: 'true'
             {{ if .Values.slingshot.debug -}}
             - name: 'JAVA_TOOL_OPTIONS'
               value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
