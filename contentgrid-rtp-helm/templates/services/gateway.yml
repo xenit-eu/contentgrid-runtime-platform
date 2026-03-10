@@ -53,6 +53,10 @@ spec:
           {{- include "contentgrid.probes" "management" | indent 10 }}
           {{- end }}
           env:
+            {{- if .Values.additionalCAs }}
+            - name: SERVICE_BINDING_ROOT
+              value: /bindings
+            {{- end }}
             - name: 'OPA_SERVICE_URL'
               value: 'http://opa-service:8181'
             - name: SERVICEDISCOVERY_ENABLED
@@ -68,6 +72,10 @@ spec:
               value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
             {{- end }}
           volumeMounts:
+            {{- if .Values.additionalCAs }}
+            - name: ca-certificates
+              mountPath: /bindings/ca-certificates
+            {{- end }}
             - name: gateway-config-volume
               mountPath: /etc/gateway/
               readOnly: true
@@ -81,6 +89,11 @@ spec:
               mountPath: /etc/gateway/keys/jwt-authentication-encryption
               readOnly: true
       volumes:
+        {{- if .Values.additionalCAs }}
+        - name: ca-certificates
+          configMap:
+            name: ca-certificates
+        {{- end }}
         - name: gateway-config-volume
           configMap:
             name: gateway-config

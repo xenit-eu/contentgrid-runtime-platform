@@ -1,0 +1,15 @@
+{{- if .Values.additionalCAs }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ca-certificates
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  type: |
+    ca-certificates
+  rootca.pem: |
+    {{- .Values.additionalCAs | nindent 4 }}
+{{- end }}
