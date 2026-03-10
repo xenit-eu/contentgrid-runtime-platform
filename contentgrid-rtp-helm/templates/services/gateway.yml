@@ -91,12 +91,8 @@ spec:
       volumes:
         {{- if .Values.gateway.additionalCAs }}
         - name: ca-certificates
-          projected:
-            sources:
-              - configMap:
-                  name: ca-certificates-type
-              - configMap:
-                  name: ca-certificates-rootca
+          configMap:
+            name: ca-certificates
         {{- end }}
         - name: gateway-config-volume
           configMap:
@@ -168,7 +164,7 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ca-certificates-type
+  name: ca-certificates
   labels:
     app.kubernetes.io/name: gateway
     app.kubernetes.io/component: proxy
@@ -177,17 +173,6 @@ metadata:
 data:
   type: |
     ca-certificates
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ca-certificates-rootca
-  labels:
-    app.kubernetes.io/name: gateway
-    app.kubernetes.io/component: proxy
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-data:
   rootca.pem: |
     {{- .Values.gateway.additionalCAs | nindent 4 }}
 {{- end }}
