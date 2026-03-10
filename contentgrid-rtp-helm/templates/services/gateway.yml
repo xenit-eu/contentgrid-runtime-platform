@@ -53,7 +53,7 @@ spec:
           {{- include "contentgrid.probes" "management" | indent 10 }}
           {{- end }}
           env:
-            {{- if .Values.gateway.additionalCAs }}
+            {{- if .Values.additionalCAs }}
             - name: SERVICE_BINDING_ROOT
               value: /bindings
             {{- end }}
@@ -72,7 +72,7 @@ spec:
               value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
             {{- end }}
           volumeMounts:
-            {{- if .Values.gateway.additionalCAs }}
+            {{- if .Values.additionalCAs }}
             - name: ca-certificates
               mountPath: /bindings/ca-certificates
             {{- end }}
@@ -89,7 +89,7 @@ spec:
               mountPath: /etc/gateway/keys/jwt-authentication-encryption
               readOnly: true
       volumes:
-        {{- if .Values.gateway.additionalCAs }}
+        {{- if .Values.additionalCAs }}
         - name: ca-certificates
           configMap:
             name: ca-certificates
@@ -159,23 +159,6 @@ data:
             authentication:
               active-keys: file:/etc/gateway/keys/jwt-authentication/active-*.pem
               all-keys: file:/etc/gateway/keys/jwt-authentication/*.pem
-{{- if .Values.gateway.additionalCAs }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ca-certificates
-  labels:
-    app.kubernetes.io/name: gateway
-    app.kubernetes.io/component: proxy
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-data:
-  type: |
-    ca-certificates
-  rootca.pem: |
-    {{- .Values.gateway.additionalCAs | nindent 4 }}
-{{- end }}
 ---
 apiVersion: v1
 kind: Service

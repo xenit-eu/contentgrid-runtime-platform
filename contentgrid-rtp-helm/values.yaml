@@ -1,5 +1,10 @@
 ingressClassName: haproxy
 
+#additionalCAs: |
+#  -----BEGIN CERTIFICATE-----
+#  ...
+#  -----END CERTIFICATE-----
+
 gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:1a787e5cb48675a9b9a47baebb1fc829e531c24271a2459c2e888c2038967384
   debug: false
@@ -9,10 +14,6 @@ gateway:
 #  resourceRequests:
 #    cpu: "100m"
 #    memory: "512Mi"
-#  additionalCAs: |
-#    -----BEGIN CERTIFICATE-----
-#    ...
-#    -----END CERTIFICATE-----
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:502ded1be216cde6d7d031f5dc9fb9ec818949fd4b6e19c80401e2f576315111
   host: ~
