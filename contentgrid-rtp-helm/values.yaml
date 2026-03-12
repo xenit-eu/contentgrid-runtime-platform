@@ -179,22 +179,6 @@ keycloakx:
 
 rabbitmq:
   enabled: true
-  fullnameOverride: rabbitmq
-  enableServiceLinks: false
-  resourcesPreset: medium
-  image:
-    repository: bitnamilegacy/rabbitmq
-  auth:
-    existingPasswordSecret: rabbitmq
-    existingErlangSecret: rabbitmq
-  networkPolicy:
-    enabled: true
-  metrics:
-    enabled: true
-  volumePermissions:
-    enabled: true
-    image:
-      repository: bitnamilegacy/os-shell
-  commonLabels:
-    app.kubernetes.io/component: message-queue
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  image: docker.io/rabbitmq:4-management
+  persistence:
+    size: 8Gi
