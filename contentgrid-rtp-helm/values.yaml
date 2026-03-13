@@ -76,6 +76,10 @@ surveyor:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:4d564befac9c46fdc8f510cdd89dfc59bed0c155056390e4c42e2b20a1480e3f
     debug: false
 
+navigatorPrototype:
+  enabled: false
+  image: docker.xenit.eu/contentgrid/navigator-prototype@sha256:479983e7b0fd44afab130e1d1c1f46595331c0f00f5794d031ef7b45b3fb245d
+
 userapps:
   namespace: default
   ingressClassName: haproxy

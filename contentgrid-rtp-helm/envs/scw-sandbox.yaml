@@ -50,7 +50,6 @@ liaison:
 
 navigatorPrototype:
   enabled: true
-  image: docker.xenit.eu/contentgrid/navigator-prototype@sha256:479983e7b0fd44afab130e1d1c1f46595331c0f00f5794d031ef7b45b3fb245d
   # amexio/invoice-order-demo
   appUrl: https://ec4fd3e3-3aab-4f23-b7e4-e2cb0a5865c3.eu-west-1.contentgrid.cloud
   keycloakUrl: https://auth.eu-west-1.contentgrid.cloud/realms/cg-1535cd0d-0e10-442f-bd08-c82156683c41
