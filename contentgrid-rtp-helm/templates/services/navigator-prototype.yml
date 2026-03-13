@@ -47,9 +47,9 @@ spec:
               containerPort: 8080
           env:
             - name: 'API_BASE_URL'
-              value: https://{{ .Values.navigator-prototype.appId }}.{{ .Values.userapps.defaultDomainSuffix }}
+              value: {{ .Values.navigator-prototype.appUrl }}
             - name: 'OIDC_AUTHORITY'
-              value: {{ .Values.keycloak.protocol }}://{{ .Values.keycloak.host }}/realms/{{ .Values.navigator-prototype.realmId }}
+              value: {{ .Values.navigator-prototype.keycloakUrl }}
             - name: 'OIDC_CLIENT_ID'
               value: {{ .Values.navigator-prototype.clientId }}
           readinessProbe:
