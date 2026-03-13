@@ -1,5 +1,176 @@
 {{ if .Values.rabbitmq.enabled }}
 ---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: message-queue
+  serviceName: rabbitmq-headless
+  replicas: {{ .Values.rabbitmq.replicas }}
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "30%"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rabbitmq
+        app.kubernetes.io/component: message-queue
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+      annotations:
+        prometheus.io/port: "15692"
+        prometheus.io/scrape: "true"
+    spec:
+      enableServiceLinks: false
+      serviceAccountName: rabbitmq
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: rabbitmq
+                  app.kubernetes.io/component: message-queue
+              topologyKey: kubernetes.io/hostname
+            weight: 1
+      containers:
+        - name: rabbitmq
+          image: {{ .Values.rabbitmq.image }}
+          ports:
+            - name: amqp
+              containerPort: 5672
+            - name: management
+              containerPort: 15672
+            - name: prometheus
+              containerPort: 15692
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: RABBITMQ_USE_LONGNAME
+              value: "true"
+            - name: RABBITMQ_NODENAME
+              value: "rabbit@$(MY_POD_NAME).rabbitmq-headless.$(MY_POD_NAMESPACE).svc.cluster.local"
+            - name: K8S_SERVICE_NAME
+              value: rabbitmq-headless
+            - name: K8S_HOSTNAME_SUFFIX
+              value: ".rabbitmq-headless.$(MY_POD_NAMESPACE).svc.cluster.local"
+            - name: RABBITMQ_LOGS
+              value: "-" # Logs to stdout only
+            - name: RABBITMQ_DEFAULT_USER
+              value: user
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-password
+            - name: RABBITMQ_ERLANG_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq
+                  key: rabbitmq-erlang-cookie
+          readinessProbe:
+            tcpSocket:
+              port: 5672
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - rabbitmqctl stop_app
+          {{- with .Values.rabbitmq.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+            - name: rabbitmq-config
+              mountPath: /etc/rabbitmq/conf.d/
+            - name: rabbitmq-config
+              mountPath: /etc/rabbitmq/enabled_plugins
+              subPath: enabled_plugins
+      volumes:
+        - name: rabbitmq-config
+          configMap:
+            name: rabbitmq-config
+{{ include "nodeSelection" . | indent 6}}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- with .Values.rabbitmq.persistence.storageClass }}
+        storageClassName: {{ . }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.rabbitmq.persistence.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: management
+      port: 15672
+      targetPort: 15672
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-headless
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: management
+      port: 15672
+      targetPort: 15672
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -16,11 +187,11 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rabbitmq
       app.kubernetes.io/component: message-queue
-      app.kubernetes.io/part-of: contentgrid-runtimeplatform
   ingress:
     - from:
         - namespaceSelector:
-            matchLabels: {}
+            matchLabels:
+              kubernetes.io/metadata.name: '{{ .Values.userapps.namespace }}'
           podSelector:
             matchLabels:
               app.contentgrid.com/service-type: api
@@ -43,7 +214,6 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rabbitmq
       app.kubernetes.io/component: message-queue
-      app.kubernetes.io/part-of: contentgrid-runtimeplatform
   ingress:
     - from:
         - podSelector:
@@ -70,14 +240,12 @@ spec:
     matchLabels:
       app.kubernetes.io/name: rabbitmq
       app.kubernetes.io/component: message-queue
-      app.kubernetes.io/part-of: contentgrid-runtimeplatform
   ingress:
     - from:
         - podSelector:
             matchLabels:
               app.kubernetes.io/name: rabbitmq
               app.kubernetes.io/component: message-queue
-              app.kubernetes.io/part-of: contentgrid-runtimeplatform
       # Allow all ports, because cilium does not support port ranges
       # See https://www.rabbitmq.com/clustering.html#ports
       # See https://docs.cilium.io/en/latest/network/kubernetes/policy/#networkpolicy-state
@@ -92,7 +260,6 @@ spec:
             matchLabels:
               app.kubernetes.io/name: rabbitmq
               app.kubernetes.io/component: message-queue
-              app.kubernetes.io/part-of: contentgrid-runtimeplatform
       # Allow all ports, because cilium does not support port ranges
       # See https://www.rabbitmq.com/clustering.html#ports
       # See https://docs.cilium.io/en/latest/network/kubernetes/policy/#networkpolicy-state
@@ -101,6 +268,70 @@ spec:
       #  - port: 6000
       #    endPort: 6500
       #  - port: 25672
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  enabled_plugins: |
+    [rabbitmq_management,rabbitmq_peer_discovery_k8s,rabbitmq_prometheus].
+  10-defaults.conf: |
+    cluster_formation.peer_discovery_backend = k8s
+    cluster_formation.k8s.host = kubernetes.default.svc.cluster.local
+    cluster_formation.k8s.address_type = hostname
+    cluster_formation.node_cleanup.interval = 10
+    cluster_formation.node_cleanup.only_log_warning = true
+    cluster_partition_handling = autoheal
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rabbitmq
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rabbitmq-peer-discovery
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rabbitmq-peer-discovery
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rabbitmq-peer-discovery
+subjects:
+  - kind: ServiceAccount
+    name: rabbitmq
 ---
 {{/* NetworkPolicy rabbitmq-to-apiserver */}}
 {{- $policyLabels := (list
@@ -112,7 +343,6 @@ spec:
 {{- $selectorLabels := (list
       "app.kubernetes.io/name: rabbitmq"
       "app.kubernetes.io/component: message-queue"
-      "app.kubernetes.io/part-of: contentgrid-runtimeplatform"
 ) | join "\n" | fromYaml -}}
 {{- template "contentgrid.apiserver-network-policy"
       dict

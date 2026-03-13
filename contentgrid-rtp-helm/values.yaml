@@ -179,22 +179,15 @@ keycloakx:
 
 rabbitmq:
   enabled: true
-  fullnameOverride: rabbitmq
-  enableServiceLinks: false
-  resourcesPreset: medium
-  image:
-    repository: bitnamilegacy/rabbitmq
-  auth:
-    existingPasswordSecret: rabbitmq
-    existingErlangSecret: rabbitmq
-  networkPolicy:
-    enabled: true
-  metrics:
-    enabled: true
-  volumePermissions:
-    enabled: true
-    image:
-      repository: bitnamilegacy/os-shell
-  commonLabels:
-    app.kubernetes.io/component: message-queue
-    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  replicas: 3 # Must be odd for having a proper quorum during partitions
+  image: rabbitmq:3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    size: 8Gi
+    storageClass: ""

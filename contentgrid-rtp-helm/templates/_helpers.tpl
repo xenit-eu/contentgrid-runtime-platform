@@ -1,5 +1,5 @@
 {{- define "rabbitmq_host" -}}
-{{ .Values.rabbitmq.fullnameOverride }}.{{ default .Release.Namespace .Values.rabbitmq.namespaceOverride | trunc 63 | trimSuffix "-" }}.svc.cluster.local
+rabbitmq.{{ default .Release.Namespace }}.svc.cluster.local
 {{- end -}}
 
 {{ define "contentgrid.probes" }}
