@@ -85,6 +85,14 @@ userapps:
     #- ip: ~
     #  port: ~
 
+imagePullSecrets:
+  - name: docker.xenit.eu
+
+externalSecrets:
+  pullSecrets:
+    docker_xenit_eu:
+      key: path:/pullsecrets/docker.xenit.eu
+
 development: true
 
 jobs:
