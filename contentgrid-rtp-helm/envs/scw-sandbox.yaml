@@ -48,7 +48,7 @@ liaison:
   extract:
     baseUrl: https://extract.sandbox.contentgrid.cloud/extract/
 
-navigator-prototype:
+navigatorPrototype:
   enabled: true
   image: docker.xenit.eu/contentgrid/navigator-prototype@sha256:479983e7b0fd44afab130e1d1c1f46595331c0f00f5794d031ef7b45b3fb245d
   # amexio/invoice-order-demo

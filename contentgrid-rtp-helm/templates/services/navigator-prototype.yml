@@ -1,4 +1,4 @@
-{{ if .Values.navigator-prototype.enabled }}
+{{ if .Values.navigatorPrototype.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,18 +25,18 @@ spec:
     spec:
       containers:
         - name: navigator-prototype
-          image: {{ .Values.navigator-prototype.image }}
+          image: {{ .Values.navigatorPrototype.image }}
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.navigator-prototype.resourceLimits .Values.navigator-prototype.resourceRequests }}
+          {{- if or .Values.navigatorPrototype.resourceLimits .Values.navigatorPrototype.resourceRequests }}
           resources:
-            {{- with .Values.navigator-prototype.resourceLimits }}
+            {{- with .Values.navigatorPrototype.resourceLimits }}
             limits:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
             {{- end }}
-            {{- with .Values.navigator-prototype.resourceRequests }}
+            {{- with .Values.navigatorPrototype.resourceRequests }}
             requests:
               cpu: {{ .cpu }}
               memory: {{ .memory }}
@@ -47,11 +47,11 @@ spec:
               containerPort: 8080
           env:
             - name: 'API_BASE_URL'
-              value: {{ .Values.navigator-prototype.appUrl }}
+              value: {{ .Values.navigatorPrototype.appUrl }}
             - name: 'OIDC_AUTHORITY'
-              value: {{ .Values.navigator-prototype.keycloakUrl }}
+              value: {{ .Values.navigatorPrototype.keycloakUrl }}
             - name: 'OIDC_CLIENT_ID'
-              value: {{ .Values.navigator-prototype.clientId }}
+              value: {{ .Values.navigatorPrototype.clientId }}
           readinessProbe:
             httpGet:
               path: /
@@ -88,7 +88,7 @@ spec:
       port: 80
       targetPort: http
       appProtocol: http
-{{ with .Values.navigator-prototype.host }}
+{{ with .Values.navigatorPrototype.host }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
