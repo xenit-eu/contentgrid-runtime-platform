@@ -88,4 +88,37 @@ spec:
       port: 80
       targetPort: http
       appProtocol: http
+{{ with .Values.navigator-prototype.host }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: navigator-prototype
+  annotations:
+    {{- with $.Values.certificates.defaultIssuer }}
+    cert-manager.io/cluster-issuer: {{ . }}
+    {{- end }}
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/component: navigator-prototype
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  ingressClassName: {{ $.Values.ingressClassName }}
+  rules:
+  - host: {{ . }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: navigator-prototype-service
+            port:
+              name: http
+  tls:
+  - secretName: navigator-prototype-tls
+    hosts:
+    - {{ . }}
+{{ end }}
 {{ end }}

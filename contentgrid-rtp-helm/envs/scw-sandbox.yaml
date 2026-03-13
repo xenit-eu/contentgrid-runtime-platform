@@ -55,3 +55,4 @@ navigator-prototype:
   appId: 1889ebfb-d060-4c3b-9b91-aed4695cc961
   realmId: cg-6a57bc3a-e4d5-4cf0-a47a-0abe325c6f82
   clientId: navigator-prototype
+  host: prototype.sandbox.contentgrid.com
