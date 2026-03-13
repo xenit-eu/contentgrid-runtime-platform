@@ -1,0 +1,91 @@
+{{ if .Values.navigator-prototype.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: navigator-prototype
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/component: navigator-prototype
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/component: navigator-prototype
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: webapp
+        app.kubernetes.io/component: navigator-prototype
+        app.kubernetes.io/part-of: contentgrid-runtimeplatform
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+    spec:
+      containers:
+        - name: navigator-prototype
+          image: {{ .Values.navigator-prototype.image }}
+          {{ if .Values.development -}}
+          imagePullPolicy: Always
+          {{- end }}
+          {{- if or .Values.navigator-prototype.resourceLimits .Values.navigator-prototype.resourceRequests }}
+          resources:
+            {{- with .Values.navigator-prototype.resourceLimits }}
+            limits:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
+            {{- with .Values.navigator-prototype.resourceRequests }}
+            requests:
+              cpu: {{ .cpu }}
+              memory: {{ .memory }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: 'API_BASE_URL'
+              value: https://{{ .Values.navigator-prototype.appId }}.{{ .Values.userapps.defaultDomainSuffix }}
+            - name: 'OIDC_AUTHORITY'
+              value: {{ .Values.keycloak.protocol }}://{{ .Values.keycloak.host }}/realms/{{ .Values.navigator-prototype.realmId }}
+            - name: 'OIDC_CLIENT_ID'
+              value: {{ .Values.navigator-prototype.clientId }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+{{ include "nodeSelection" . | indent 6}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: navigator-prototype-service
+  labels:
+    app.kubernetes.io/name: webapp
+    app.kubernetes.io/component: navigator-prototype
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  selector:
+      app.kubernetes.io/name: webapp
+      app.kubernetes.io/component: navigator-prototype
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      appProtocol: http
+{{ end }}

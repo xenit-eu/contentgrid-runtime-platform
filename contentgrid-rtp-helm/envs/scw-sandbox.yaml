@@ -47,3 +47,11 @@ liaison:
     uriTemplate: https://renditions.sandbox.contentgrid.cloud/renditions/get/pdf{?url}
   extract:
     baseUrl: https://extract.sandbox.contentgrid.cloud/extract/
+
+navigator-prototype:
+  enabled: true
+  image: docker.xenit.eu/contentgrid/navigator-prototype@sha256:479983e7b0fd44afab130e1d1c1f46595331c0f00f5794d031ef7b45b3fb245d
+  # xenit/test-project
+  appId: 1889ebfb-d060-4c3b-9b91-aed4695cc961
+  realmId: cg-6a57bc3a-e4d5-4cf0-a47a-0abe325c6f82
+  clientId: navigator-prototype
