@@ -22,19 +22,19 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:1.14.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:d0770434a7176feec4724b793f9adf938f66d4d029fe3c92a4068041b7713f99
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:5ef8b70d3bd54f5bd51f6b230249eda5bc26f2b551c3aed5b8e987283ac7ea0a
   debug: false
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:4ab5f45e8a19f74c001ac68fe958a064159b29d0d0283236c1c884aee18f559e
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:f8b9d16a88686d4f625db64e11fc4a974ed23218035935184c4ee84cf8b3b702
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:200ed517a8db82311f5a9281e3f27070f23049a86bde594c27fe91261d4c62ad
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:d4275b0dd1445699c8709bae6bb03bc7bb9a9c5135b817a4fec9289f22b81a2d
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:98e93d03e190fc5d2b3b22d6dd5ca75090b42873d473294bcbe4fff21c6a41cb
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:d4b6a729204e4ec3d620139bb58814ae3088f6b18a4b335ff256cfca7293093b
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:b7fdb99c45545607091a9b6343dd9fde683961415ec537a8b94b373a0854dab4
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:ff7e389acbe064a4823212a500393d40a28a8f362e4b05cbf6742a9a3ef736b2
