@@ -29,6 +29,6 @@ dependencies:
     version: "7.1.8"
     condition: keycloakx.enabled
   - name: rabbitmq
-    repository: https://charts.bitnami.com/bitnami
-    version: "14.7.0"
+    repository: oci://ghcr.io/xenit-eu
+    version: "0.1.0"
     condition: rabbitmq.enabled
