@@ -35,6 +35,10 @@ spec:
           value: $POLICY_PACKAGE
         - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
           value: http://api-d-$DEPLOYMENT_ID.appnamespace.svc.cluster.local:8081/actuator/webhooks
+        - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_WEB
+          value: debug
+        - name: SPRING_MVC_LOGREQUESTDETAILS
+          value: 'true'
         image: $DOCKER_IMAGE
         livenessProbe:
           failureThreshold: 3
