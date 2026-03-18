@@ -6,6 +6,22 @@ Helm chart to set up a ContentGrid Runtime Platform.
 
 `helm -n contentgrid-system upgrade contentgrid-rtp ./contentgrid-rtp-helm`
 
+## Required values
+
+The following values must be provided when installing the helm chart:
+
+| Value | Description |
+|-------|-------------|
+| `userapps.defaultDomainSuffix` | Default domain suffix for user applications |
+| `apiserver.cidr` | CIDR of the Kubernetes API server (required when not using Cilium) |
+| `ingress.public_ip.cidr` | CIDR of the ingress controller public IP (required when not using Cilium) |
+| `keycloak.smtp_ip.cidr` | CIDR of the SMTP server used by Keycloak (required when not using Cilium) |
+| `secretStoreName` | Name of the SecretStore resource (required when using external-secrets.io) |
+
+## Gateway access logging
+
+Set `gateway.accessLogging=true` to enable reactor-netty HTTP access logs on the gateway. This adds `-Dreactor.netty.http.server.accessLogEnabled=true` to `JAVA_TOOL_OPTIONS`.
+
 ## Debugging integration test with a remote JVM debugger
 
 Steps to attach a debugger to one of the projects in the integration tests:

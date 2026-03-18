@@ -67,9 +67,16 @@ spec:
               value: '{{ .Values.tokenmonger.protocol }}://{{ .Values.tokenmonger.host }}'
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/gateway/application.yml'
-            {{ if .Values.gateway.debug -}}
+            {{- $javaOpts := list }}
+            {{- if .Values.gateway.debug }}
+            {{- $javaOpts = append $javaOpts "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005" }}
+            {{- end }}
+            {{- if .Values.gateway.accessLogging }}
+            {{- $javaOpts = append $javaOpts "-Dreactor.netty.http.server.accessLogEnabled=true" }}
+            {{- end }}
+            {{- if $javaOpts }}
             - name: 'JAVA_TOOL_OPTIONS'
-              value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
+              value: {{ join " " $javaOpts | quote }}
             {{- end }}
           volumeMounts:
             {{- if .Values.additionalCAs }}
