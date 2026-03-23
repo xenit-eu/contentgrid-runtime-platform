@@ -52,4 +52,30 @@ spec:
               app.kubernetes.io/component: webhook-invoker
       ports:
         - port: 5672
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rabbitmq-from-surveyor
+  labels:
+    app.kubernetes.io/name: rabbitmq
+    app.kubernetes.io/component: message-queue
+    app.kubernetes.io/part-of: contentgrid-runtimeplatform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  policyTypes:
+    - Ingress
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rabbitmq
+      app.kubernetes.io/component: message-queue
+      app.kubernetes.io/part-of: contentgrid-runtimeplatform
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cgapp-api-exporter
+              app.kubernetes.io/component: surveyor
+      ports:
+        - port: 5672
 {{ end }}
