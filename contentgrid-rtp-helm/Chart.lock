@@ -1,9 +1,9 @@
 dependencies:
 - name: keycloakx
   repository: https://codecentric.github.io/helm-charts
-  version: 7.1.8
+  version: 7.1.9
 - name: rabbitmq
   repository: oci://ghcr.io/xenit-eu
   version: 0.1.0
-digest: sha256:c69136d23c6c68edafb5cc12a5396d839c9758c7e3e27ea9b5b0890887ea2d33
-generated: "2026-03-16T17:02:18.14264159+01:00"
+digest: sha256:bb4293e84f2d69aed3266fab3561c8f0fcbaf82d778e919fc5d8a8a2d252f8b7
+generated: "2026-03-23T18:15:29.107564039Z"
