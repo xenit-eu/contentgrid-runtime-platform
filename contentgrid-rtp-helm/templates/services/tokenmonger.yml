@@ -58,6 +58,10 @@ spec:
               port: 8081
           {{- end }}
           env:
+            {{- if .Values.additionalCAs }}
+            - name: SERVICE_BINDING_ROOT
+              value: /bindings
+            {{- end }}
             - name: 'CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER'
               value: '{{ .Values.keycloak.protocol }}://{{ .Values.keycloak.host }}/realms/extensions'
             - name: 'CONTENTGRID_CONFIGURATION_DISCOVERY_KUBERNETES_NAMESPACE'
@@ -71,6 +75,10 @@ spec:
               value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"
             {{- end }}
           volumeMounts:
+            {{- if .Values.additionalCAs }}
+            - name: ca-certificates
+              mountPath: /bindings/ca-certificates
+            {{- end }}
             - name: tokenmonger-config
               mountPath: /etc/tokenmonger/
               readOnly: true
@@ -86,6 +94,11 @@ spec:
               mountPath: /etc/tokenmonger/keys/jwt-system
               readOnly: true
       volumes:
+        {{- if .Values.additionalCAs }}
+        - name: ca-certificates
+          configMap:
+            name: ca-certificates
+        {{- end }}
         - name: tokenmonger-config
           configMap:
             name: tokenmonger-config
