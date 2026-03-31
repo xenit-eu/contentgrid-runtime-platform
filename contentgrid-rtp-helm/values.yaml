@@ -180,7 +180,16 @@ keycloakx:
 
 rabbitmq:
   enabled: true
+  image:
+    repository: docker.io/rabbitmq
+    tag: '4.2'
+    digest: sha256:0ea64c69ef2ced52e7188c6db826152d42f78e448433ed8b4e570170c427a437
   fullnameOverride: rabbitmq
+  resources:
+    limits:
+      cpu: 750m
+      memory: 1536Mi
+      ephemeral-storage: 2Gi
   podLabels:
     app.kubernetes.io/component: message-queue
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
