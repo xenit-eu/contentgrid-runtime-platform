@@ -139,6 +139,8 @@ metadata:
   labels:
     app.kubernetes.io/name: rabbitmq
     app.kubernetes.io/component: setup
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
 spec:
   template:
     metadata:
