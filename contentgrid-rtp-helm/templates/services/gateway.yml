@@ -78,6 +78,10 @@ spec:
             - name: 'JAVA_TOOL_OPTIONS'
               value: {{ join " " $javaOpts | quote }}
             {{- end }}
+            {{- with .Values.gateway.maxInitialLineLength }}
+            - name: SERVER_NETTY_MAXINITIALLINELENGTH
+              value: {{ . | quote }}
+            {{- end }}
           volumeMounts:
             {{- if .Values.additionalCAs }}
             - name: ca-certificates
