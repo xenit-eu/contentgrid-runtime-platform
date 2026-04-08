@@ -67,6 +67,8 @@ spec:
               value: '{{ .Values.tokenmonger.protocol }}://{{ .Values.tokenmonger.host }}'
             - name: 'SPRING_CONFIG_IMPORT'
               value: 'file:/etc/gateway/application.yml'
+            - name: 'SERVER_NETTY_MAXINITIALLINELENGTH'
+              value: '{{ .Values.gateway.maxLineLength }}'
             {{- $javaOpts := list }}
             {{- if .Values.gateway.debug }}
             {{- $javaOpts = append $javaOpts "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005" }}

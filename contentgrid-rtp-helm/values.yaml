@@ -9,6 +9,7 @@ gateway:
   image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:a1d5879ec6526602f860a900aa182f13d18d678b218d85c463729ca3d43c728a
   debug: false
   accessLogging: false
+  maxLineLength: "4096"
 #  resourceLimits:
 #    cpu: "1000m"
 #    memory: "1Gi"
