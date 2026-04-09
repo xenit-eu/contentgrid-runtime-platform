@@ -333,7 +333,7 @@ class HelmIntegrationTest {
         var invoice = new LinkedMultiValueMap<String, Object>();
         invoice.add("received", "2024-06-30T21:59:59Z");
         invoice.add("pay_before", "2025-06-30T21:59:59Z");
-        invoice.add("total_amount", "%,.2f".formatted(totalAmount));
+        invoice.add("total_amount", "%.2f".formatted(totalAmount));
         invoice.add("supplier", supplier);
         var resource = new ClassPathResource("/document/test.txt");
         invoice.add("document", resource);
