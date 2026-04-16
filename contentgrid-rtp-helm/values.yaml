@@ -27,7 +27,7 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:159e859c6cb78ce8c8b39b20a64948096c508e2fc8bb81471e75ddee38f453f7
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:259ad497becfcd85f65bad55812b89c29fd9f7f5939fde7a2933bcaded65688e
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:209b73a20653f0ebbf0ecc53cf5dce6deace944e21a135cba194ff8e0cb9fd6d
   debug: false
 pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:e69d6aa04bf7234adf97b7c6bd94680b4aa6a8b8628a2066f153fb0979bf537e
@@ -36,7 +36,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:7bff35ec76ff3a0862ca4df32e67fcf9456bf694cae686edf6221910c2fe8268
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:8ca65f50fbb76a8f3a19de8e2455976fdc2fcc92498b3c2ad714b3f71b7e8368
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:20d600e2253e89bc94c0b6a1f673288b0f31c0d133afbbe8a5b628d29fd437e7
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
