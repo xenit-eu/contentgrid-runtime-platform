@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:25842aacb6a429518a50a046801aca027679726ea57af2dc580e1462706475ea
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:0d629e31591397a01058033691e01d7f6fc4c9af3b6637bd2c0aa48aa685c7ec
   host: ~
   protocol: https
   debug: false
@@ -36,7 +36,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:7bff35ec76ff3a0862ca4df32e67fcf9456bf694cae686edf6221910c2fe8268
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:20d600e2253e89bc94c0b6a1f673288b0f31c0d133afbbe8a5b628d29fd437e7
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:bd3aa20ed4fc8cd98314cc4212dd2f14aade8e7b806d3af30d1769e87b72130b
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
