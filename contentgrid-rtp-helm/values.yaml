@@ -6,7 +6,7 @@ ingressClassName: haproxy
 #  -----END CERTIFICATE-----
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:84c13032a1b147de72266ebd85b3450ebcf6a6c550086bec8da930754a4d071d
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:f407c0fb897a1b4a04b8312d9b64f1329bbacac70895a3ad590b827dcf0aca6f
   debug: false
   accessLogging: false
 #  maxInitialLineLength: 4096  # increase to allow longer URLs (e.g. many query parameters)
@@ -36,7 +36,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:7bff35ec76ff3a0862ca4df32e67fcf9456bf694cae686edf6221910c2fe8268
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:7fcea8eecb20a69a6269a820fe2b0d3e19bed8814f5ba924a8917d8412d83f0e
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:18a5e4c206fbfd6eb734411c312a9e9c82a77d90f34c792392568a70ada80585
 surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
