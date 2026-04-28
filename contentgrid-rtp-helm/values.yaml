@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:0d629e31591397a01058033691e01d7f6fc4c9af3b6637bd2c0aa48aa685c7ec
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:eb5ded040f6122aa375c099522b955e284c9659bffcc6a711be772fb75896457
   host: ~
   protocol: https
   debug: false
