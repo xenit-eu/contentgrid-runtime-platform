@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:4e78b16593aec69b094905e765d4bc5a8cbb5e26af66fa6603a2d957f1268e7f
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:eb26a574b41d966053c42ae61ca107658a47541361ca24e6ef7e796486da5f77
   host: ~
   protocol: https
   debug: false
@@ -27,13 +27,13 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:58b5cf3af23e6021a1278b60d55089d980e3a29c796e0e86eb57aae48b29f969
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:6537c707f3ca986791a2dcfc0aa5e53d937ac15da93e7f40835e9ea1d2c57473
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:31d98ce09373a4e2d4911b79aa2184ea94ffbd5129fb858717713b21ef768210
   debug: false
 pathfinder:
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:e9d648e5984f9c36ee829296b3e692cee16c66e51f019b6a2c6f40fe389a27fb
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:c670ab6c9187918de9544dc39455a1db724cea06fcbc8d29327f22cf750bee2d
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:56f1fd812813ac5ef68c88935481757f787de19183692d8452e0459313df3956
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:4676626cdb6fef343c936412fc474eeab86945704338e0726797b664063a0f0a
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:05092b28779b1d9939f9a052374c6652d3ca57056b7629461a16fbb109d4a631
@@ -41,7 +41,7 @@ surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:d156667368310dbc439c86d41fb285203ece170cc2258ee3c12e02b17ca10959
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:915d1bd9e351ec58d8364025ea460bd98796ae18c9669d3bface8371505d68d4
     host: ~
     debug: false
     extraConfig: |
@@ -72,10 +72,10 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:e3badbf55e1a392adaeab0ac88bae6ee407e3deded943cb1e5228600bbd31c1b
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:0cfda93c028956a95a5bb39daf2435a0bc2ab8a94cd68fff0951231ba41fa5e0
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:c9a36662e5f80f506423e69a30275122937848398f2a7772e2a442db901815ba
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:c1871287033118df98e4d766d910f8bf4336b357fc74af1fe9928bf2f2b8e27a
     debug: false
 
 userapps:
