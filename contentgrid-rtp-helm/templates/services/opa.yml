@@ -89,6 +89,7 @@ spec:
   ports:
     - port: 8181
       targetPort: 8181
+      name: http
 ---
 apiVersion: v1
 kind: ConfigMap
