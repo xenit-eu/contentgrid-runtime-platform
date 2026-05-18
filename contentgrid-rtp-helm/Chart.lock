@@ -4,6 +4,6 @@ dependencies:
   version: 7.1.11
 - name: rabbitmq
   repository: oci://ghcr.io/xenit-eu
-  version: 0.1.2
-digest: sha256:50472c72be31c5e0dcdabf41bc62430289b8c8650c512d884a997a87fa68e0f5
-generated: "2026-05-05T20:45:21.521145452Z"
+  version: 0.1.3
+digest: sha256:ff2a5774fba5481ae515a3c2b72ed7fbb34d269a3d3e1f8073079bed16a53189
+generated: "2026-05-18T14:10:36.236364408Z"
