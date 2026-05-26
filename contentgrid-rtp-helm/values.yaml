@@ -22,7 +22,7 @@ tokenmonger:
   protocol: https
   debug: false
 opa:
-  image: docker.io/openpolicyagent/opa:1.16.1
+  image: docker.io/openpolicyagent/opa:1.16.2
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:6a7c5e9a0ef9de0416ca69cc81acd5d89b61ff2c05aa2a148f8f848f09a4d80b
   debug: false
