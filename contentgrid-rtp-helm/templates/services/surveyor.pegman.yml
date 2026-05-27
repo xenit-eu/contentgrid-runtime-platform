@@ -185,7 +185,8 @@ spec:
               app.kubernetes.io/component: surveyor
 ---
 {{ if .Capabilities.APIVersions.Has "cilium.io/v2" }}
-{{ with .Values.surveyor.pegman.extraCiliumNetworkPolicyEgress }}
+{{- $egress := tpl .Values.surveyor.pegman.extraCiliumNetworkPolicyEgress $ | trim }}
+{{ if $egress }}
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -194,14 +195,14 @@ metadata:
     app.kubernetes.io/name: pegman
     app.kubernetes.io/component: surveyor
     app.kubernetes.io/part-of: contentgrid-runtimeplatform
-    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: pegman
       app.kubernetes.io/component: surveyor
   egress:
-    {{- printf "\n%s" (tpl . $) | indent 4 -}}
+    {{- printf "\n%s" $egress | indent 4 }}
 {{ end }}
 {{ end }}
 ---
