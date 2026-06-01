@@ -54,12 +54,15 @@ Secrets are managed via [ExternalSecrets](https://external-secrets.io/), referen
 
 On first install, the chart bootstraps JWT signing keys for the gateway automatically via pre-install hooks.
 
+For special customer environments that can't reach our Secret Manager, another way of providing secrets must be
+provided by the customer's environment.
+
 ## Deploying
 
 To upgrade or install the chart:
 
 ```shell
-helm -n contentgrid-system upgrade contentgrid-rtp ./contentgrid-rtp-helm -f ./contentgrid-rtp-helm/envs/scw-prod.yaml
+helm -n contentgrid-system upgrade contentgrid-rtp ./contentgrid-rtp-helm --values ./contentgrid-rtp-helm/values.yaml --values ./contentgrid-rtp-helm/envs/scw-prod.yaml
 ```
 
 Replace `scw-prod.yaml` with the appropriate environment file if needed.
