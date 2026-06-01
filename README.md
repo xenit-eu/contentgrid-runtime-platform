@@ -14,9 +14,9 @@ user apps.
 | **Gateway**     | HTTP reverse proxy that routes traffic to user apps, validates JWT tokens, and discovers deployed apps dynamically             |
 | **Keycloak**    | Identity provider handling user authentication for the platform and user applications                                          |
 | **OPA**         | Evaluates attribute-based access control (ABAC) policies for user apps                                                         |
-| **Solon**       | Distributes permission policy bundles to OPA, discovers user apps and fetches their policy on via the management port          |
+| **Solon**       | Distributes permission policy bundles to OPA, discovers user apps and fetches their policy via the management port             |
 | **Pathfinder**  | Manages ingress routing rules for the user apps                                                                                |
-| **Navigator**   | Serves the ContentGrid Navigator frontend at the user application's domain (`<uuid>.contentgrid.app`)                          |
+| **Navigator**   | Serves the ContentGrid Navigator frontend at the user application's domain (`<uuid>.<region>.contentgrid.app`)                 |
 | **Liaison**     | Serves a JavaScript configuration snippet on the user app domain so that Navigator can connect to the correct backend          |
 | **Tokenmonger** | Issues OAuth2 tokens for extensions to reach the apps, scoped to specific tasks                                                |
 | **Slingshot**   | Consumes events from the message queue and delivers them to webhooks configured by user apps                                   |
@@ -41,7 +41,7 @@ All optional configuration is documented in [`contentgrid-rtp-helm/values.yaml`]
 
 Environment-specific value overrides live in [`contentgrid-rtp-helm/envs/`](contentgrid-rtp-helm/envs/):
 
-- `scw-prod.yaml`: Our production environment, lives at `*.contentgrid.app` and `*.contentgrid.cloud`
+- `scw-prod.yaml`: Our production environment, lives at `*.eu-west-1.contentgrid.app` and `*.eu-west-1.contentgrid.cloud`
 - `scw-sandbox.yaml`: Our sandbox environment, lives at `*.sandbox.contentgrid.app` and `*.sandbox.contentgrid.cloud`
 - `scw-drp.yaml`: Disaster recovery, not current in use
 
