@@ -67,6 +67,10 @@ helm -n contentgrid-system upgrade contentgrid-rtp ./contentgrid-rtp-helm --valu
 
 Replace `scw-prod.yaml` with the appropriate environment file if needed.
 
+### Keycloak setup
+
+If you need to manually set up the Keycloak realm and clients, [read docs/keycloak-setup.md](./docs/keycloak-setup.md).
+
 ## Build artifacts
 
 The Helm chart is published as an OCI package to `ghcr.io/xenit-eu/contentgrid-rtp-helm` on each git tag.
