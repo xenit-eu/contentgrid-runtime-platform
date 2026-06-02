@@ -6,13 +6,13 @@ We will use **Acme** as the name of our fictional customer in this guide.
 
 ## Keycloak
 
-First, change the admin password, and put it in our secret manager. Then create a user for yourself in the default `master` realm, and go to your user's _Role mapping_ tab. Click _Assign role_ > _Client roles_ and choose admin.
+First, change the admin password, and put it in our secret manager. Then create a user for yourself in the default `master` realm, and go to your user's _Role mapping_ tab. Click _Assign role_ > _Realm roles_ and choose admin.
 
 ## Realm
 
 Click _Manage realms_ in the top left, then _Create realm_. Give it a name that includes the environment for this customer, e.g. _acme-dev_.
 
-Go to _Realm settings_ in the navigation, set the display name (Acme Test). Then switch to the Themes tab and set _Login theme_ and _Email theme_ to _contentgrid-app_.
+Go to _Realm settings_ in the navigation, set the display name (Acme Test). Then switch to the Themes tab and set _Login theme_ and _Email theme_ to _contentgrid-app_. Finally switch to the _User profile_ tab, where there are four attributes. Edit each one and under _Permissions_ uncheck the _"Who can edit?"_ box that says _User_.
 
 Go to _Users_ in the navigation and add a test user for yourself.
 
@@ -50,14 +50,22 @@ For both _Valid post logout redirect URIs_ and _Web origins_, enter a plus (`+`)
 
 ### Token Mapper
 
-Go to _Client Scopes_ in the navigation, add a client scope `contentgrid` (Type:Default) with a Token Mapper per attribute the group is meant to have, e.g. `contentgrid:admin`. Configure them as follows:
+Go to _Client Scopes_ in the navigation, click _Create client scope_, name it `contentgrid`. Set the following:
+- **Type**:                                Default
+- **Display on consent screen**:           Off
+- **Include in token scope**:              Off
+- **Include in OpenID Provider Metadata**: On
+
+Save it and go to the _Mappers_ tab.
+
+Create a Token Mapper per attribute the group is meant to have, e.g. `contentgrid:admin`. Configure them as follows:
 - **Mapper type**:      User Attribute
 - **Name**:             contentgrid:admin
 - **User Attribute**:   admin
 - **Token Claim Name**: contentgrid:admin
 - **Claim JSON Type**:  the actual type of the attribute you want to map, e.g. boolean
 - **Add to**: _ID token_; _access token_; _userinfo_; _token introspection_
-- Enable **Aggregate attribute values**
+- Enable **Aggregate attribute values** if the attribute is multi-valued
 
 Click _Groups_ in the navigation, add a new group to test whether the attributes come through. We'll just have a group _admin_ for this example. Create the group, then go to the _Attributes_ tab.
 
