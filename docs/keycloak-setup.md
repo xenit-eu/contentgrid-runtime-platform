@@ -59,7 +59,7 @@ Go to _Client Scopes_ in the navigation, add a client scope `contentgrid` (Type:
 - **Add to**: _ID token_; _access token_; _userinfo_; _token introspection_
 - Enable **Aggregate attribute values**
 
-Click _Groups_ in the navigation, add a new group to test whether the attributes come through. We'll just have a group _admin_ for this example. Create the group, then to to the _Attributes_ tab.
+Click _Groups_ in the navigation, add a new group to test whether the attributes come through. We'll just have a group _admin_ for this example. Create the group, then go to the _Attributes_ tab.
 
 Click _Add attributes_ to add a new line. As key you fill in the User Attribute of the above mapper, in this case `admin`. As value you fill something in that matches the Claim JSON Type of the mapper, in this case it's a boolean, so we'll write `true`.
 
@@ -79,8 +79,7 @@ Create a secret named something like `gateway-iam-acme` and the following conten
 data:
   contentgrid.idp.client-id: contentgrid-app-gateway-acme-dev
   contentgrid.idp.client-secret: (the client secret you noted in a previous step)
-  contentgrid.idp.issuer-uri: (the url of the realm, e.g. "https://auth.dev.acme.net/realms/acme-dev)
-  contentgrid.idp.additional-issuer-uris: aHR0cHM6Ly9taW50ZXIuY29udGVudGdyaWQudGVzdC5ldGhpYXMuYmU6ODQ0Mw==
+  contentgrid.idp.issuer-uri: (the url of the realm, e.g. "https://auth.dev.acme.net/realms/acme-dev")
 metadata:
   labels:
     app.contentgrid.com/application-id: cg-acme-dev
@@ -89,7 +88,7 @@ metadata:
 
 Optionally add a `contentgrid.idp.additional-issuer-uris` key if something else also creates tokens.
 
-Make sure the values are Base64-encoded and you **don't** encode a trailing newline.
+Remember when creating a kubernetes secret, the values should be Base64-encoded and you **don't** encode a trailing newline.
 
 ### Gateway with Webapp
 
@@ -107,8 +106,13 @@ metadata:
 
 Create a configmap named something like `cg-acme-webapp-iam`, and give it the following contents, adjusted for your environment:
 ```yaml
-contentgrid.oidc.client: contentgrid-webapp-acme-dev
-contentgrid.oidc.issuer: https://auth.dev.acme.net/realms/acme-dev
-contentgrid.routing.domains: navigator.dev.acme.net
+data:
+  contentgrid.oidc.client: contentgrid-webapp-acme-dev
+  contentgrid.oidc.issuer: https://auth.dev.acme.net/realms/acme-dev
+  contentgrid.routing.domains: navigator.dev.acme.net
+metadata:
+  labels:
+    app.contentgrid.com/application-id: cg-acme-dev
+    app.contentgrid.com/service-type: webapp
 ```
 
