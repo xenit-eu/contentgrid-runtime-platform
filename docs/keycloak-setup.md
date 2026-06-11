@@ -75,6 +75,10 @@ Click _Clients_ in the navigation again. Go to the webapp client, the _Client Sc
 
 Then repeat this for the gateway client.
 
+### Extensions
+
+If you're going to use extensions/automations (such as the rendition system), [make sure to follow these steps on how to configure keycloak](https://github.com/xenit-eu/contentgrid-system-design/blob/main/runbooks/automation-system-registration.md#keycloak-1), and don't forget to fill out the Extension ID for the service account.
+
 ## Kubernetes
 
 ### Gateway issuer
