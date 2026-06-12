@@ -16,6 +16,16 @@ Go to _Realm settings_ in the navigation, set the display name (Acme Test). Then
 
 Go to _Users_ in the navigation and add a test user for yourself.
 
+### Client Scope
+
+Go to _Client Scopes_ in the navigation, click _Create client scope_, name it `contentgrid`. Set the following:
+- **Type**:                                Default
+- **Display on consent screen**:           Off
+- **Include in token scope**:              Off
+- **Include in OpenID Provider Metadata**: On
+
+Save it. It will be added by default to the clients we're about to create.
+
 ### Clients
 
 Go to _Clients_ in the navigation.
@@ -50,13 +60,7 @@ For both _Valid post logout redirect URIs_ and _Web origins_, enter a plus (`+`)
 
 ### Token Mapper
 
-Go to _Client Scopes_ in the navigation, click _Create client scope_, name it `contentgrid`. Set the following:
-- **Type**:                                Default
-- **Display on consent screen**:           Off
-- **Include in token scope**:              Off
-- **Include in OpenID Provider Metadata**: On
-
-Save it and go to the _Mappers_ tab.
+Go to _Client Scopes_, choose `contentgrid` and go to the _Mappers_ tab.
 
 Create a Token Mapper per attribute the group is meant to have, e.g. `contentgrid:admin`. Configure them as follows:
 - **Mapper type**:      User Attribute
@@ -71,9 +75,6 @@ Click _Groups_ in the navigation, add a new group to test whether the attributes
 
 Click _Add attributes_ to add a new line. As key you fill in the User Attribute of the above mapper, in this case `admin`. As value you fill something in that matches the Claim JSON Type of the mapper, in this case it's a boolean, so we'll write `true`.
 
-Click _Clients_ in the navigation again. Go to the webapp client, the _Client Scopes_ tab, Click _Add client scope_, check the box for `contentgrid` and click _Add_ > _Default_.
-
-Then repeat this for the gateway client.
 
 ### Extensions
 
