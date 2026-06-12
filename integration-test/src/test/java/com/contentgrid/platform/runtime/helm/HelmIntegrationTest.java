@@ -165,7 +165,7 @@ class HelmIntegrationTest {
                         "keycloakx.database.hostname", pgKeycloak.getHost(),
                         "keycloakx.database.port", pgKeycloak.getFirstMappedPort(),
                         "keycloak.host", "auth.contentgrid.test",
-                        "surveyor.disabled", true,
+                        "surveyor.enabled", false,
                         "tokenmonger.host", "extensions.contentgrid.test",
                         "ingressClassName", "",
                         "keycloak.protocol", "http")),
