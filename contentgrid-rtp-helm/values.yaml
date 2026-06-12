@@ -30,6 +30,7 @@ slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:a22e6d9ac7a944ad817252a3b2ce0a1dcf65ca0a7a7f0482ae911321bd741013
   debug: false
 pathfinder:
+  enabled: true
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:750e4dcc45c3ae7d9b828e4af57fc66489ee03966049547c343b4e6b371c5e3c
   debug: false
 liaison:
@@ -38,6 +39,7 @@ liaison:
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:ab37f93b14591fc266c03c4cd9e2e7a298c2c8affc6609208db2adc305da8e66
 surveyor:
+  enabled: true
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
   pegman:

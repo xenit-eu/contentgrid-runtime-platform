@@ -1,4 +1,4 @@
-{{ if not (default false .Values.pathfinder.disabled) }}
+{{ if .Values.pathfinder.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -1,4 +1,4 @@
-{{ if not (default false .Values.surveyor.disabled) }}
+{{ if .Values.surveyor.enabled }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
