@@ -27,7 +27,7 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:e12db01c0c72cef9a8a459f975e4bdc47e163d71a8823740eb71087328d2372a
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:a22e6d9ac7a944ad817252a3b2ce0a1dcf65ca0a7a7f0482ae911321bd741013
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:0442310f8f6c69e8424ca51ecc574d05341d347004c94d1419426057b64a896a
   debug: false
 pathfinder:
   enabled: true
@@ -37,7 +37,7 @@ liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:1d5476b63485d0e3b4235125f25d224108f343e0832806c2309c5d811317b08a
   debug: false
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:ab37f93b14591fc266c03c4cd9e2e7a298c2c8affc6609208db2adc305da8e66
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:3a6720e398dadbbae5d1d6b49a4b90e263c3d7cfa4391301f1afd0052e56ac1b
 surveyor:
   enabled: true
   prometheus:
