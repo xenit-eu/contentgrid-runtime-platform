@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:fabd00afc6aed2835ea29df25a9271f73b5982a4688ae8695aaef6b6a76c7e16
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:b8e9cb6e8904b5394f7a4c30fbe58030bb9ff4820bfd4cd754b1d3de83e2f49d
   host: ~
   protocol: https
   debug: false
@@ -34,7 +34,7 @@ pathfinder:
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:750e4dcc45c3ae7d9b828e4af57fc66489ee03966049547c343b4e6b371c5e3c
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:bf8f0778d29c25b47ff02eee47b0980312d55165cb8fa7027fb202ea0aac432c
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:caf2cde5acdb083c15f92065bd47c31b9e1c942d07d06e875b5b2b5bcf9e30b8
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:d8a0a32d6bd055e6f35f7c3d6a71964522b9eea3a8b27d2113b5cb029ea592bc
