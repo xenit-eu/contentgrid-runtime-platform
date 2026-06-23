@@ -177,10 +177,15 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: tokenmonger
+  name: {{ $.Values.tokenmonger.ingress.name }}
   annotations:
+    {{- if $.Values.tokenmonger.ingress.tls }}
     {{- with $.Values.certificates.defaultIssuer }}
     cert-manager.io/cluster-issuer: {{ . }}
+    {{- end }}
+    {{- end }}
+    {{- with $.Values.tokenmonger.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
     app.kubernetes.io/name: tokenmonger
@@ -213,10 +218,12 @@ spec:
             name: tokenmonger
             port:
               name: http
+  {{- if $.Values.tokenmonger.ingress.tls }}
   tls:
   - secretName: tokenmonger-tls
     hosts:
     - {{ . }}
+  {{- end }}
 {{ end }}
 ---
 apiVersion: networking.k8s.io/v1
