@@ -106,6 +106,10 @@ keycloak:
   db:
     secretKey: path:/rtp/keycloak-db-password
   extraRealms: {}
+  ingress:
+    name: contentgrid-keycloak
+    tls: true
+    annotations: {}
 
 certificates:
   defaultIssuer: letsencrypt-production
