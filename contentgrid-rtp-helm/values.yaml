@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:b8e9cb6e8904b5394f7a4c30fbe58030bb9ff4820bfd4cd754b1d3de83e2f49d
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:4bb9e3b71d239ab439dc887322a2067408266aa244647d90f5ad12eee97f25e1
   host: ~
   protocol: https
   debug: false
@@ -28,10 +28,10 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:1.17.1
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:e12db01c0c72cef9a8a459f975e4bdc47e163d71a8823740eb71087328d2372a
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:b730dcf05a3a5cd47dd8d351484e5c71d66297bcfcb28b54534b5f72efd0e7f5
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:0442310f8f6c69e8424ca51ecc574d05341d347004c94d1419426057b64a896a
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:bcb77435c4be95aa1037e5a6042bfaa169ce3cd45394c0a73c6593cf02dd9cf0
   debug: false
 pathfinder:
   enabled: true
