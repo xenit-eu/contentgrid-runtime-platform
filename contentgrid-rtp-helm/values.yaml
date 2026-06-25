@@ -35,10 +35,10 @@ slingshot:
   debug: false
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:750e4dcc45c3ae7d9b828e4af57fc66489ee03966049547c343b4e6b371c5e3c
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:0a86b856037a5b05b7f874c1bd5cdd1e363466fd90cc0ebf5501a02b1e62d175
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:caf2cde5acdb083c15f92065bd47c31b9e1c942d07d06e875b5b2b5bcf9e30b8
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:e3d09e4334566c56061e117831a46e4275b9ff0412b245eed0e153b63f9c589f
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:7a043c64935d26d83586d594cc8e419df9f26b9d19daf9fb8dbec8213b329778
@@ -47,7 +47,7 @@ surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:ff3eeb5785dd4d5837c5ecd315d89a6c9a8c89a4976366af1e39d10e5b617748
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:ebdf085fd7cca87dacb904ba615fa53f5903edcceb378950e996ab67567d1106
     host: ~
     debug: false
     extraConfig: |
@@ -78,10 +78,10 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:8ecfc8d1de32d57983c34bddc10a681cc552609d2db93f4ca8fa3b1110a0431e
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:3b9a3b03dd270cccf44f3bb6bd8bbd8ea52c7a3a076e8d522c8fdbe207069782
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:9c6b70927434b4929dd5e7010cd1c219c687e4d37b8a02888ac333ba01bdc190
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:53ad61044f98d31b76611cc3ea5a797848e97dac6b9e139f45e0f530e190f3da
     debug: false
 
 userapps:
