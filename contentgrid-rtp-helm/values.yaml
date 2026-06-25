@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:4bb9e3b71d239ab439dc887322a2067408266aa244647d90f5ad12eee97f25e1
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:4c0fc150f2aaea13cf2dc45f32ecd362a41da6a1668b1375b2fe2dfd1162bf9a
   host: ~
   protocol: https
   debug: false
@@ -31,7 +31,7 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:b730dcf05a3a5cd47dd8d351484e5c71d66297bcfcb28b54534b5f72efd0e7f5
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:bcb77435c4be95aa1037e5a6042bfaa169ce3cd45394c0a73c6593cf02dd9cf0
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:889bf2bc897361c50495ebe30683a56352406f017dde1a38ae43c44af1008b88
   debug: false
 pathfinder:
   enabled: true
@@ -47,7 +47,7 @@ surveyor:
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:f4359f4a36c8b2c1c588bbc2bba1e9bfc20cf6be7fc42b373a656a84375c0b0b
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:8ab2f63d9dfa54880cd6901cfab15f293311a66c4a18953f3a36a0a525fd32be
     host: ~
     debug: false
     extraConfig: |
@@ -78,10 +78,10 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:5114f57e2a5378586082221df6ade1701b7cbf00f6dcf3bf177bef6c68066a91
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:bc9971fb44168762d1e3766b9b5d9dd614050459e2518a6d3eaff13df591f5d8
     debug: false
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:94f7027ef1b1732a8e37cd174f04c8e7a39a5e444d0be1a9a6a25587cb88e8b0
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:cec25f941781dd24de64afed2aadb49b5b9fd3d9c28b3eb7c1ab89047d86c62a
     debug: false
 
 userapps:
