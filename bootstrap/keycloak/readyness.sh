@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# This is a scrappy script that performs a basic HTTP health check
+# It it not a full HTTP client, and it probably does not catch all failure conditions,
+# but it makes work with just bash, without using curl or wget (which is not available in the keycloak docker image)
+
 HOST="localhost"
 PORT=9000
 PATH_="/health/ready"
