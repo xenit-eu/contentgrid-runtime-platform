@@ -1566,5 +1566,34 @@
         "manage": true
       }
     }
+  ],
+  "users": [
+    {
+      "id": "8b14e20b-15e1-4536-b3e3-32dfee1697c1",
+      "createdTimestamp": 1648462783533,
+      "username": "watson",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "firstName": "John",
+      "lastName": "Watson",
+      "email": "watson@holmes.examle",
+      "credentials": [
+        {
+          "id": "e30cf072-6cdd-4434-b736-e9039251cf11",
+          "type": "password",
+          "createdDate": 1648473144666,
+          "secretData": "{\"value\":\"3bI672NFIB0EKBFnccWyAnOOuZ/yGURhtK4ghqCBsgjjzx3FOYhM709eS2OTa3Nc17QDYaMU2dimMNevH4zgfw==\",\"salt\":\"pCj2ivz8D2XVOemBpuAA2g==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-cg-holmes"
+      ],
+      "notBefore": 0,
+      "groups": []
+    }
   ]
 }
