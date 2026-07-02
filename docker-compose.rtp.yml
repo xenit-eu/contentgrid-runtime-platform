@@ -53,8 +53,6 @@ services:
     healthcheck:
       test: ["CMD", "rabbitmqctl", "node_health_check"]
       start_period: 1m
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmw:rw
 
   rabbitmq-bootstrap:
     image: ghcr.io/xenit-eu/kubectl
@@ -96,8 +94,16 @@ services:
     working_dir: /etc/tokenmonger/secrets
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
 
+  slingshot:
+    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/slingshot/config/application.yml
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+    volumes:
+      - ./config/slingshot:/etc/slingshot/config:ro
 
 volumes:
   gateway_keys:
-  rabbitmq_data:
   tokenmonger_keys:
