@@ -13,7 +13,6 @@ services:
     depends_on:
       gateway-bootstrap:
         condition: service_completed_successfully
-        required: true
         restart: true
   gateway-bootstrap:
     image: ghcr.io/xenit-eu/kubectl

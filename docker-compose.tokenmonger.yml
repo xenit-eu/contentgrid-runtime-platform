@@ -13,10 +13,8 @@ services:
     depends_on:
       gateway:
         condition: service_started
-        required: true
       tokenmonger-bootstrap:
         condition: service_completed_successfully
-        required: true
         restart: true
 
   tokenmonger-bootstrap:

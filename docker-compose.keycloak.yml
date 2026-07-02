@@ -12,6 +12,7 @@ services:
       KC_HEALTH_ENABLED: "true"
     healthcheck:
       test: ["CMD", "bash", "-c", "/opt/keycloak/data/import/readyness.sh"]
+      start_period: 1m
 
   tokenmonger:
     environment:
