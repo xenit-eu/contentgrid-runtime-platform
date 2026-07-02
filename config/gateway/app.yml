@@ -6,6 +6,7 @@ contentgrid.configuration.static.contentgrid-apps:
       contentgrid.idp.issuer-uri: http://${docker.host.ip}:8082/realms/cg-holmes
       contentgrid.idp.client-id: test-client
       contentgrid.idp.client-secret: JmcPOg8RFijxXFy6ozt0sYMAnmte8D0T
+      contentgrid.cors.origins: http://localhost:8085
 
 servicediscovery:
   static:
