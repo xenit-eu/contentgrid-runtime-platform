@@ -1,0 +1,17 @@
+management:
+  server.port: 8081
+  endpoints.web.exposure.include: '*'
+contentgrid:
+  tokenmonger:
+    user-extension-access:
+      issuer: '${tokenmonger.host}/authentication/external'
+      active-signing-keys: file:/etc/tokenmonger/keys/jwt-external/active-*.pem
+      retired-signing-keys: file:/etc/tokenmonger/keys/jwt-external/*.pem
+    extension-delegated-application-access:
+      issuer: '${tokenmonger.host}/authentication/delegated'
+      active-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/active-*.pem
+      retired-signing-keys: file:/etc/tokenmonger/keys/jwt-delegated/*.pem
+    extension-application-access:
+      issuer: '${tokenmonger.host}/authentication/system'
+      active-signing-keys: file:/etc/tokenmonger/keys/jwt-system/active-*.pem
+      retired-signing-keys: file:/etc/tokenmonger/keys/jwt-system/*.pem

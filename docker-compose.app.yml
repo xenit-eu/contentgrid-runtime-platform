@@ -1,0 +1,26 @@
+services:
+  app-api:
+    image: ghcr.io/xenit-eu/contentgrid-appserver:SNAPSHOT
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/app/config/application.yml
+      SPRING_DATASOURCE_URL: jdbc:postgresql://app-database/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: elephants
+
+      CONTENTGRID_EVENTS_WEBHOOKCONFIGURL: http://app-api:8081/actuator/webhooks
+      CONTENTGRID_APPSERVER_BLUEPRINTARTIFACT_LOCATION: file:/etc/app/config
+    volumes:
+      - ./config/app:/etc/app/config:ro
+    depends_on:
+      app-database:
+        condition: service_started
+
+  app-database:
+    image: docker.io/library/postgres:18
+    environment:
+      POSTGRES_PASSWORD: elephants
+
+  gateway:
+    environment:
+      CONTENTGRID_CONFIGURATION_STATIC_CONTENTGRIDAPPS_APP1_COMPOSITIONKEY: app1
+      CONTENTGRID_CONFIGURATION_STATIC_CONTENTGRIDAPPS_APP1_CONFIGURATION: app1

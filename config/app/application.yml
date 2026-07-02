@@ -1,0 +1,13 @@
+management:
+  server.port: 8081
+  endpoints.web.exposure.include: '*'
+server:
+  forward-headers-strategy: native
+
+spring:
+  rabbitmq:
+    template.exchange: contentgrid.apps
+
+contentgrid.appserver:
+  content-store.type: ephemeral
+  query-engine.bootstrap-tables: CREATE

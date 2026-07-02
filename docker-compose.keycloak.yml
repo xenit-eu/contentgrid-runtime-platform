@@ -1,0 +1,22 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    command: start-dev --import-realm
+    volumes:
+      - ./bootstrap/keycloak/:/opt/keycloak/data/import/:ro
+    ports:
+      - 8082:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "/opt/keycloak/data/import/readyness.sh"]
+
+  tokenmonger:
+    environment:
+      CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER: http://${DOCKER_HOST_IP:-172.17.0.1}:8082/realms/extensions
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        required: true
