@@ -5,22 +5,25 @@ services:
       SPRING_CONFIG_IMPORT: file:/etc/app/config/application.yml
       SPRING_DATASOURCE_URL: jdbc:postgresql://app-database/postgres
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: elephants
+      SPRING_DATASOURCE_PASSWORD: $POSTGRES_PASSWORD
+
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://gateway:8081/actuator/jwks/apps
 
       CONTENTGRID_EVENTS_WEBHOOKCONFIGURL: http://app-api:8081/actuator/webhooks
       CONTENTGRID_APPSERVER_BLUEPRINTARTIFACT_LOCATION: file:/etc/app/config
+
     volumes:
       - ./config/app:/etc/app/config:ro
     depends_on:
+      gateway:
+        condition: service_started
       app-database:
         condition: service_started
 
   app-database:
     image: docker.io/library/postgres:18
     environment:
-      POSTGRES_PASSWORD: elephants
-
-  gateway:
-    environment:
-      CONTENTGRID_CONFIGURATION_STATIC_CONTENTGRIDAPPS_APP1_COMPOSITIONKEY: app1
-      CONTENTGRID_CONFIGURATION_STATIC_CONTENTGRIDAPPS_APP1_CONFIGURATION: app1
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD

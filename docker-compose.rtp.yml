@@ -1,0 +1,103 @@
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    command: start-dev --import-realm
+    volumes:
+      - ./bootstrap/keycloak/:/opt/keycloak/data/import/:ro
+    ports:
+      - 8082:8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "/opt/keycloak/data/import/readyness.sh"]
+      start_period: 1m
+
+  gateway:
+    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/gateway/config/application.yml,/etc/gateway/config/app.yml
+      TOKENMONGER_HOST: "http://${DOCKER_HOST_IP:-172.17.0.1}:8081"
+      DOCKER_HOST_IP: "${DOCKER_HOST_IP:-172.17.0.1}"
+      OPA_SERVICE_URL: http://opa:8181
+    volumes:
+      - ./config/gateway:/etc/gateway/config:ro
+      - gateway_keys:/etc/gateway/keys:ro
+    depends_on:
+      gateway-bootstrap:
+        condition: service_completed_successfully
+        restart: true
+  gateway-bootstrap:
+    image: ghcr.io/xenit-eu/kubectl
+    volumes:
+      - ./bootstrap/gateway:/bootstrap:ro
+      - gateway_keys:/etc/gateway/secrets:rw
+    working_dir: /etc/gateway/secrets
+    command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
+  opa:
+    image: docker.io/openpolicyagent/opa:1.17.1
+    command: ["run", "--server", "--log-level=error", "--authorization=basic", "--v0-compatible", "--config-file", "/etc/opa/config.yml", "file:/etc/opa/system.rego", "file:/var/opa/store"]
+    volumes:
+      - ./config/opa:/etc/opa:ro
+      - ./config/app/rego:/var/opa/store:ro
+
+  rabbitmq:
+    image: docker.io/library/rabbitmq:4.3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "node_health_check"]
+      start_period: 1m
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmw:rw
+
+  rabbitmq-bootstrap:
+    image: ghcr.io/xenit-eu/kubectl
+    command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
+    environment:
+      RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+    volumes:
+      - ./bootstrap/rabbitmq:/tmp/rabbitmq:ro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+  tokenmonger:
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/tokenmonger/config/application.yml
+      TOKENMONGER_HOST: "http://${DOCKER_HOST_IP:-172.17.0.1}:8081"
+      CONTENTGRID_TOKENMONGER_USERAPPLICATIONACCESS_JWKSETURI: "http://gateway:8081/actuator/jwks/authentication"
+      CONTENTGRID_TOKENMONGER_EXTENSION_IDENTITY_ISSUER: http://${DOCKER_HOST_IP:-172.17.0.1}:8082/realms/extensions
+    volumes:
+      - ./config/tokenmonger:/etc/tokenmonger/config:ro
+      - tokenmonger_keys:/etc/tokenmonger/keys:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        required: true
+      gateway:
+        condition: service_started
+      tokenmonger-bootstrap:
+        condition: service_completed_successfully
+        restart: true
+
+  tokenmonger-bootstrap:
+    image: ghcr.io/xenit-eu/kubectl
+    volumes:
+      - ./bootstrap/tokenmonger:/bootstrap:ro
+      - tokenmonger_keys:/etc/tokenmonger/secrets:rw
+    working_dir: /etc/tokenmonger/secrets
+    command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
+
+
+volumes:
+  gateway_keys:
+  rabbitmq_data:
+  tokenmonger_keys:
