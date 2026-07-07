@@ -2,8 +2,8 @@ secretStoreName: cg-rtp-scw-prod-secretstore
 
 userapps:
   database:
-    - ip: 195.154.196.110
-      port: "16160"
+    - ip: 51.15.213.215
+      port: "8922"
   defaultDomainSuffix: eu-west-1-drp.contentgrid.cloud
   objectstorage:
     - fqdn:
@@ -22,8 +22,8 @@ keycloak:
 
 keycloakx:
   database:
-    hostname: 51.159.205.115
-    port: "20965"
+    hostname: 51.158.126.218
+    port: "25850"
   replicas: 2
 
 certificates:
