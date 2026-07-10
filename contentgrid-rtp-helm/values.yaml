@@ -17,7 +17,7 @@ gateway:
 #    cpu: "100m"
 #    memory: "512Mi"
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:7eeb7b8e8b7e5f3b1b6ac795b61913f8194ee7eaefcc7eaa4a4ea41329c9705e
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:1e93b57a97aa78225746ad56d9740dcf3aac982ecd1c093ceaf5662a0753929e
   host: ~
   protocol: https
   debug: false
@@ -28,17 +28,17 @@ tokenmonger:
 opa:
   image: docker.io/openpolicyagent/opa:1.18.0
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:1b47d07d3989f10803f63ff4b8398bd762a7bc0ed386e83eca2e7bef19de8e02
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:1c98e5fa59419af0d358976f27f96e64253abc10d136ac9091887dc4095ac7af
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:4eeaaea6fcf5c6a948e68996f57f7482c2ef0c9a7e70cccff5775a4935b3071f
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:52fe575c09a4bcf166fc467115fb2a7a847e2e9bf1e9691f3304f6c95e172b2d
   debug: false
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:6d192b5c4f964ff20e52ba523024886253efd4516df7aaeda76ad9c789db92e8
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:481b023670b56c16f0b3038e6b920bd7274e989439dc30d2ea7d91511799117a
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:a9b8c829d87d1162dafc2625a84a481deb4fb5095948fa532d2d274bf7b7aa7a
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:3b4d0d687ac329ff7301150f38007554c87bae6d7844eb0d42c0e38f48254001
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:6aa1ee40dc5918a2c1a9ea8873c2a49e229af7e66ee60bbf739211d5853120e5
