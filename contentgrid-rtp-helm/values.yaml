@@ -31,14 +31,14 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:1b47d07d3989f10803f63ff4b8398bd762a7bc0ed386e83eca2e7bef19de8e02
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:84bca6f6234d345464b5c155a815ab954c377e51592e1e87e17de382544dbda8
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:4eeaaea6fcf5c6a948e68996f57f7482c2ef0c9a7e70cccff5775a4935b3071f
   debug: false
 pathfinder:
   enabled: true
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:6d192b5c4f964ff20e52ba523024886253efd4516df7aaeda76ad9c789db92e8
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:e75f84c97601614ef6bcc22c035db9ebacf9b9af0389c726e50e1b54e12652df
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:a9b8c829d87d1162dafc2625a84a481deb4fb5095948fa532d2d274bf7b7aa7a
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:6273213e734b98985d952f1062da0b7214f926e968002455795875e941843c12
