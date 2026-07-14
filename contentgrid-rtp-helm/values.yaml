@@ -26,7 +26,7 @@ tokenmonger:
     tls: true
     annotations: {}
 opa:
-  image: docker.io/openpolicyagent/opa:1.18.0
+  image: docker.io/openpolicyagent/opa:1.18.1
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:39149d32e6e7a885cfad33374bb54d846dcc8f51e5c8e7a4a8951ef00f57ffc2
   debug: false
