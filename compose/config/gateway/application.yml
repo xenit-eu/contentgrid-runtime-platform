@@ -1,0 +1,31 @@
+management:
+  server.port: 8081
+  endpoints.web.exposure.include: '*'
+contentgrid:
+  gateway:
+    runtime-platform:
+      enabled: true
+      external-issuers:
+        extension-delegation:
+          issuer: '${tokenmonger.host}/authentication/delegated'
+          jwk-set-uri: '${tokenmonger.host}/authentication/delegated/jwks'
+        extension-system:
+          issuer: '${tokenmonger.host}/authentication/system'
+          jwk-set-uri: '${tokenmonger.host}/authentication/system/jwks'
+      endpoints:
+        authentication:
+          uri: http://tokenmonger:8080
+          authorization: authenticated
+          encryption:
+            active-keys: file:/etc/gateway/keys/jwt-authentication-encryption/active-*.bin
+            all-keys: file:/etc/gateway/keys/jwt-authentication-encryption/*.bin
+    jwt:
+      signers:
+        apps:
+          active-keys: file:/etc/gateway/keys/jwt-apps/active-*.pem
+          all-keys: file:/etc/gateway/keys/jwt-apps/*.pem
+        authentication:
+          active-keys: file:/etc/gateway/keys/jwt-authentication/active-*.pem
+          all-keys: file:/etc/gateway/keys/jwt-authentication/*.pem
+servicediscovery:
+  enabled: true

@@ -1,0 +1,17 @@
+contentgrid.configuration.static.contentgrid-apps:
+  app1:
+    composition-key: app1
+    configuration:
+      contentgrid.routing.domains: localhost
+      contentgrid.idp.issuer-uri: http://${docker.host.ip}:8082/realms/cg-holmes
+      contentgrid.idp.client-id: test-client
+      contentgrid.idp.client-secret: JmcPOg8RFijxXFy6ozt0sYMAnmte8D0T
+      contentgrid.cors.origins: http://localhost:8085
+
+servicediscovery:
+  static:
+    deployments:
+      - application-id: app1
+        deployment-id: depl1
+        policy-package: apps.depl1
+        uri: http://app-api:8080
