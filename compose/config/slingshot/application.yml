@@ -1,0 +1,8 @@
+management:
+  server.port: 8081
+  endpoints.web.exposure.include: '*'
+  health.rabbit.enabled: true
+
+contentgrid.webhooks:
+  signing.jwt.generate-key: true
+  queue: contentgrid.slingshot
