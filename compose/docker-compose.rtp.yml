@@ -95,7 +95,7 @@ services:
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
 
   slingshot:
-    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:cb57b11e7511280335b1c2073d9113f54498f049f7578d57fd8a4927b1639d20
+    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:03f25cf864fdedcef2db1695cb75fd243c1f357ead7ed3f4811cfac56363c1f6
     environment:
       SPRING_CONFIG_IMPORT: file:/etc/slingshot/config/application.yml
       SPRING_RABBITMQ_HOST: rabbitmq
