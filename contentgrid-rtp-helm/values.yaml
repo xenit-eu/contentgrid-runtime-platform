@@ -31,14 +31,14 @@ solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:39149d32e6e7a885cfad33374bb54d846dcc8f51e5c8e7a4a8951ef00f57ffc2
   debug: false
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:cb57b11e7511280335b1c2073d9113f54498f049f7578d57fd8a4927b1639d20
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:03f25cf864fdedcef2db1695cb75fd243c1f357ead7ed3f4811cfac56363c1f6
   debug: false
 pathfinder:
   enabled: true
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:1abd330cf55d03c1dec6cdbca959c9d8bf9f753e11afd8460c6a53d8578a7e2e
   debug: false
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:c7a239bf2b444fb68c148352f406da0c5bb781f19de1a4b767e442b9fa3cdafa
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:a9ebe7e7d43d21ec6c0c75b65b6f6e43a082c5a31a856b8ea6a3d521e45225bb
   debug: false
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:663c34080eafbdb16f0cf4991d3001b3c4e19ec5e0d9f7aa41650efa0f383cc2
