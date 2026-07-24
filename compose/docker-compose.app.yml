@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
 
   navigator:
-    image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:7d54b51c90330be83cc44d3334e18db0736e54ab9f12b3f895b3bd12bac9acab
+    image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:f954a933676f8c1c805770546cb0a51a07d92ffb6cab76191318c8451e608a22
     ports:
       - "8085:8080"
     environment:
