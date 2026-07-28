@@ -39,7 +39,7 @@ services:
     working_dir: /etc/gateway/secrets
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
   opa:
-    image: docker.io/openpolicyagent/opa:1.17.1
+    image: docker.io/openpolicyagent/opa:1.18.2
     command: ["run", "--server", "--log-level=error", "--authorization=basic", "--v0-compatible", "--config-file", "/etc/opa/config.yml", "file:/etc/opa/system.rego", "file:/var/opa/store"]
     volumes:
       - ./config/opa:/etc/opa:ro
