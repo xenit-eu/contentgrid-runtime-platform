@@ -14,7 +14,7 @@ gateway:
   # sites, CI). Bump these per environment for production-scale traffic.
   resourceRequests:
     cpu: 250m
-    memory: 384Mi
+    memory: 768Mi
   resourceLimits:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
@@ -25,9 +25,9 @@ tokenmonger:
   debug: false
   resourceRequests:
     cpu: 100m
-    memory: 256Mi
-  resourceLimits:
     memory: 512Mi
+  resourceLimits:
+    memory: 640Mi
   ingress:
     name: tokenmonger
     tls: true
@@ -36,15 +36,15 @@ opa:
   image: docker.io/openpolicyagent/opa:1.18.2
   resourceRequests:
     cpu: 50m
-    memory: 64Mi
+    memory: 381Mi
   resourceLimits:
-    memory: 256Mi
+    memory: 512Mi
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:39149d32e6e7a885cfad33374bb54d846dcc8f51e5c8e7a4a8951ef00f57ffc2
   debug: false
   resourceRequests:
     cpu: 100m
-    memory: 256Mi
+    memory: 512Mi
   resourceLimits:
     memory: 512Mi
 slingshot:
@@ -52,16 +52,16 @@ slingshot:
   debug: false
   resourceRequests:
     cpu: 100m
-    memory: 256Mi
+    memory: 384Mi
   resourceLimits:
-    memory: 512Mi
+    memory: 384Mi
 pathfinder:
   enabled: true
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:1abd330cf55d03c1dec6cdbca959c9d8bf9f753e11afd8460c6a53d8578a7e2e
   debug: false
   resourceRequests:
     cpu: 100m
-    memory: 256Mi
+    memory: 384Mi
   resourceLimits:
     memory: 512Mi
 liaison:
@@ -69,7 +69,7 @@ liaison:
   debug: false
   resourceRequests:
     cpu: 100m
-    memory: 256Mi
+    memory: 384Mi
   resourceLimits:
     memory: 512Mi
 navigator:
@@ -85,16 +85,16 @@ surveyor:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
     resourceRequests:
       cpu: 100m
-      memory: 256Mi
+      memory: 128Mi
     resourceLimits:
-      memory: 1Gi
+      memory: 256Mi
   pegman:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:705b260b8375456901d33ed3d5a1012a11d3e6eb9007580194b5b942cdf6ec6e
     host: ~
     debug: false
     resourceRequests:
       cpu: 100m
-      memory: 256Mi
+      memory: 512Mi
     resourceLimits:
       memory: 512Mi
     extraConfig: |
@@ -129,7 +129,7 @@ surveyor:
     debug: false
     resourceRequests:
       cpu: 100m
-      memory: 256Mi
+      memory: 512Mi
     resourceLimits:
       memory: 512Mi
   cgappApiExporter:
@@ -137,7 +137,7 @@ surveyor:
     debug: false
     resourceRequests:
       cpu: 100m
-      memory: 256Mi
+      memory: 320Mi
     resourceLimits:
       memory: 512Mi
 
@@ -197,11 +197,13 @@ keycloakx:
   fullnameOverride: keycloak # this is used for the name of the service that we use in the ingress
   replicas: 1
   resources:
+    # Request == limits so it keycloak is a guaranteed pod https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#guaranteed
     requests:
-      cpu: 250m
-      memory: 512Mi
+      cpu: 500m
+      memory: 1536Mi
     limits:
-      memory: 1Gi
+      cpu: 500m
+      memory: 1536Mi
   args:
     - 'start'
     - '--hostname-strict=false'
@@ -273,9 +275,10 @@ rabbitmq:
       limits:
         memory: 256Mi
   resources:
+    # Request == limits so it keycloak is a guaranteed pod https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#guaranteed
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 750m
+      memory: 1536Mi
     limits:
       cpu: 750m
       memory: 1536Mi
