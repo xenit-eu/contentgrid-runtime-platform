@@ -42,7 +42,7 @@ opa:
     cpu: 50m
     memory: 381Mi
   resourceLimits:
-    memory: 512Mi
+    memory: 1Gi
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:39149d32e6e7a885cfad33374bb54d846dcc8f51e5c8e7a4a8951ef00f57ffc2
   debug: false
@@ -69,7 +69,7 @@ pathfinder:
     cpu: 100m
     memory: 384Mi
   resourceLimits:
-    memory: 512Mi
+    memory: 768Mi
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:02c4c53eeb93e20ea692af760f2266980de7f3ca80fec95b678b884d3f44448b
   debug: false
@@ -77,14 +77,14 @@ liaison:
     cpu: 100m
     memory: 384Mi
   resourceLimits:
-    memory: 512Mi
+    memory: 1Gi
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:3e7fab22ba09a32abad0a9b9a791c5e22dcece9c1e3cd0ee8df9cd566b2ca339
   resourceRequests:
     cpu: 25m
-    memory: 32Mi
+    memory: 16Mi
   resourceLimits:
-    memory: 128Mi
+    memory: 64Mi
 surveyor:
   enabled: true
   prometheus:
@@ -102,7 +102,7 @@ surveyor:
       cpu: 100m
       memory: 512Mi
     resourceLimits:
-      memory: 512Mi
+      memory: 768Mi
     extraConfig: |
       {{- with .Values.surveyor.pegman.scaleway }}
       surveyor.systems.prometheus.scaleway-metrics.name: runtime
@@ -137,7 +137,7 @@ surveyor:
       cpu: 100m
       memory: 512Mi
     resourceLimits:
-      memory: 512Mi
+      memory: 768Mi
   cgappApiExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:35297cfbde4df117d13d6468cd431f38827552a3f1c3ae5322bf3305b23d6bef
     debug: false
