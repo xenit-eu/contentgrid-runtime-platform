@@ -156,6 +156,7 @@ spec:
           image: ghcr.io/xenit-eu/kubectl
           imagePullPolicy: IfNotPresent
           command: ["/bin/bash", "-c", "/tmp/rabbitmq/setup.sh"]
+          {{- include "contentgrid.resources" (dict "limits" .Values.jobs.resourceLimits) | nindent 10 }}
           env:
             - name: RABBITMQ_PASSWORD
               valueFrom:

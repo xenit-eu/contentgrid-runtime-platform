@@ -28,3 +28,25 @@ nodeSelector:
 {{ toYaml .Values.pods.nodeSelector | indent 2 }}
 {{- end }}
 {{- end }}
+
+{{/*
+Renders a container `resources:` block from a component's `resourceRequests` /
+`resourceLimits` values. Either side is optional, so e.g. a memory limit without a
+CPU limit is supported. Fields are rendered with `toYaml`, so any standard
+resource quantity (cpu, memory, ephemeral-storage, ...) can be supplied via values.
+
+Usage: {{ include "contentgrid.resources" (dict "requests" .Values.<comp>.resourceRequests "limits" .Values.<comp>.resourceLimits) | nindent <N> }}
+*/}}
+{{- define "contentgrid.resources" -}}
+{{- if or .requests .limits -}}
+resources:
+{{- with .requests }}
+  requests:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+{{- with .limits }}
+  limits:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end -}}
+{{- end -}}

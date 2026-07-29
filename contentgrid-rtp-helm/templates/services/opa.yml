@@ -29,19 +29,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.opa.resourceLimits .Values.opa.resourceRequests }}
-          resources:
-            {{- with .Values.opa.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.opa.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.opa.resourceRequests "limits" .Values.opa.resourceLimits) | nindent 10 }}
           args: [
             'run',
             '--server',

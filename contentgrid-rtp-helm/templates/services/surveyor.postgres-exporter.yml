@@ -34,19 +34,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.surveyor.postgresExporter.resourceLimits .Values.surveyor.postgresExporter.resourceRequests }}
-          resources:
-            {{- with .Values.surveyor.postgresExporter.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.surveyor.postgresExporter.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.surveyor.postgresExporter.resourceRequests "limits" .Values.surveyor.postgresExporter.resourceLimits) | nindent 10 }}
           ports:
             - name: http
               containerPort: 8080

@@ -32,19 +32,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.slingshot.resourceLimits .Values.slingshot.resourceRequests }}
-          resources:
-            {{- with .Values.slingshot.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.slingshot.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.slingshot.resourceRequests "limits" .Values.slingshot.resourceLimits) | nindent 10 }}
           ports:
             - name: http
               containerPort: 8080
