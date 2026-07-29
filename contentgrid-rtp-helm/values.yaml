@@ -27,7 +27,11 @@ tokenmonger:
     cpu: 100m
     memory: 512Mi
   resourceLimits:
-    memory: 640Mi
+    # The buildpack memory calculator sets the JVM memory arguments based on a calculation using the memory limit.
+    # Put the limit too low, and the calculation will result in a container that won't start. But without a limit,
+    # the calculation will use the node limit which will result in a very high memory limit, iso just garbage collecting
+    # or scaling horizontally.
+    memory: 1Gi
   ingress:
     name: tokenmonger
     tls: true
@@ -46,7 +50,8 @@ solon:
     cpu: 100m
     memory: 512Mi
   resourceLimits:
-    memory: 512Mi
+    # See the note on the tokenmonger limit above.
+    memory: 1Gi
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:8c9c27977999e7c884262f9fdc5ea9d93c72feece96b70cbe8b4a5add0a8d693
   debug: false
@@ -54,7 +59,8 @@ slingshot:
     cpu: 100m
     memory: 384Mi
   resourceLimits:
-    memory: 384Mi
+    # See the note on the tokenmonger limit above.
+    memory: 1Gi
 pathfinder:
   enabled: true
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:1abd330cf55d03c1dec6cdbca959c9d8bf9f753e11afd8460c6a53d8578a7e2e
