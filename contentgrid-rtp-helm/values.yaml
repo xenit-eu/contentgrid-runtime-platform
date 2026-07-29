@@ -281,7 +281,7 @@ rabbitmq:
       limits:
         memory: 256Mi
   resources:
-    # Request == limits so it keycloak is a guaranteed pod https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#guaranteed
+    # Request == limits so it rabbitmq is a guaranteed pod https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#guaranteed
     requests:
       cpu: 750m
       memory: 1536Mi
