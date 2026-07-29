@@ -34,19 +34,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.surveyor.cgappApiExporter.resourceLimits .Values.surveyor.cgappApiExporter.resourceRequests }}
-          resources:
-            {{- with .Values.surveyor.cgappApiExporter.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.surveyor.cgappApiExporter.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.surveyor.cgappApiExporter.resourceRequests "limits" .Values.surveyor.cgappApiExporter.resourceLimits) | nindent 10 }}
           ports:
             - name: http
               containerPort: 8080

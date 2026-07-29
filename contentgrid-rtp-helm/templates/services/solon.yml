@@ -32,19 +32,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.solon.resourceLimits .Values.solon.resourceRequests }}
-          resources:
-            {{- with .Values.solon.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.solon.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.solon.resourceRequests "limits" .Values.solon.resourceLimits) | nindent 10 }}
           ports:
             - name: http
               containerPort: 8080

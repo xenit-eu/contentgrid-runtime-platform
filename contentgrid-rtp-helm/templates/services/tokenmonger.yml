@@ -29,19 +29,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.tokenmonger.resourceLimits .Values.tokenmonger.resourceRequests }}
-          resources:
-            {{- with .Values.tokenmonger.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.tokenmonger.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.tokenmonger.resourceRequests "limits" .Values.tokenmonger.resourceLimits) | nindent 10 }}
           ports:
             - name: http
               containerPort: 8080

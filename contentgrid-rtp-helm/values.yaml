@@ -10,46 +10,93 @@ gateway:
   debug: false
   accessLogging: false
 #  maxInitialLineLength: 4096  # increase to allow longer URLs (e.g. many query parameters)
-#  resourceLimits:
-#    cpu: "1000m"
-#    memory: "1Gi"
-#  resourceRequests:
-#    cpu: "100m"
-#    memory: "512Mi"
+  # Resource requests are kept modest so the chart fits small clusters (e.g. customer
+  # sites, CI). Bump these per environment for production-scale traffic.
+  resourceRequests:
+    cpu: 250m
+    memory: 384Mi
+  resourceLimits:
+    memory: 1Gi
+    # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
   image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:f77779fa608a3c9553656c9a9ff33905db15d2a657e3ea481b3ff8f6f69bafb1
   host: ~
   protocol: https
   debug: false
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi
   ingress:
     name: tokenmonger
     tls: true
     annotations: {}
 opa:
   image: docker.io/openpolicyagent/opa:1.18.2
+  resourceRequests:
+    cpu: 50m
+    memory: 64Mi
+  resourceLimits:
+    memory: 256Mi
 solon:
   image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:39149d32e6e7a885cfad33374bb54d846dcc8f51e5c8e7a4a8951ef00f57ffc2
   debug: false
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi
 slingshot:
   image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:8c9c27977999e7c884262f9fdc5ea9d93c72feece96b70cbe8b4a5add0a8d693
   debug: false
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi
 pathfinder:
   enabled: true
   image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:1abd330cf55d03c1dec6cdbca959c9d8bf9f753e11afd8460c6a53d8578a7e2e
   debug: false
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi
 liaison:
   image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:02c4c53eeb93e20ea692af760f2266980de7f3ca80fec95b678b884d3f44448b
   debug: false
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi
 navigator:
   image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:3e7fab22ba09a32abad0a9b9a791c5e22dcece9c1e3cd0ee8df9cd566b2ca339
+  resourceRequests:
+    cpu: 25m
+    memory: 32Mi
+  resourceLimits:
+    memory: 128Mi
 surveyor:
   enabled: true
   prometheus:
     image: docker.io/prom/prometheus:latest@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
+    resourceRequests:
+      cpu: 100m
+      memory: 256Mi
+    resourceLimits:
+      memory: 1Gi
   pegman:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:705b260b8375456901d33ed3d5a1012a11d3e6eb9007580194b5b942cdf6ec6e
     host: ~
     debug: false
+    resourceRequests:
+      cpu: 100m
+      memory: 256Mi
+    resourceLimits:
+      memory: 512Mi
     extraConfig: |
       {{- with .Values.surveyor.pegman.scaleway }}
       surveyor.systems.prometheus.scaleway-metrics.name: runtime
@@ -80,9 +127,19 @@ surveyor:
   postgresExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:b6522899526b935fe337ad6580407ba2ab3e9d40e6a750510bd3aea0e62f5caa
     debug: false
+    resourceRequests:
+      cpu: 100m
+      memory: 256Mi
+    resourceLimits:
+      memory: 512Mi
   cgappApiExporter:
     image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:35297cfbde4df117d13d6468cd431f38827552a3f1c3ae5322bf3305b23d6bef
     debug: false
+    resourceRequests:
+      cpu: 100m
+      memory: 256Mi
+    resourceLimits:
+      memory: 512Mi
 
 userapps:
   namespace: default
@@ -139,6 +196,12 @@ keycloakx:
     tag: 26.5.6
   fullnameOverride: keycloak # this is used for the name of the service that we use in the ingress
   replicas: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
   args:
     - 'start'
     - '--hostname-strict=false'
@@ -173,6 +236,12 @@ keycloakx:
         - |
           echo "Copying theme..."
           cp -R /contentgrid-keycloak-themes/* /theme
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
       volumeMounts:
         - name: theme
           mountPath: /theme
@@ -196,7 +265,17 @@ rabbitmq:
     tag: '4.3'
     digest: sha256:0ea64c69ef2ced52e7188c6db826152d42f78e448433ed8b4e570170c427a437
   fullnameOverride: rabbitmq
+  bootstrap:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
   resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
     limits:
       cpu: 750m
       memory: 1536Mi

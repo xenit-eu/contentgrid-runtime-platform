@@ -33,25 +33,20 @@ spec:
           image: "busybox"
           # 65534 is the nobody user that prometheus uses.
           command: ["chown", "-R", "65534:65534", "/data"]
+          resources:
+            # small busybox chown on the TSDB volume
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
           volumeMounts:
             - name: tsdb-storage
               mountPath: /data
       containers:
         - name: prometheus
           image: {{ .Values.surveyor.prometheus.image }}
-          {{- if or .Values.surveyor.prometheus.resourceLimits .Values.surveyor.prometheus.resourceRequests }}
-          resources:
-            {{- with .Values.surveyor.prometheus.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.surveyor.prometheus.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.surveyor.prometheus.resourceRequests "limits" .Values.surveyor.prometheus.resourceLimits) | nindent 10 }}
           ports:
             - name: management
               containerPort: 9090

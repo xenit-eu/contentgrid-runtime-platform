@@ -34,19 +34,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.pathfinder.resourceLimits .Values.pathfinder.resourceRequests }}
-          resources:
-            {{- with .Values.pathfinder.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.pathfinder.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.pathfinder.resourceRequests "limits" .Values.pathfinder.resourceLimits) | nindent 10 }}
           ports:
             - name: management
               containerPort: 8080
@@ -109,19 +97,7 @@ spec:
           {{ if .Values.development -}}
           imagePullPolicy: Always
           {{- end }}
-          {{- if or .Values.pathfinder.resourceLimits .Values.pathfinder.resourceRequests }}
-          resources:
-            {{- with .Values.pathfinder.resourceLimits }}
-            limits:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-            {{- with .Values.pathfinder.resourceRequests }}
-            requests:
-              cpu: {{ .cpu }}
-              memory: {{ .memory }}
-            {{- end }}
-          {{- end }}
+          {{- include "contentgrid.resources" (dict "requests" .Values.pathfinder.resourceRequests "limits" .Values.pathfinder.resourceLimits) | nindent 10 }}
           ports:
             - name: management
               containerPort: 8080
