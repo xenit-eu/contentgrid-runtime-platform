@@ -205,10 +205,10 @@ keycloakx:
   resources:
     # Request == limits so it keycloak is a guaranteed pod https://kubernetes.io/docs/concepts/workloads/pods/pod-qos/#guaranteed
     requests:
-      cpu: 500m
+      cpu: 2
       memory: 1536Mi
     limits:
-      cpu: 500m
+      cpu: 2
       memory: 1536Mi
   args:
     - 'start'
