@@ -143,9 +143,9 @@ surveyor:
     debug: false
     resourceRequests:
       cpu: 100m
-      memory: 320Mi
-    resourceLimits:
       memory: 512Mi
+    resourceLimits:
+      memory: 1Gi
 
 userapps:
   namespace: default
