@@ -1,0 +1,21 @@
+{{ if .Capabilities.APIVersions.Has "external-secrets.io/v1" }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  labels:
+    app.kubernetes.io/part-of: contentgrid-runtime
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  namespace: {{ .Values.userapps.namespace }}
+  name: blueprint-artifact-obj
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: {{ .Values.secretStoreName }}
+    kind: ClusterSecretStore
+  target:
+    name: blueprint-artifact-obj
+    creationPolicy: Owner
+  dataFrom:
+    - extract:
+        key: {{ .Values.userapps.blueprint.secretKey }}
+{{ end }}
