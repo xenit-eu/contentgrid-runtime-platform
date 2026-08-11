@@ -6,7 +6,7 @@ ingressClassName: haproxy
 #  -----END CERTIFICATE-----
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:2750c14b8d3d60e4bff3cfa8bdc6488c9f5914934a9e994a543ea0e41fa6f427
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:ce49ae9d919ad034836e13c579c48edd785fc476c01e2dba7b2ab59d62a35be0
   debug: false
   accessLogging: false
 #  maxInitialLineLength: 4096  # increase to allow longer URLs (e.g. many query parameters)
@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:0e9b27c61cdfa40d1f234626588effdaf8b2390f591dcf67ae2cfd8a4728bdfb
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:4dedb2d02ae96dcd1fbd5f12c626d57540690c9bc9bc95c49cb0aaae8d62bff0
   debug: false
   resourceRequests:
     cpu: 100m
