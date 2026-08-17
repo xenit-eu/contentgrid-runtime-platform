@@ -19,8 +19,8 @@ at the end if you want to diverge from this.
 
 ### Domains
 
-These should resolve to the ingress ip. cert-manager will issue their certificates, including for the ingresses that
-Pathfinder generates per deployed app. Substitute `.example.com` with your domain.
+These should resolve to the ingress' IP address. cert-manager will issue their certificates, including for the
+ingresses that Pathfinder generates per deployed app. Substitute `.example.com` with your domain.
 
 | Hostname                 | Value                          | Serves                                     |
 |--------------------------|--------------------------------|--------------------------------------------|
@@ -123,15 +123,15 @@ helm -n contentgrid-system upgrade --install contentgrid-rtp ./contentgrid-rtp-h
 ```
 
 Some pre-install jobs will run, for e.g. configuring the rabbitmq. These jobs need to talk to the Kubernetes API, so
-if it hangs there is probably something misconfigured with your networkpolicies.
+if it hangs there is probably something misconfigured with your NetworkPolicies.
 
-It's expected that the tokenmonger deployment doesn't become healthy yet.
+It's expected that the Tokenmonger deployment doesn't become healthy yet.
 
 ## 4. Post-install
 
-### Configure tokenmonger extensions
+### Configure Tokenmonger extensions
 
-Tokenmonger needs the `tokenmonger-extensions` configmap to start up. This configmap is not managed by helm because it
+Tokenmonger needs the `tokenmonger-extensions` configmap to start up. This configmap is not managed by Helm because it
 semi-frequently needs manual editing (to add extensions). Renditions is part of a normal install, so start with the
 following (substitute example.com for your domain):
 
@@ -149,17 +149,17 @@ data:
   # contentgrid.tokenmonger.extensions.registration.extract.resource-uris: https://extract.example.com/
 ```
 
-The extension-id in the config must match the _Extension ID_ field on the corresponding service account in Keycloak.
+The `extension-id` in the config must match the _Extension ID_ field on the corresponding service account in Keycloak.
 See [the extension documentation](https://github.com/xenit-eu/contentgrid-system-design/blob/main/runbooks/automation-system-registration.md#keycloak-1)
 for more information.
 
 ### Keycloak
 
-Log in to keycloak at auth.example.com/ using the credentials you filled in in the values file, then change the
+Log in to Keycloak at https://auth.example.com/ using the credentials you filled in in the values file, then change the
 password to something secure. Now you can remove `KC_BOOTSTRAP_ADMIN_USERNAME` and `KC_BOOTSTRAP_ADMIN_PASSWORD` from
 the values file.
 
-The chart automatically imports the `extensions` realm, used by tokenmonger. Read
+The chart automatically imports the `extensions` realm, used by Tokenmonger. Read
 [docs/keycloak-setup.md](./keycloak-setup.md) for instructions on setting up a realm for the users of an app.
 
 ## 5. Verification
@@ -175,10 +175,10 @@ The chart automatically imports the `extensions` realm, used by tokenmonger. Rea
 The chart checks whether Cilium is installed. If it isn't, it makes normal NetworkPolicies instead, and you have to
 define the following in your values file:
 
-* `apiserver.cidr`: CIDR for the IP of the Kubernetes API
-* `ingress.public_ip.cidr`: CIDR for the public IP of the ingress controller
-* `keycloak.smtp_ip.cidr`: CIDR for the IP of the SMTP server used by Keycloak
-* `userapps.objectstorage`: This is an array, provide an object with `ip` and `port` keys, e.g.:
+- `apiserver.cidr`: CIDR for the IP of the Kubernetes API
+- `ingress.public_ip.cidr`: CIDR for the public IP of the ingress controller
+- `keycloak.smtp_ip.cidr`: CIDR for the IP of the SMTP server used by Keycloak
+- `userapps.objectstorage`: This is an array, provide an object with `ip` and `port` keys, e.g.:
   ```yaml
   userapps:
     objectstorage:
@@ -194,7 +194,7 @@ secret with `tls.crt` and `tls.key`:
 | Secret name           | Hostname                  | Purpose                                            |
 |-----------------------|---------------------------|----------------------------------------------------|
 | `keycloak-tls`        | `auth.example.com`        | The Keycloak ingress                               |
-| `tokenmonger-tls`     | `extensions.example.com`  | The tokenmonger ingress                            |
+| `tokenmonger-tls`     | `extensions.example.com`  | The Tokenmonger ingress                            |
 | _varies_              | The app's domains         | The ingresses Pathfinder generates per app         |
 
 Pathfinder picks the names in that last row itself, so you can only create those secrets after it has created the
@@ -229,15 +229,15 @@ systems it reports to.
 OpenShift converts each `Ingress` into `Route` resources, and something in this conversion breaks for our ingresses,
 seemingly related to having more than one service per path. We need a route for `/config.js` on an app's webapp domain
 (should go to `liaison-service`) and `/.well-known/jwks.json` on its gateway domain (should go to `slingshot-service`).
-Check both after deploying an app, and check tokenmonger's routes too. To fix this, read the generated Route that _was_
+Check both after deploying an app, and check Tokenmonger's routes too. To fix this, read the generated Route that _was_
 created for `/` on that host, then manually create a copy of it with a new name, the correct `spec.path` and the
 correct `spec.to.name`.
 
 #### Security Context Constraints
 
-We've had problems with openshift running in the `restricted-v2` SCC: Keycloak won't start because the keycloakx
+We've had problems with OpenShift running in the `restricted-v2` SCC: Keycloak won't start because the keycloakx
 subchart wants to set `fsGroup` and `runAsUser` to 1000, and the SCC doesn't allow this. We need to set it to null so
 that OpenShift will assign valid values, but we couldn't just set the value on the chart to null because the particular
-ArgoCD version used had a bug where you couldn't override things with null. We worked around this with a kustomize path
-to remove the fields from the `keycloak` StatefulSet (this does allow setting to null) so that OpenShift assigns valid
-`fsGroup` and `runAsUser` values itself.
+ArgoCD version used had a bug where you couldn't override things with null. We worked around this with a kustomize
+patch to remove the fields from the `keycloak` StatefulSet (this does allow setting to null) so that OpenShift assigns
+valid `fsGroup` and `runAsUser` values itself.
