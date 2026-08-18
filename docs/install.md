@@ -11,12 +11,12 @@ at the end if you want to diverge from this.
   - Cilium (or see [No Cilium](#no-cilium))
   - an ingress controller, we default to haproxy
   - [cert-manager](https://cert-manager.io/), configured with a ClusterIssuer, we default to `letsencrypt-production`
-    (otherwise see [No cert-manager](#no-cert-manager)
+    (otherwise see [No cert-manager](#no-cert-manager))
   - [external-secrets](https://external-secrets.io/) configured with a `ClusterSecretStore`
     (otherwise see [No external-secrets](#no-external-secrets))
 - This cluster should be able to reach `ghcr.io`, `quay.io` and `docker.io`
-- A Postgres db for Keycloak: create a database `keycloak` with a user `keycloak`, and put that user's password
-  in the store for external secrets.
+- A Postgres db for Keycloak
+- An S3-compatible object storage bucket for putting the blueprints
 
 ### Domains
 
@@ -120,7 +120,26 @@ If you have cert-manager configured, but not with Let's Encrypt, also set `certi
 
 If you have a different ingress controller than haproxy, set `ingressClassName` and `userapps.ingressClassName`.
 
-## 3. Install
+## 3. Secrets
+
+In the Postgres instance you have for Keycloak, create a database `keycloak` with a user `keycloak`, and put that
+user's password in the store for external secrets at the path `/rtp/keycloak-db-password`.
+
+For the bucket you have for blueprints, create an entry in your secret store at the path
+`/rtp/blueprint-artifacts-objectstorage`, structured like this:
+
+```json
+{
+  "contentgrid.appserver.blueprint-artifact.s3.endpoint": "https://s3.fr-par.scw.cloud",
+  "contentgrid.appserver.blueprint-artifact.s3.region": "fr-par",
+  "contentgrid.appserver.blueprint-artifact.s3.access-key": "SCWACCESSKEY",
+  "contentgrid.appserver.blueprint-artifact.s3.secret-key": "00000000-0000-0000-0000-000000000000"
+}
+```
+
+Substitute the values with what your object storage provider needs.
+
+## 4. Install
 
 ```shell
 helm dependency update ./contentgrid-rtp-helm
@@ -133,13 +152,13 @@ if it hangs there is probably something misconfigured with your NetworkPolicies.
 
 It's expected that the Tokenmonger deployment doesn't become healthy yet.
 
-## 4. Post-install
+## 5. Post-install
 
 ### Configure Tokenmonger extensions
 
 Tokenmonger needs the `tokenmonger-extensions` configmap to start up. This configmap is not managed by Helm because it
 semi-frequently needs manual editing (to add extensions). There's a Helm chart for installing Renditions, so we'll
-start with the following (substitute example.com for your domain):
+start with the following (substitute example.com with your domain):
 
 ```yaml
 apiVersion: v1
@@ -168,7 +187,7 @@ the values file.
 The chart automatically imports the `extensions` realm, used by Tokenmonger. Read
 [docs/keycloak-setup.md](./keycloak-setup.md) for instructions on setting up a realm for the users of an app.
 
-## 5. Verification
+## 6. Verification
 
 1. `kubectl -n contentgrid-system get pods` should show healthy running pods, completed jobs.
 2. `https://auth.example.com/` should show the Keycloak with a working certificate.
@@ -219,9 +238,22 @@ Set `ingressClassName` and `userapps.ingressClassName` to whatever else you use 
 ### No external-secrets
 
 The chart checks whether the `external-secrets.io/v1` API is present. If not, it doesn't create any ExternalSecrets.
-In this case, you can manually create the necessary secret (the keycloak database password) yourself:
+In this case, you create the secrets of step 3 yourself instead of putting them in a secret store.
+
+For the Keycloak database password:
+
 ```shell
 kubectl -n contentgrid-system create secret generic keycloak-database  --from-literal=password='<keycloak db password>'
+```
+
+For the blueprint bucket, one key per line of the JSON in step 3:
+
+```shell
+kubectl -n contentgrid-apps create secret generic blueprint-artifact-obj \
+  --from-literal=contentgrid.appserver.blueprint-artifact.s3.endpoint='https://s3.fr-par.scw.cloud' \
+  --from-literal=contentgrid.appserver.blueprint-artifact.s3.region='fr-par' \
+  --from-literal=contentgrid.appserver.blueprint-artifact.s3.access-key='SCWACCESSKEY' \
+  --from-literal=contentgrid.appserver.blueprint-artifact.s3.secret-key='00000000-0000-0000-0000-000000000000'
 ```
 
 ### More than one Keycloak replica
