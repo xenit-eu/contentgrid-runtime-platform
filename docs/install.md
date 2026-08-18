@@ -8,14 +8,15 @@ at the end if you want to diverge from this.
 
 - `kubectl` and `helm` installed on your machine
 - A Kubernetes cluster with the following installed:
-  - Cilium
-    - a CiliumClusterWideNetworkPolicy for denying all ingress, and another for denying all egress
-  - a haproxy ingress controller
-  - [cert-manager](https://cert-manager.io/), configured with an issuer called `letsencrypt-production`
+  - Cilium (or see [No Cilium](#no-cilium))
+  - an ingress controller, we default to haproxy
+  - [cert-manager](https://cert-manager.io/), configured with a ClusterIssuer, we default to `letsencrypt-production`
+    (otherwise see [No cert-manager](#no-cert-manager)
   - [external-secrets](https://external-secrets.io/) configured with a `ClusterSecretStore`
+    (otherwise see [No external-secrets](#no-external-secrets))
 - This cluster should be able to reach `ghcr.io`, `quay.io` and `docker.io`
 - A Postgres db for Keycloak: create a database `keycloak` with a user `keycloak`, and put that user's password
-  in your secret manager.
+  in the store for external secrets.
 
 ### Domains
 
@@ -28,8 +29,8 @@ ingresses that Pathfinder generates per deployed app. Substitute `.example.com` 
 | `extensions.example.com` | `tokenmonger.host`             | Tokenmonger, which issues extension tokens |
 | `*.apps.example.com`     | `userapps.defaultDomainSuffix` | The default suffix for app domains         |
 
-**Important: These names must resolve to the same address from inside the cluster as from a user's laptop.** In order
-to validate JWT tokens, the gateway resolves the issuer's domain name.
+**Important: These names must resolve to the correct pod both from a user's laptop and from inside the cluster.**
+In order to validate JWT tokens, the gateway resolves the issuer's domain name.
 
 ### Namespaces
 
@@ -41,7 +42,8 @@ kubectl create namespace contentgrid-apps
 kubectl create namespace contentgrid-system
 ```
 
-You can change these names, they're templated as `.Values.userapps.namespace` and `.Release.Namespace` respectively.
+You can change these names, by setting the value `userapps.namespace`, and by using the --namespace flag on Helm,
+respectively.
 
 ## 2. Write a values file
 
@@ -86,8 +88,8 @@ certificates:
 userapps:
   namespace: contentgrid-apps
   defaultDomainSuffix: apps.example.com
-  # Regex matching your ingress controller's pod IPs; apps only trust X-Forwarded-*
-  # headers from these. The default is Scaleway-specific.
+  # Regex matching the IP range of pods in the contentgrid-system namespace. Needed because apps only trust
+  # X-Forwarded-* headers from IP addresses matching this. The default is Scaleway-specific.
   forwardHeadersTrustedIp: '10\.42\.\d{1,3}\.\d{1,3}'
   # Apps are default-deny too, so their databases and object storage need to be listed
   # here to be reachable.
@@ -114,6 +116,10 @@ surveyor:
 development: false # true forces `imagePullPolicy: Always` for chart development
 ```
 
+If you have cert-manager configured, but not with Let's Encrypt, also set `certificates.issuers`.
+
+If you have a different ingress controller than haproxy, set `ingressClassName` and `userapps.ingressClassName`.
+
 ## 3. Install
 
 ```shell
@@ -132,8 +138,8 @@ It's expected that the Tokenmonger deployment doesn't become healthy yet.
 ### Configure Tokenmonger extensions
 
 Tokenmonger needs the `tokenmonger-extensions` configmap to start up. This configmap is not managed by Helm because it
-semi-frequently needs manual editing (to add extensions). Renditions is part of a normal install, so start with the
-following (substitute example.com for your domain):
+semi-frequently needs manual editing (to add extensions). There's a Helm chart for installing Renditions, so we'll
+start with the following (substitute example.com for your domain):
 
 ```yaml
 apiVersion: v1
@@ -166,7 +172,7 @@ The chart automatically imports the `extensions` realm, used by Tokenmonger. Rea
 
 1. `kubectl -n contentgrid-system get pods` should show healthy running pods, completed jobs.
 2. `https://auth.example.com/` should show the Keycloak with a working certificate.
-3. `https://extensions.example.com/.well-known/openid-configuration` should return json.
+3. `https://extensions.example.com/authentication/system` should return a HTML page.
 
 ## Variations
 
@@ -209,6 +215,14 @@ Set `certificates.issuers` in your values file.
 ### No haproxy
 
 Set `ingressClassName` and `userapps.ingressClassName` to whatever else you use for ingress.
+
+### No external-secrets
+
+The chart checks whether the `external-secrets.io/v1` API is present. If not, it doesn't create any ExternalSecrets.
+In this case, you can manually create the necessary secret (the keycloak database password) yourself:
+```shell
+kubectl -n contentgrid-system create secret generic keycloak-database  --from-literal=password='<keycloak db password>'
+```
 
 ### More than one Keycloak replica
 
