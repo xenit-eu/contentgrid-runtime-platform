@@ -88,11 +88,13 @@ certificates:
 userapps:
   namespace: contentgrid-apps
   defaultDomainSuffix: apps.example.com
+  blueprint:
+    secretKey: path:/rtp/blueprint-artifacts-objectstorage # same provider-specific syntax as above
   # Regex matching the IP range of pods in the contentgrid-system namespace. Needed because apps only trust
   # X-Forwarded-* headers from IP addresses matching this. The default is Scaleway-specific.
   forwardHeadersTrustedIp: '10\.42\.\d{1,3}\.\d{1,3}'
-  # Apps are default-deny too, so their databases and object storage need to be listed
-  # here to be reachable.
+  # Apps are default-deny too, so their databases and object storage (both for documents and for blueprint zips) need
+  # to be listed here to be reachable.
   database:
     - ip: 10.20.30.41
       port: "5432"
@@ -123,10 +125,10 @@ If you have a different ingress controller than haproxy, set `ingressClassName` 
 ## 3. Secrets
 
 In the Postgres instance you have for Keycloak, create a database `keycloak` with a user `keycloak`, and put that
-user's password in the store for external secrets at the path `/rtp/keycloak-db-password`.
+user's password in your secret store at the path you set in `keycloak.db.secretKey`.
 
-For the bucket you have for blueprints, create an entry in your secret store at the path
-`/rtp/blueprint-artifacts-objectstorage`, structured like this:
+For the bucket you have for blueprints, create an entry in your secret store at the path you set in
+`userapps.blueprint.secretKey`, structured like this:
 
 ```json
 {
