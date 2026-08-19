@@ -6,7 +6,7 @@ ingressClassName: haproxy
 #  -----END CERTIFICATE-----
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:ce49ae9d919ad034836e13c579c48edd785fc476c01e2dba7b2ab59d62a35be0
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:65b5791f4a8b40b75413c3b95599dabfec2c8d114b0a8659623e95c0ab837a71
   debug: false
   accessLogging: false
 #  maxInitialLineLength: 4096  # increase to allow longer URLs (e.g. many query parameters)
