@@ -195,6 +195,8 @@ The chart automatically imports the `extensions` realm, used by Tokenmonger. Rea
 2. `https://auth.example.com/` should show the Keycloak with a working certificate.
 3. `https://extensions.example.com/authentication/system` should return a HTML page.
 
+After verifying the runtime platform works, read [deploy.md](./deploy.md) to deploy an app into it.
+
 ## Variations
 
 ### No Cilium
