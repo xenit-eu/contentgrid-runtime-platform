@@ -15,8 +15,8 @@ must already be provisioned for each individual app you want to deploy:
 
 - A Keycloak realm with a gateway and a webapp client, see [keycloak-setup.md](./keycloak-setup.md)
   - The secret and configmaps described in that document can already be deployed to the apps namespace
-  - This document also has you choose the URLs for the app's frontend and backend. We will use `cg-api.example.com`
-    and `navigator.example.com` in this document
+  - That document also has you choose the URLs for the app's backend and frontend. We will use `cg-api.example.com`
+    and `navigator.example.com` in this document.
 - A Postgres database
 - An object storage bucket (S3 compatible)
 - The zip for the blueprint artifact, either baked into the image or reachable over S3
@@ -83,7 +83,6 @@ metadata:
     app.contentgrid.com/application-id: cg-acme
     app.contentgrid.com/deployment-id: cg-acme-1
     app.contentgrid.com/service-type: api
-    app.kubernetes.io/managed-by: contentgrid
 spec:
   replicas: 1
   selector:
@@ -96,7 +95,6 @@ spec:
         app.contentgrid.com/application-id: cg-acme
         app.contentgrid.com/deployment-id: cg-acme-1
         app.contentgrid.com/service-type: api
-        app.kubernetes.io/managed-by: contentgrid
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
@@ -175,7 +173,6 @@ metadata:
     app.contentgrid.com/application-id: cg-acme
     app.contentgrid.com/deployment-id: cg-acme-1
     app.contentgrid.com/service-type: api
-    app.kubernetes.io/managed-by: contentgrid
 spec:
   selector:
     app.contentgrid.com/deployment-id: cg-acme-1

@@ -268,9 +268,9 @@ cluster.
 
 ### Monitoring the platform from outside
 
-Set `surveyor.enabled: true` and `surveyor.pegman.host` if something does need to collect the platform's metrics. That
-adds a hostname, a certificate, and a secret at `surveyor.pegman.systems.secretKey` holding the credentials for the
-systems it reports to.
+Most components support prometheus metrics. The ports exposing these endpoints will already be exposed on the
+respective deployments and services. Scraping can be done in various ways, and configuring this is left to the
+administrator.
 
 ### OpenShift
 
