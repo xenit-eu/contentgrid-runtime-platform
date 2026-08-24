@@ -52,6 +52,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -333,7 +334,7 @@ class HelmIntegrationTest {
         var invoice = new LinkedMultiValueMap<String, Object>();
         invoice.add("received", "2024-06-30T21:59:59Z");
         invoice.add("pay_before", "2025-06-30T21:59:59Z");
-        invoice.add("total_amount", "%.2f".formatted(totalAmount));
+        invoice.add("total_amount", String.format(Locale.ROOT, "%.2f", totalAmount));
         invoice.add("supplier", supplier);
         var resource = new ClassPathResource("/document/test.txt");
         invoice.add("document", resource);
