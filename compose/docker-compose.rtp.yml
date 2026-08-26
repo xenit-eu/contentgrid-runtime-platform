@@ -32,14 +32,14 @@ services:
         condition: service_completed_successfully
         restart: true
   gateway-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl
+    image: ghcr.io/xenit-eu/kubectl@sha256:448b17dbae998ebe2a8c62324a244149116eebf2b3370e935258952f54247947
     volumes:
       - ./bootstrap/gateway:/bootstrap:ro
       - gateway_keys:/etc/gateway/secrets:rw
     working_dir: /etc/gateway/secrets
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
   opa:
-    image: docker.io/openpolicyagent/opa:1.19.0
+    image: docker.io/openpolicyagent/opa:1.19.0@sha256:8523599954435a3659954ad51ee0304d22bd97576f16cdb02e5e39f38ff3962a
     command: ["run", "--server", "--log-level=error", "--authorization=basic", "--v0-compatible", "--config-file", "/etc/opa/config.yml", "file:/etc/opa/system.rego", "file:/var/opa/store"]
     volumes:
       - ./config/opa:/etc/opa:ro
@@ -55,7 +55,7 @@ services:
       start_period: 1m
 
   rabbitmq-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl
+    image: ghcr.io/xenit-eu/kubectl@sha256:448b17dbae998ebe2a8c62324a244149116eebf2b3370e935258952f54247947
     command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
     environment:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
@@ -87,7 +87,7 @@ services:
         restart: true
 
   tokenmonger-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl
+    image: ghcr.io/xenit-eu/kubectl@sha256:448b17dbae998ebe2a8c62324a244149116eebf2b3370e935258952f54247947
     volumes:
       - ./bootstrap/tokenmonger:/bootstrap:ro
       - tokenmonger_keys:/etc/tokenmonger/secrets:rw
