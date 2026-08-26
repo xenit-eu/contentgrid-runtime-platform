@@ -1,0 +1,22 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://${docker.host.ip}:8081/authentication/external
+          audiences:
+            - contentgrid:extension:renditions
+      client:
+        provider:
+          identity:
+            issuer-uri: http://${docker.host.ip}:8082/realms/extensions
+          delegated-access:
+            issuer-uri: http://${docker.host.ip}:8081/authentication/delegated
+
+s3:
+  bucket: renditions
+  endpoint: http://renditions-s3:9090/
+  region: eu-west-1
+
+transform-service:
+  url: http://transformations:8088/available-transformations

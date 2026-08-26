@@ -1,0 +1,6 @@
+# Configure tokenmonger with renditions extension
+contentgrid.tokenmonger.extensions.registration.renditions:
+  extension-id: renditions
+  resource-uris:
+    - http://${docker.host.ip}:8086/
+    - http://localhost:8086/

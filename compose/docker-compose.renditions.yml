@@ -1,0 +1,75 @@
+services:
+  renditions:
+    image: docker.xenit.eu/contentgrid/extensions/renditions/contentgrid-rendition-service:0.0.1-SNAPSHOT@sha256:58b3a312cad4ff7824a148895a28900bfb91bd0c8010e9aa8bcafa5edeb0e34b
+    ports:
+      - "8086:8080"
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/renditions/config/application.yml
+      DOCKER_HOST_IP: "${DOCKER_HOST_IP:-172.17.0.1}"
+
+      EIT_CLIENT_ID: renditions
+      EIT_CLIENT_SECRET: renditions_secret_key
+
+      SPRING_RABBITMQ_HOST: renditions-rabbitmq
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+      AUTO_SETUP_RABBITMQ: "true"
+    volumes:
+      - ./config/renditions:/etc/renditions/config:ro
+    depends_on:
+      renditions-rabbitmq:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      tokenmonger:
+        condition: service_started
+      transformations:
+        condition: service_started
+
+  transformations:
+    image: docker.xenit.eu/contentgrid/extensions/renditions/contentgrid-transform-service:0.0.1-SNAPSHOT@sha256:6026b6e5cb7e4d2a2e0d9bbe2e2e9791424ca3360bb3adc52d09808338c5ed5c
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/transformations/config/application.yml
+
+      SPRING_RABBITMQ_HOST: renditions-rabbitmq
+      SPRING_RABBITMQ_USERNAME: user
+      SPRING_RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+      AUTO_SETUP_RABBITMQ: "true"
+    volumes:
+      - ./config/transformations:/etc/transformations/config:ro
+    depends_on:
+      renditions-rabbitmq:
+        condition: service_healthy
+
+  transformaio:
+    image: docker.io/alfresco/alfresco-transform-core-aio:latest
+    environment:
+      JAVA_OPTS: "-XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
+
+  renditions-rabbitmq:
+    image: docker.io/library/rabbitmq:4.3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "node_health_check"]
+      start_period: 1m
+
+  renditions-s3:
+    image: docker.io/adobe/s3mock:5.0.0
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: renditions
+      COM_ADOBE_TESTING_S3MOCK_STORE_REGION: eu-west-1
+
+  tokenmonger:
+    environment:
+      SPRING_CONFIG_IMPORT: file:/etc/tokenmonger/config/application.yml,file:/etc/tokenmonger/extensions/renditions.yml
+      DOCKER_HOST_IP: "${DOCKER_HOST_IP:-172.17.0.1}"
+    volumes:
+      - ./config/renditions/tokenmonger-extensions.yml:/etc/tokenmonger/extensions/renditions.yml
+
+  # Renditions fetches content from the URLs the app hands out, so those have to be resolvable from inside a container.
+  # `localhost` is not, the docker host address is.
+  navigator:
+    environment:
+      API_BASE_URL: http://${DOCKER_HOST_IP:-172.17.0.1}:8080
