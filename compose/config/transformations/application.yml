@@ -1,0 +1,8 @@
+s3:
+  bucket: renditions
+  endpoint: http://renditions-s3:9090/
+  region: eu-west-1
+
+alfresco-transform-core-aio:
+  url: http://transformaio:8090/transform
+  config-url: http://transformaio:8090/transform/config
