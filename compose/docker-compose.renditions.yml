@@ -13,12 +13,12 @@ services:
       SPRING_RABBITMQ_HOST: renditions-rabbitmq
       SPRING_RABBITMQ_USERNAME: user
       SPRING_RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
-      AUTO_SETUP_RABBITMQ: "true"
     volumes:
       - ./config/renditions:/etc/renditions/config:ro
     depends_on:
-      renditions-rabbitmq:
-        condition: service_healthy
+      renditions-rabbitmq-bootstrap:
+        condition: service_completed_successfully
+        restart: true
       keycloak:
         condition: service_healthy
       tokenmonger:
@@ -34,12 +34,12 @@ services:
       SPRING_RABBITMQ_HOST: renditions-rabbitmq
       SPRING_RABBITMQ_USERNAME: user
       SPRING_RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
-      AUTO_SETUP_RABBITMQ: "true"
     volumes:
       - ./config/transformations:/etc/transformations/config:ro
     depends_on:
-      renditions-rabbitmq:
-        condition: service_healthy
+      renditions-rabbitmq-bootstrap:
+        condition: service_completed_successfully
+        restart: true
 
   transformaio:
     image: docker.io/alfresco/alfresco-transform-core-aio:latest
@@ -54,6 +54,18 @@ services:
     healthcheck:
       test: ["CMD", "rabbitmqctl", "node_health_check"]
       start_period: 1m
+
+  # Set up normal/dead letter exchange, request/response queues, bindings
+  renditions-rabbitmq-bootstrap:
+    image: ghcr.io/xenit-eu/kubectl
+    command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
+    environment:
+      RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
+    volumes:
+      - ./bootstrap/renditions-rabbitmq:/tmp/rabbitmq
+    depends_on:
+      renditions-rabbitmq:
+        condition: service_healthy
 
   renditions-s3:
     image: docker.io/adobe/s3mock:5.0.0
