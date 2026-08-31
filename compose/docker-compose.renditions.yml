@@ -80,8 +80,11 @@ services:
     volumes:
       - ./config/renditions/tokenmonger-extensions.yml:/etc/tokenmonger/extensions/renditions.yml
 
-  # Renditions fetches content from the URLs the app hands out, so those have to be resolvable from inside a container.
-  # `localhost` is not, the docker host address is.
+  # Mount config.js.tmpl (renditionUriTemplate is not in the image) to substitute for liaison
   navigator:
     environment:
       API_BASE_URL: http://${DOCKER_HOST_IP:-172.17.0.1}:8080
+      CC_CONFIGJS_TEMPLATE: /etc/navigator/config.js.tmpl
+      RENDITION_URI_TEMPLATE: "http://${DOCKER_HOST_IP:-172.17.0.1}:8086/renditions/get/pdf{?url}"
+    volumes:
+      - ./config/renditions/navigator-config.js.tmpl:/etc/navigator/config.js.tmpl
