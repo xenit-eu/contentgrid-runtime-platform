@@ -44,7 +44,7 @@ opa:
   resourceLimits:
     memory: 1Gi
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:54b051898f81fe6a90d7827e64539afe389fdd4dcb5095b07c746775870e9056
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:c05222fa8c7c071eacb02d4c663543c03f059065b9f4bd021a52a34edda8d660
   debug: false
   resourceRequests:
     cpu: 100m
@@ -53,7 +53,7 @@ solon:
     # See the note on the tokenmonger limit above.
     memory: 1Gi
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:dba72869fb6b48651f809d48a53172b2d066c8a1e9a5d19bcb727c027497fa08
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:ee02b31e2cd4dc93378a9df7daa945e377c20b68dce847330632ca49dd4c6ca9
   debug: false
   resourceRequests:
     cpu: 100m
@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:7fcfbde263969a4f182cefce5a48179bf02d9a29cb87404689baf549a83badf9
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:201e10af5bc8de5b5cc88a4e5e499e323dcb027903bada87d6f3e2c6c43b0316
   debug: false
   resourceRequests:
     cpu: 100m
@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:5a52128998ca12076285b66c7e8a9a8e8f47a7939be43cce7a5cfa39f53ab61e
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:a2c7433e80405b30edf1a67b2b18c4bf908bbb3a1a44a5cb000b559d1ea5843b
   debug: false
   resourceRequests:
     cpu: 100m
