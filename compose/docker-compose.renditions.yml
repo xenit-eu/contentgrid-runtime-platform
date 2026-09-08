@@ -57,12 +57,12 @@ services:
 
   # Set up normal/dead letter exchange, request/response queues, bindings
   renditions-rabbitmq-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl
+    image: ghcr.io/xenit-eu/kubectl@sha256:a83690733395488704d446b0bd1f58a7a4f24f9c177a8f9747c467f6a9d79939
     command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
     environment:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
     volumes:
-      - ./bootstrap/renditions-rabbitmq:/tmp/rabbitmq
+      - ./bootstrap/renditions-rabbitmq:/tmp/rabbitmq:ro
     depends_on:
       renditions-rabbitmq:
         condition: service_healthy
