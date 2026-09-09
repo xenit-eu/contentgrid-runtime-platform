@@ -79,11 +79,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.localstack.LocalStackContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 @Slf4j
@@ -121,20 +120,20 @@ class HelmIntegrationTest {
     }
 
     @Container
-    static PostgreSQLContainer<?> pgKeycloak = new PostgreSQLContainer<>("postgres:15")
+    static PostgreSQLContainer pgKeycloak = new PostgreSQLContainer("postgres:15")
             .withDatabaseName("keycloak")
             .withUsername("keycloak")
             .withPassword("keycloak");
 
     @Container
-    PostgreSQLContainer<?> appDatabase = new PostgreSQLContainer<>("postgres:15")
+    PostgreSQLContainer appDatabase = new PostgreSQLContainer("postgres:15")
             .withDatabaseName("appdb")
             .withUsername("appuser")
             .withPassword("apppassword");
 
     @Container
     LocalStackContainer appObjectStorage = new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.11.1"))
-            .withServices(Service.S3)
+            .withServices("s3")
             .withEnv("ALLOW_NONSTANDARD_REGIONS", "1");
 
     static KubernetesClient kubernetesClient;
