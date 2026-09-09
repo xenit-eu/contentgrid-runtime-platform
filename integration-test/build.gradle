@@ -46,7 +46,14 @@ test {
     // Suggestions:
     // - using Linux, set this to the docker0 bridge gateway ip address, usually 172.17.0.1
     // - using Windows: try 'gateway.docker.internal'
-    environment('TESTCONTAINERS_HOST_OVERRIDE', '172.17.0.1')
+    // - using macOS with Colima, set the following env variables:
+    //   - DOCKER_HOST_IP=host.docker.internal
+    //   - TESTCONTAINERS_HOST_OVERRIDE="$(colima status --json | jq -r '.ip_address')" (this is the IP of the Colima VM).
+    //   - TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+    //   - DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
+    if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
+        environment('TESTCONTAINERS_HOST_OVERRIDE', '172.17.0.1')
+    }
 
     if (project.findProperty('disableDockerRegistryCache') ?: false) {
         systemProperty 'contentgrid.registryCache.disabled', 'true'
