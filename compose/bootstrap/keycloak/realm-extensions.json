@@ -1,6 +1,29 @@
 {
   "id": "extensions",
   "realm": "extensions",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "renditions",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "renditions_secret_key",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-renditions",
+      "enabled": true,
+      "serviceAccountClientId": "renditions",
+      "attributes": {
+        "extension-id": ["renditions"]
+      }
+    }
+  ],
   "clientScopes": [
     {
       "id": "33a98181-8f86-4383-bba6-cd4251a9046a",

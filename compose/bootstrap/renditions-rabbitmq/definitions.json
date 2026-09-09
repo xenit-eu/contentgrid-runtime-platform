@@ -1,0 +1,127 @@
+{
+    "rabbit_version": "3.13.3",
+    "rabbitmq_version": "3.13.3",
+    "product_name": "RabbitMQ",
+    "product_version": "3.13.3",
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "policies": [
+        {
+            "vhost": "/",
+            "name": "rendition-requests",
+            "pattern": "^rendition-requests$",
+            "apply-to": "queues",
+            "definition": {
+                "dead-letter-exchange": "renditions-dlx",
+                "delivery-limit": 3,
+                "max-length": 10000,
+                "message-ttl": 300000,
+                "overflow": "drop-head"
+            },
+            "priority": 0
+        },
+        {
+            "vhost": "/",
+            "name": "renditions-responses",
+            "pattern": "^renditions-responses$",
+            "apply-to": "queues",
+            "definition": {
+                "dead-letter-exchange": "renditions-dlx",
+                "delivery-limit": 3,
+                "max-length": 10000,
+                "message-ttl": 300000,
+                "overflow": "drop-head"
+            },
+            "priority": 0
+        },
+        {
+            "vhost": "/",
+            "name": "rendition-request-retries",
+            "pattern": "^rendition-request-retries$",
+            "apply-to": "queues",
+            "definition": {
+                "dead-letter-exchange": "directExchange",
+                "dead-letter-routing-key": "renditionRequest",
+                "message-ttl": 15000
+            }
+        }
+    ],
+    "queues": [
+        {
+            "name": "rendition-requests",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        },
+        {
+            "name": "rendition-responses",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        },
+        {
+            "name": "rendition-request-retries",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-queue-type": "quorum"
+            }
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "renditions-dlx",
+            "vhost": "/",
+            "type": "fanout",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        },
+        {
+            "name": "directExchange",
+            "vhost": "/",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "directExchange",
+            "vhost": "/",
+            "destination": "rendition-requests",
+            "destination_type": "queue",
+            "routing_key": "renditionRequest",
+            "arguments": {}
+        },
+        {
+            "source": "directExchange",
+            "vhost": "/",
+            "destination": "rendition-responses",
+            "destination_type": "queue",
+            "routing_key": "renditionResponse",
+            "arguments": {}
+        },
+        {
+            "source": "directExchange",
+            "vhost": "/",
+            "destination": "rendition-request-retries",
+            "destination_type": "queue",
+            "routing_key": "renditionRequestRetry",
+            "arguments": {}
+        }
+    ]
+}

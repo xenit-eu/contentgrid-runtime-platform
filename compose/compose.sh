@@ -2,7 +2,14 @@
 
 set -e
 
-INCLUDE_COMPOSE_FILES=(docker-compose.*.yml)
+PLATFORM_COMPOSE_FILE=docker-compose.rtp.yml
+# these can contain overrides for the platform compose file
+INCLUDE_COMPOSE_FILES=("${PLATFORM_COMPOSE_FILE}")
+for file in docker-compose.*.yml; do
+    if [ "${file}" != "${PLATFORM_COMPOSE_FILE}" ]; then
+        INCLUDE_COMPOSE_FILES+=("${file}")
+    fi
+done
 
 do_all() {
     local args=""
