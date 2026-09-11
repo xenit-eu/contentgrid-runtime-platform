@@ -47,7 +47,7 @@ services:
       JAVA_OPTS: "-XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
 
   renditions-rabbitmq:
-    image: docker.io/library/rabbitmq:4.3-management
+    image: docker.io/rabbitmq:4.3-management@sha256:57bddb6fbc3498b5d8b5a14dc6f4506073ebcf94c66ba2a7678c335faa8dd631
     environment:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
