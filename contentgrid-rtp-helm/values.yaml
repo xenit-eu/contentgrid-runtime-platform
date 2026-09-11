@@ -37,7 +37,7 @@ tokenmonger:
     tls: true
     annotations: {}
 opa:
-  image: docker.io/openpolicyagent/opa:1.20.0@sha256:4bc287fb279a054f0fb8cb9a0604a16ee8845e71d29dd61b793adbf867ab9f92
+  image: docker.io/openpolicyagent/opa:1.20.1@sha256:39daf255ae7f25d81103f03a0c18308a50b7b5bb67907bed6166f70e24a970ff
   resourceRequests:
     cpu: 50m
     memory: 381Mi
