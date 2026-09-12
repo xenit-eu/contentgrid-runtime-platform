@@ -42,7 +42,7 @@ services:
         restart: true
 
   transformaio:
-    image: docker.io/alfresco/alfresco-transform-core-aio:latest
+    image: docker.io/alfresco/alfresco-transform-core-aio:latest@sha256:42cd7d08c0e916376dfbd226235f95d7abcf561e324aec7fa7c6d99ce4d80298
     environment:
       JAVA_OPTS: "-XX:MinRAMPercentage=50 -XX:MaxRAMPercentage=80"
 
