@@ -27,7 +27,7 @@ services:
         condition: service_started
 
   transformations:
-    image: docker.xenit.eu/contentgrid/extensions/renditions/contentgrid-transform-service:0.0.1-SNAPSHOT@sha256:6026b6e5cb7e4d2a2e0d9bbe2e2e9791424ca3360bb3adc52d09808338c5ed5c
+    image: docker.xenit.eu/contentgrid/extensions/renditions/contentgrid-transform-service:0.0.1-SNAPSHOT@sha256:79064e64c34506af35f9324a134012c931cbc4ecbafd23d04dad63267f1cab46
     environment:
       SPRING_CONFIG_IMPORT: file:/etc/transformations/config/application.yml
 
