@@ -19,7 +19,7 @@ gateway:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:4d94e81a06f34fec49486872ebb8e4365d9963f2167df331f81d59451078d04c
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:262c8faf010df38598aca771f87d8045c0b14b4e90e1da3d4fb4b3857270f211
   host: ~
   protocol: https
   debug: false
