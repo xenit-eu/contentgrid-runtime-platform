@@ -9,7 +9,7 @@
         "docker"
       ],
       "matchPackageNames": [
-        "ghcr.io/xenit-eu/contentgrid-*",
+        "ghcr.io/xenit-eu/contentgrid-*"
       ],
       "groupName": "contentgrid",
       "pinDigests": true,

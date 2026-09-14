@@ -272,8 +272,7 @@ rabbitmq:
   enabled: true
   image:
     repository: docker.io/rabbitmq
-    tag: '4.3'
-    digest: sha256:0ea64c69ef2ced52e7188c6db826152d42f78e448433ed8b4e570170c427a437
+    tag: '4.3-management@sha256:57bddb6fbc3498b5d8b5a14dc6f4506073ebcf94c66ba2a7678c335faa8dd631'
   fullnameOverride: rabbitmq
   bootstrap:
     resources:
