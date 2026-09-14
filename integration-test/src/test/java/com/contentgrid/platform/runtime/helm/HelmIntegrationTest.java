@@ -22,7 +22,10 @@ import com.contentgrid.junit.jupiter.k8s.resource.ResourceMatcher;
 import com.contentgrid.junit.jupiter.k8s.resource.AwaitableResource;
 import com.contentgrid.platform.runtime.helm.HelmIntegrationTest.CustomClusterProvider;
 import com.contentgrid.testcontainers.k3s.customizer.ClusterDomainsK3sContainerCustomizer;
+import com.contentgrid.testcontainers.k3s.customizer.FakeCpuK3sContainerCustomizer;
 import com.contentgrid.testcontainers.k3s.customizer.LoggingK3sContainerCustomizer;
+import com.contentgrid.testcontainers.k3s.customizer.MemoryLimitK3sContainerCustomizer;
+import com.contentgrid.testcontainers.k3s.customizer.MemoryLimitK3sContainerCustomizer.SizeUnit;
 import com.contentgrid.testcontainers.k3s.customizer.cilium.DefaultDenyCiliumK3sContainerCustomizer;
 import com.contentgrid.testcontainers.k3s.customizer.ingress.TraefikIngressK3sContainerCustomizer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -107,6 +110,9 @@ class HelmIntegrationTest {
             ));
             configure(LoggingK3sContainerCustomizer.class, customizer -> customizer.withLogger(log));
             configure(TraefikIngressK3sContainerCustomizer.class);
+            // Spoof /Pin the resources k3s believes it has, so scheduling behaves the same on every host.
+            configure(MemoryLimitK3sContainerCustomizer.class, mem -> mem.withAvailableMemory(12, SizeUnit.GiB));
+            configure(FakeCpuK3sContainerCustomizer.class, cpu -> cpu.withCpuCount(8));
             customize(container -> {
                 container.withStartupTimeout(Duration.ofMinutes(15));
             });
