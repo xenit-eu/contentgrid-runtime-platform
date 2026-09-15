@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:a2c7433e80405b30edf1a67b2b18c4bf908bbb3a1a44a5cb000b559d1ea5843b
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:866e49e1cba5b21dc48936ed6be8f374cba4362700f1df675de627f69d0e4bf7
   debug: false
   resourceRequests:
     cpu: 100m
