@@ -79,7 +79,7 @@ liaison:
   resourceLimits:
     memory: 1Gi
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:2e8cbb5ffb6e47a3354ed8df0f0fcfd8627ac9e6a44f247f9a2690a31cc39fe3
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:d8b8875394885c069a2b7c4a68ea5c656e9b1a1e04bf55f0cbad1feba6f11b72
   resourceRequests:
     cpu: 25m
     memory: 16Mi
