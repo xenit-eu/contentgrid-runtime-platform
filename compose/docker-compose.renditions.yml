@@ -1,6 +1,6 @@
 services:
   renditions:
-    image: docker.xenit.eu/contentgrid/extensions/renditions/contentgrid-rendition-service:0.0.1-SNAPSHOT@sha256:58b3a312cad4ff7824a148895a28900bfb91bd0c8010e9aa8bcafa5edeb0e34b
+    image: docker.xenit.eu/contentgrid/extensions/renditions/contentgrid-rendition-service:0.0.1-SNAPSHOT@sha256:10f1c24e9186fc8b5ab6ce17d6cf4ddf63077cc7a9d3791c433634436fb4c5d9
     ports:
       - "8086:8080"
     environment:
