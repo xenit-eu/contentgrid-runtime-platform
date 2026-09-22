@@ -1,12 +1,15 @@
 package com.contentgrid.platform.runtime.helm;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.contentgrid.hateoas.client.hal.HalDocument;
+import com.contentgrid.hateoas.client.hal.HalLink;
+import com.contentgrid.hateoas.client.hal.forms.HalFormsClient;
 import com.contentgrid.helm.HelmInstallCommand.InstallOption;
 import com.contentgrid.junit.jupiter.docker.registry.DockerRegistryCache;
 import com.contentgrid.junit.jupiter.externalsecrets.ClusterSecretStore;
@@ -28,7 +31,6 @@ import com.contentgrid.testcontainers.k3s.customizer.MemoryLimitK3sContainerCust
 import com.contentgrid.testcontainers.k3s.customizer.MemoryLimitK3sContainerCustomizer.SizeUnit;
 import com.contentgrid.testcontainers.k3s.customizer.cilium.DefaultDenyCiliumK3sContainerCustomizer;
 import com.contentgrid.testcontainers.k3s.customizer.ingress.TraefikIngressK3sContainerCustomizer;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
@@ -48,6 +50,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -57,6 +60,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -80,7 +85,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientResponseException;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -216,61 +220,51 @@ class HelmIntegrationTest {
 
         // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
         var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:" + dockerImageTag, opaSideCar);
+        var appUri = URI.create("http://" + applicationId + ".apps.contentgrid.test");
 
-        var suppliersAdminClient = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
-
-        var suppliersResponse = suppliersAdminClient
-                .get()
-                .uri("http://" + applicationId + ".apps.contentgrid.test/suppliers")
-                .retrieve()
-                .toEntity(String.class);
+        var suppliersAdminClient = getHalFormsClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
         // client has access to suppliers
-        assertEquals(HttpStatus.OK, suppliersResponse.getStatusCode());
+        assertThat(suppliersAdminClient.follow(HalLink.from(appUri.resolve("/suppliers")))).isNotNull();
 
-        // Expect an exception due to 403 response. The client has no access to invoices via the policies in the app
-        HttpClientErrorException exception = assertThrows(HttpClientErrorException.Forbidden.class, () -> {
-            suppliersAdminClient.get()
-                    .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
-                    .retrieve()
-                    .toEntity(String.class); // This line throws the exception
-        });
-
-        // Assert that the response status was 403
-        assertEquals(HttpStatus.FORBIDDEN, exception.getStatusCode());
+        // The client has no access to invoices via the policies in the app
+        assertThatThrownBy(() -> suppliersAdminClient.follow(HalLink.from(appUri.resolve("/invoices"))))
+                .isInstanceOf(HttpClientErrorException.Forbidden.class);
 
         // Admin client can do everything on suppliers and invoices. We use it to setup this scenario.
-        var adminClient = getRestClient(applicationId, "invoice-manager", "invoice-manager");
+        var adminClient = getHalFormsClient(applicationId, "invoice-manager", "invoice-manager");
+
+        var profile = adminClient.follow(HalLink.from(appUri.resolve("/profile")));
+        var supplierProfile = entityProfile(adminClient, profile, "supplier", "suppliers");
+        var invoiceProfile = entityProfile(adminClient, profile, "invoice", "invoices");
 
         // we create 3 suppliers
-        var xenitSupplier = createSupplier(adminClient, applicationId, "xenit", "123456", "986532");
-        var amexioSupplier = createSupplier(adminClient, applicationId, "amexio", "785421", "55555");
-        var otherSupplier = createSupplier(adminClient, applicationId, "other", "987654321", "444444");
+        var xenitSupplier = createSupplier(adminClient, supplierProfile, "xenit", "123456", "986532");
+        var amexioSupplier = createSupplier(adminClient, supplierProfile, "amexio", "785421", "55555");
+        var otherSupplier = createSupplier(adminClient, supplierProfile, "other", "987654321", "444444");
 
         // creating 4 different invoices
-        var xenitInvoiceUnder500 = createInvoice(adminClient, applicationId, xenitSupplier, 400);
-        var xenitInvoiceOver500 = createInvoice(adminClient, applicationId, xenitSupplier, 600);
-        var amexioInvoice = createInvoice(adminClient, applicationId, amexioSupplier, 400);
-        var otherInvoice = createInvoice(adminClient, applicationId, otherSupplier, 300);
+        var xenitInvoiceUnder500 = createInvoice(adminClient, invoiceProfile, xenitSupplier, 400);
+        var xenitInvoiceOver500 = createInvoice(adminClient, invoiceProfile, xenitSupplier, 600);
+        var amexioInvoice = createInvoice(adminClient, invoiceProfile, amexioSupplier, 400);
+        var otherInvoice = createInvoice(adminClient, invoiceProfile, otherSupplier, 300);
 
         // invoice-maintainer can see invoices of xenit and amexio, under total_amount 500
-        var invoiceMaintainerClient = getRestClient(applicationId, "invoice-maintainer", "invoice-maintainer");
-        var invoicesResponse = invoiceMaintainerClient.get()
-                .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
-                .retrieve()
-                .toEntity(String.class);
+        var invoiceMaintainerRestClient = getRestClient(applicationId, "invoice-maintainer", "invoice-maintainer");
+        var invoiceMaintainerClient = HalFormsClient.builder().restClient(invoiceMaintainerRestClient).build();
 
-        assertEquals(HttpStatus.OK, invoicesResponse.getStatusCode());
-        var invoicesBody = invoicesResponse.getBody();
-        assertTrue(invoicesBody.contains(xenitInvoiceUnder500));
-        assertTrue(invoicesBody.contains(amexioInvoice));
-        assertFalse(invoicesBody.contains(otherInvoice));
-        assertFalse(invoicesBody.contains(xenitInvoiceOver500));
+        var invoices = invoiceMaintainerClient.follow(invoiceProfile.getRequiredLink("describes", "collection"));
+        assertThat(invoices.getEmbeddedOrEmpty("item"))
+                .map(invoice -> invoice.getSelfLink().getHref())
+                .containsExactlyInAnyOrder(xenitInvoiceUnder500.getHref(), amexioInvoice.getHref());
 
         // check we can access document of xenit and amexio, under total_amount 500
-        for (var invoiceUrl : List.of(xenitInvoiceUnder500, amexioInvoice)) {
-            var invoiceDocumentResponse = invoiceMaintainerClient.get()
-                    .uri(invoiceUrl + "/document")
+        for (var invoiceLink : List.of(xenitInvoiceUnder500, amexioInvoice)) {
+            var invoice = invoiceMaintainerClient.follow(invoiceLink);
+
+            // fetching content is not a hal-forms request, so it goes over the plain rest-client
+            var invoiceDocumentResponse = invoiceMaintainerRestClient.get()
+                    .uri(invoice.getRequiredLink("cg:content", "document").getURI())
                     .retrieve()
                     .toEntity(String.class);
 
@@ -279,10 +273,10 @@ class HelmIntegrationTest {
         }
 
         // check we are not allowed to access the other documents
-        for (var invoiceUrl : List.of(xenitInvoiceOver500, otherInvoice)) {
+        for (var invoiceLink : List.of(xenitInvoiceOver500, otherInvoice)) {
             var exception1 = assertThrows(HttpClientErrorException.class, () -> {
-                invoiceMaintainerClient.get()
-                        .uri(invoiceUrl + "/document")
+                invoiceMaintainerRestClient.get()
+                        .uri(invoiceLink.getHref() + "/document")
                         .retrieve()
                         .toEntity(String.class); // this line throws the exception
             });
@@ -332,60 +326,64 @@ class HelmIntegrationTest {
 
     }
 
-    static ObjectMapper mapper = new ObjectMapper();
+    /**
+     * Looks up the profile of a single entity through the {@code cg:entity} links of the application profile.
+     * <p>
+     * v1 applications name those links after the (plural) collection relation, v2 applications after the (singular)
+     * entity link name, so multiple candidate names can be passed.
+     */
+    private static HalDocument entityProfile(HalFormsClient client, HalDocument profile, String... linkNames) {
+        var entityLink = Stream.of(linkNames)
+                .map(linkName -> profile.getLink("cg:entity", linkName))
+                .flatMap(Optional::stream)
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException(
+                        "No cg:entity link named %s".formatted(String.join(" or ", linkNames))));
 
-    @SneakyThrows
-    private String createInvoice(RestClient client, String applicationId, String supplier, double totalAmount) {
-        var invoice = new LinkedMultiValueMap<String, Object>();
-        invoice.add("received", "2024-06-30T21:59:59Z");
-        invoice.add("pay_before", "2025-06-30T21:59:59Z");
-        invoice.add("total_amount", String.format(Locale.ROOT, "%.2f", totalAmount));
-        invoice.add("supplier", supplier);
-        var resource = new ClassPathResource("/document/test.txt");
-        invoice.add("document", resource);
-
-        var createInvoice = client.post()
-                .uri("http://" + applicationId + ".apps.contentgrid.test/invoices")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(invoice)
-                .retrieve()
-                .toEntity(String.class);
-
-        if (!HttpStatus.CREATED.equals(createInvoice.getStatusCode())) {
-            assert false;
-        }
-        assertEquals(HttpStatus.CREATED, createInvoice.getStatusCode());
-        var root = mapper.readTree(createInvoice.getBody());
-        return root.path("_links").path("self").path("href").asText();
+        return client.follow(entityLink);
     }
 
-    @SneakyThrows
-    static String createSupplier(RestClient client, String applicationId, String name, String telephone,
+    private static HalLink createInvoice(HalFormsClient client, HalDocument invoiceProfile, HalLink supplier,
+            double totalAmount) {
+        return create(client, invoiceProfile, Map.of(
+                "received", "2024-06-30T21:59:59Z",
+                "pay_before", "2025-06-30T21:59:59Z",
+                "total_amount", String.format(Locale.ROOT, "%.2f", totalAmount),
+                "supplier", supplier.getHref(),
+                "document", new ClassPathResource("/document/test.txt")
+        ));
+    }
+
+    static HalLink createSupplier(HalFormsClient client, HalDocument supplierProfile, String name, String telephone,
             String bankAccount) {
-        var supplier = String.format("""
-                {
-                 "name": "%s",
-                 "telephone": "%s",
-                 "bank_account": "%s"
-                 }
-                """, name, telephone, bankAccount);
+        return create(client, supplierProfile, Map.of(
+                "name", name,
+                "telephone", telephone,
+                "bank_account", bankAccount
+        ));
+    }
 
-        try {
-            var createSupplier = client.post()
-                    .uri("http://" + applicationId + ".apps.contentgrid.test/suppliers")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(supplier)
-                    .retrieve()
-                    .toEntity(String.class);
+    /**
+     * Creates an entity with the {@code create-form} hal-forms template of its profile.
+     *
+     * @return the link to the created entity
+     */
+    private static HalLink create(HalFormsClient client, HalDocument entityProfile, Map<String, Object> properties) {
+        var response = client.requestTemplate(entityProfile, "create-form")
+                .properties(properties)
+                .execute()
+                .toVoidEntity();
 
-            assertEquals(HttpStatus.CREATED, createSupplier.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertThat(response.getHeaders().getLocation()).isNotNull();
 
-            JsonNode root = mapper.readTree(createSupplier.getBody());
-            return root.path("_links").path("self").path("href").asText();
-        } catch (RestClientResponseException e) {
-            throw e;
-        }
+        return HalLink.from(response.getHeaders().getLocation());
+    }
 
+    static HalFormsClient getHalFormsClient(String applicationId, String clientId, String clientSecret) {
+        return HalFormsClient.builder()
+                .restClient(getRestClient(applicationId, clientId, clientSecret))
+                .build();
     }
 
     @SneakyThrows
