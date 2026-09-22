@@ -211,11 +211,11 @@ class HelmIntegrationTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"v1", "v2"})
-    void testDeployApplication(String dockerImageTag) throws IOException {
+    @CsvSource({"v1, false", "v2, false", "v2, true"})
+    void testDeployApplication(String dockerImageTag, boolean opaSideCar) throws IOException {
 
         // The test application is maintained here: https://github.com/xenit-eu/contentgrid-rtp-test-app
-        var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:" + dockerImageTag);
+        var applicationId = deployApplication("ghcr.io/xenit-eu/contentgrid-rtp-test-app:" + dockerImageTag, opaSideCar);
 
         var suppliersAdminClient = getRestClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
@@ -448,7 +448,7 @@ class HelmIntegrationTest {
     }
 
     @SneakyThrows
-    private String deployApplication(String dockerImage) {
+    private String deployApplication(String dockerImage, boolean opaSidecar) {
 
         var applicationId = UUID.randomUUID().toString();
         var deploymentId = UUID.randomUUID().toString();
@@ -501,20 +501,22 @@ class HelmIntegrationTest {
         createEgressNetworkPolicy(appClient, deploymentId + "-db", deploymentId, appDatabase.getHost(), appDatabase.getFirstMappedPort());
         createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, appObjectStorage.getHost(), appObjectStorage.getFirstMappedPort());
 
-        //deploy src/test/resources/testapp/manifest.yaml
-        var manifestInputStream = HelmIntegrationTest.class.getClassLoader()
-                .getResourceAsStream("testapp/manifests.yaml");
-        String manifestContent = new String(manifestInputStream.readAllBytes(), StandardCharsets.UTF_8);
+        // Deploy manifest
+        var manifestFilename = opaSidecar ? "testapp/manifests-opa_sidecar.yaml" : "testapp/manifests.yaml";
+        try (var manifestInputStream = HelmIntegrationTest.class.getClassLoader()
+                .getResourceAsStream(manifestFilename)) {
+            var manifestContent = new String(manifestInputStream.readAllBytes(), StandardCharsets.UTF_8);
 
-        // Replace variables
-        manifestContent = manifestContent
-                .replace("$APP_ID", applicationId)
-                .replace("$DEPLOYMENT_ID", deploymentId)
-                .replace("$POLICY_PACKAGE", policyPackage)
-                .replace("$DOCKER_IMAGE", dockerImage);
+            // Replace variables
+            manifestContent = manifestContent
+                    .replace("$APP_ID", applicationId)
+                    .replace("$DEPLOYMENT_ID", deploymentId)
+                    .replace("$POLICY_PACKAGE", policyPackage)
+                    .replace("$DOCKER_IMAGE", dockerImage);
 
-        appClient.load(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)))
-                .serverSideApply();
+            appClient.load(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)))
+                    .serverSideApply();
+        }
 
         // Create s3 bucket
         try (var mc = MinioAsyncClient.builder()
@@ -526,29 +528,32 @@ class HelmIntegrationTest {
                     .build());
         }
 
-        kubernetesLogger.include(Deployment.class, ResourceMatcher.named("solon"))
-                .include(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+        if (!opaSidecar) {
+            kubernetesLogger.include(Deployment.class, ResourceMatcher.named("solon"))
+                    .include(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+        }
 
         new KubernetesResourceWaiter(kubernetesClient)
                 .include(Deployment.class, ResourceMatcher.named("api-d-" + deploymentId).inNamespace(APP_NAMESPACE))
                 .await(wait -> wait.atMost(3, TimeUnit.MINUTES));
 
+        if (!opaSidecar) {
+            var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
+                    .include(Deployment.class, ResourceMatcher.named("solon"));
 
-        var solonWaiter = new KubernetesResourceWaiter(kubernetesClient)
-                .include(Deployment.class, ResourceMatcher.named("solon"));
+            // Wait until Solon has logged the deployment ID, indicating that it has served the new bundle to OPA
+            await()
+                    .atMost(1, TimeUnit.MINUTES)
+                    .until(() -> solonWaiter.resources()
+                            .flatMap(AwaitableResource::logs)
+                            .anyMatch(logLine -> logLine.line().contains("+ " + deploymentId))
+                    );
 
-        // Wait until Solon has logged the deployment ID, indicating that it has served the new bundle to OPA
-        await()
-                .atMost(1, TimeUnit.MINUTES)
-                .until(() -> solonWaiter.resources()
-                        .flatMap(AwaitableResource::logs)
-                        .anyMatch(logLine -> logLine.line().contains("+ " + deploymentId))
-                );
+            Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
 
-        Thread.sleep(1000); // Wait for 1 second so OPA has time to actually activate the bundle
-
-        kubernetesLogger.exclude(Deployment.class, ResourceMatcher.named("solon"))
-                .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+            kubernetesLogger.exclude(Deployment.class, ResourceMatcher.named("solon"))
+                    .exclude(Deployment.class, ResourceMatcher.named("openpolicyagent"));
+        }
 
         // we use client credentials, so the secret is not actually used yet by the Gateway
         var gwSecret = new SecretBuilder()
