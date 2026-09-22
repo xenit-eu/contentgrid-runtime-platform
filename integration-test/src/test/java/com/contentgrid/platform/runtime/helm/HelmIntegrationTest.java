@@ -494,12 +494,6 @@ class HelmIntegrationTest {
                 .addToStringData("spring.content.s3.region", "none")
                 .addToStringData("spring.content.s3.accessKey", appObjectStorage.getAccessKey())
                 .addToStringData("spring.content.s3.secretKey", appObjectStorage.getSecretKey())
-                .addToStringData("contentgrid.appserver.content-store.type", "s3")
-                .addToStringData("contentgrid.appserver.content.s3.url", appObjectStorage.getEndpoint().toString())
-                .addToStringData("contentgrid.appserver.content.s3.bucket", APP_BUCKET)
-                .addToStringData("contentgrid.appserver.content.s3.region", "none")
-                .addToStringData("contentgrid.appserver.content.s3.accessKey", appObjectStorage.getAccessKey())
-                .addToStringData("contentgrid.appserver.content.s3.secretKey", appObjectStorage.getSecretKey())
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
