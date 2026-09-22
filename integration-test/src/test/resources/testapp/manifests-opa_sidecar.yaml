@@ -1,0 +1,255 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-d-$DEPLOYMENT_ID
+  labels:
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
+spec:
+  selector:
+    matchLabels:
+      app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+      app.contentgrid.com/service-type: api
+      app.kubernetes.io/managed-by: contentgrid
+  template:
+    metadata:
+      labels:
+        app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+        app.contentgrid.com/service-type: api
+        app.kubernetes.io/managed-by: contentgrid
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/etc/app/config/*/
+        - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
+          value: $DEPLOYMENT_ID
+        - name: CONTENTGRID_SYSTEM_APPLICATIONID
+          value: $APP_ID
+        - name: CONTENTGRID_THUNX_ABAC_SOURCE
+          value: opa
+        - name: OPA_SERVICE_URL
+          value: http://127.0.0.1:8181
+        - name: OPA_QUERY
+          value: data.contentgrid.appserver.allow == true
+        - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
+          value: http://api-d-$DEPLOYMENT_ID.appnamespace.svc.cluster.local:8081/actuator/webhooks
+        image: $DOCKER_IMAGE
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: api
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 8081
+          name: management
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health/readiness
+            port: management
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 5m
+            memory: 64Mi
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /actuator/health/liveness
+            port: management
+            scheme: HTTP
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /etc/app/config/runtime
+          name: rtp-shared-config
+          readOnly: true
+        - mountPath: /etc/app/config/db
+          name: app-db-secrets
+          readOnly: true
+        - mountPath: /etc/app/config/objectstorage
+          name: app-sto-secrets
+          readOnly: true
+      enableServiceLinks: false
+      initContainers:
+      - args:
+        - run
+        - --server
+        - --addr=:8181
+        - --skip-version-check
+        - --log-level=error
+        - --log-format=json
+        - --set=services.appserver.url=http://127.0.0.1:8081/actuator
+        - --set=bundles.contentgrid.service=appserver
+        - --set=bundles.contentgrid.resource=policybundle
+        - --set=bundles.contentgrid.polling.min_delay_seconds=60
+        - --set=bundles.contentgrid.polling.max_delay_seconds=120
+        image: docker.io/openpolicyagent/opa:1.18.2
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: opa
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: opa
+        ports:
+        - containerPort: 8181
+          name: opa
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health?bundles
+            port: opa
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        restartPolicy: Always
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /health
+            port: opa
+            scheme: HTTP
+          periodSeconds: 1
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      - env:
+        - name: SPRING_CONFIG_IMPORT
+          value: configtree:/etc/app/config/*/
+        - name: SPRING_PROFILES_ACTIVE
+          value: initContainer
+        - name: CONTENTGRID_SYSTEM_DEPLOYMENTID
+          value: $DEPLOYMENT_ID
+        - name: CONTENTGRID_SYSTEM_APPLICATIONID
+          value: $APP_ID
+        image: $DOCKER_IMAGE
+        imagePullPolicy: IfNotPresent
+        name: api-initcontainer
+        volumeMounts:
+        - mountPath: /etc/app/config/runtime
+          name: rtp-shared-config
+          readOnly: true
+        - mountPath: /etc/app/config/db
+          name: app-db-secrets
+          readOnly: true
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: runtime-platform-config
+          optional: true
+        name: rtp-shared-config
+      - name: app-db-secrets
+        secret:
+          defaultMode: 420
+          secretName: $APP_ID-db
+      - name: app-sto-secrets
+        secret:
+          defaultMode: 420
+          secretName: $APP_ID-sto
+          items:
+            # V1 configuration keys
+            - key: spring.content.storage.type.default
+              path: spring.content.storage.type.default
+            - key: spring.content.s3.endpoint
+              path: spring.content.s3.endpoint
+            - key: spring.content.s3.bucket
+              path: spring.content.s3.bucket
+            - key: spring.content.s3.region
+              path: spring.content.s3.region
+            - key: spring.content.s3.accessKey
+              path: spring.content.s3.accessKey
+            - key: spring.content.s3.secretKey
+              path: spring.content.s3.secretKey
+            # V2 configuration keys
+            - key: spring.content.storage.type.default
+              path: contentgrid.appserver.content-store.type
+            - key: spring.content.s3.endpoint
+              path: contentgrid.appserver.content.s3.url
+            - key: spring.content.s3.bucket
+              path: contentgrid.appserver.content.s3.bucket
+            - key: spring.content.s3.region
+              path: contentgrid.appserver.content.s3.region
+            - key: spring.content.s3.accessKey
+              path: contentgrid.appserver.content.s3.accessKey
+            - key: spring.content.s3.secretKey
+              path: contentgrid.appserver.content.s3.secretKey
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-d-$DEPLOYMENT_ID
+  labels:
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/deployment-request-id: $DEPLOYMENT_ID
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
+spec:
+  selector:
+    app.contentgrid.com/deployment-id: $DEPLOYMENT_ID
+    app.contentgrid.com/service-type: api
+    app.kubernetes.io/managed-by: contentgrid
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+    - name: management
+      port: 8081
+      protocol: TCP
+      targetPort: management
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: $APP_ID-gw
+  #  annotations:
+  #    cert-manager.io/cluster-issuer: gcloud-ca-production
+  labels:
+    app.contentgrid.com/app-id: $APP_ID
+    app.contentgrid.com/application-id: $APP_ID
+    app.contentgrid.com/service-type: gateway
+    app.kubernetes.io/managed-by: contentgrid
+data:
+  contentgrid.cors.origins: ""
+  contentgrid.routing.domains: "$APP_ID.apps.contentgrid.test"
