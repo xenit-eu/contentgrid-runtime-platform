@@ -39,9 +39,6 @@ spec:
           value: data.contentgrid.appserver.allow == true
         - name: CONTENTGRID_EVENTS_WEBHOOKCONFIGURL
           value: http://api-d-$DEPLOYMENT_ID.appnamespace.svc.cluster.local:8081/actuator/webhooks
-#        - name: CONTENTGRID_APPSERVER_BLUEPRINTARTIFACT_LOCATION
-#          value: file:/etc/app/config/blueprint-artifact
-#        image: ghcr.io/xenit-eu/contentgrid-appserver:0.2.1
         image: $DOCKER_IMAGE
         livenessProbe:
           failureThreshold: 3
@@ -95,9 +92,6 @@ spec:
         - mountPath: /etc/app/config/objectstorage
           name: app-sto-secrets
           readOnly: true
-#        - mountPath: /etc/app/config/blueprint-artifact
-#          name: app-art-secrets
-#          readOnly: true
       enableServiceLinks: false
       initContainers:
       - args:
@@ -165,9 +159,6 @@ spec:
           value: $DEPLOYMENT_ID
         - name: CONTENTGRID_SYSTEM_APPLICATIONID
           value: $APP_ID
-#        - name: CONTENTGRID_APPSERVER_BLUEPRINTARTIFACT_LOCATION
-#          value: file:/etc/app/config
-#        image: ghcr.io/xenit-eu/contentgrid-appserver:0.2.1
         image: $DOCKER_IMAGE
         imagePullPolicy: IfNotPresent
         name: api-initcontainer
@@ -178,9 +169,6 @@ spec:
         - mountPath: /etc/app/config/db
           name: app-db-secrets
           readOnly: true
-#        - mountPath: /etc/app/config/blueprint-artifact
-#          name: app-art-secrets
-#          readOnly: true
       volumes:
       - configMap:
           defaultMode: 420
@@ -191,10 +179,6 @@ spec:
         secret:
           defaultMode: 420
           secretName: $APP_ID-db
-#      - name: app-art-secrets
-#        secret:
-#          defaultMode: 420
-#          secretName: blueprint-artifact-obj
       - name: app-sto-secrets
         secret:
           defaultMode: 420
