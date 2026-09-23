@@ -224,19 +224,20 @@ class HelmIntegrationTest {
 
         var suppliersAdminClient = getHalFormsClient(applicationId, "rtp-integration-tester", "rtp-integration-tester");
 
+        var root = suppliersAdminClient.follow(HalLink.from(appUri));
         // client has access to suppliers
-        assertThat(suppliersAdminClient.follow(HalLink.from(appUri.resolve("/suppliers")))).isNotNull();
+        assertThat(followEntityLink(suppliersAdminClient, root, "supplier", "suppliers")).isNotNull();
 
         // The client has no access to invoices via the policies in the app
-        assertThatThrownBy(() -> suppliersAdminClient.follow(HalLink.from(appUri.resolve("/invoices"))))
+        assertThatThrownBy(() -> followEntityLink(suppliersAdminClient, root, "invoice", "invoices"))
                 .isInstanceOf(HttpClientErrorException.Forbidden.class);
 
         // Admin client can do everything on suppliers and invoices. We use it to setup this scenario.
         var adminClient = getHalFormsClient(applicationId, "invoice-manager", "invoice-manager");
 
         var profile = adminClient.follow(HalLink.from(appUri.resolve("/profile")));
-        var supplierProfile = entityProfile(adminClient, profile, "supplier", "suppliers");
-        var invoiceProfile = entityProfile(adminClient, profile, "invoice", "invoices");
+        var supplierProfile = followEntityLink(adminClient, profile, "supplier", "suppliers");
+        var invoiceProfile = followEntityLink(adminClient, profile, "invoice", "invoices");
 
         // we create 3 suppliers
         var xenitSupplier = createSupplier(adminClient, supplierProfile, "xenit", "123456", "986532");
@@ -327,18 +328,23 @@ class HelmIntegrationTest {
     }
 
     /**
-     * Looks up the profile of a single entity through the {@code cg:entity} links of the application profile.
+     * Looks up the entity profile or entity collection through the {@code cg:entity} links of the application profile.
      * <p>
      * v1 applications name those links after the (plural) collection relation, v2 applications after the (singular)
      * entity link name, so multiple candidate names can be passed.
      */
-    private static HalDocument entityProfile(HalFormsClient client, HalDocument profile, String... linkNames) {
+    private static HalDocument followEntityLink(HalFormsClient client, HalDocument profile, String... linkNames) {
         var entityLink = Stream.of(linkNames)
                 .map(linkName -> profile.getLink("cg:entity", linkName))
                 .flatMap(Optional::stream)
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException(
                         "No cg:entity link named %s".formatted(String.join(" or ", linkNames))));
+
+        if (entityLink.isTemplated()) {
+            // Strip templated query parameters
+            entityLink = HalLink.from(entityLink.expand(Map.of()));
+        }
 
         return client.follow(entityLink);
     }
