@@ -31,7 +31,7 @@ import com.contentgrid.testcontainers.k3s.customizer.MemoryLimitK3sContainerCust
 import com.contentgrid.testcontainers.k3s.customizer.MemoryLimitK3sContainerCustomizer.SizeUnit;
 import com.contentgrid.testcontainers.k3s.customizer.cilium.DefaultDenyCiliumK3sContainerCustomizer;
 import com.contentgrid.testcontainers.k3s.customizer.ingress.TraefikIngressK3sContainerCustomizer;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
@@ -439,9 +439,9 @@ class HelmIntegrationTest {
                 .retrieve()
                 .toEntity(String.class);
 
-        var objectMapper = new ObjectMapper();
-        var jsonNode = objectMapper.readTree(response.getBody());
-        var accessToken = jsonNode.get("access_token").asText();
+        var jsonMapper = JsonMapper.builder().build();
+        var jsonNode = jsonMapper.readTree(response.getBody());
+        var accessToken = jsonNode.get("access_token").asString();
 
         restClientBuilder.requestInterceptor((request, body, execution) -> {
             request.getHeaders().setBearerAuth(accessToken);
