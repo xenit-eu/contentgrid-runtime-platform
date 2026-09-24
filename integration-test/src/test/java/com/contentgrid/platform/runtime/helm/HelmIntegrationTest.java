@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -262,6 +264,21 @@ class HelmIntegrationTest {
         // check we can access document of xenit and amexio, under total_amount 500
         for (var invoiceLink : List.of(xenitInvoiceUnder500, amexioInvoice)) {
             var invoice = invoiceMaintainerClient.follow(invoiceLink);
+
+            // Check invoice attributes
+            assertNotNull(invoice.getField("id"));
+            assertEquals(400.0, invoice.getField("total_amount"));
+            assertEquals("2024-06-30T21:59:59Z", invoice.getField("received"));
+            assertEquals("2025-06-30T21:59:59Z", invoice.getField("pay_before"));
+            assertEquals(Map.of(
+                    "filename", "test.txt",
+                    "mimetype", "text/plain",
+                    "length", "Hello world!".length()
+            ), invoice.getField("document"));
+
+            // Check relation
+            assertFalse(invoice.getFields().containsKey("supplier"));
+            assertTrue(invoice.getLink("cg:relation", "supplier").isPresent());
 
             // fetching content is not a hal-forms request, so it goes over the plain rest-client
             var invoiceDocumentResponse = invoiceMaintainerRestClient.get()
