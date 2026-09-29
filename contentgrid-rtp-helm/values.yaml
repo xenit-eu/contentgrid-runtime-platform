@@ -19,7 +19,7 @@ gateway:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:9c6779d73a4a08101cbbbeda57dbf60495a38809b170b2814021d7bb4c570497
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:481d6ab09e0eee3903b3d0ea0428a9da6fce723c26ba151fe1429a387dfe1b48
   host: ~
   protocol: https
   debug: false
@@ -53,7 +53,7 @@ solon:
     # See the note on the tokenmonger limit above.
     memory: 1Gi
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:ab81978742d0d3a2df768d76d1d97fa93a0ea546092d3374c617009d9cda0c53
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:950daeccca66d36551bd0931738ae080ad2d1cf502e2438430f37389130f4426
   debug: false
   resourceRequests:
     cpu: 100m
@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:a49a787a12b9b5cf6a32a635e1a10d5d9522d67357693eca217ee09deb09bb87
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:ef4b98c74b069d45f6d5f31ac098e485c5307d1d80c9856d0f08810aa3f9ed03
   debug: false
   resourceRequests:
     cpu: 100m
