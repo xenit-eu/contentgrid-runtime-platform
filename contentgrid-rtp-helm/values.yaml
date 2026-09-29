@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:ef4b98c74b069d45f6d5f31ac098e485c5307d1d80c9856d0f08810aa3f9ed03
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:ec8c8a3987092777aa26bad54bab502ca66fe023aaf738aa78f6a2eff868261b
   debug: false
   resourceRequests:
     cpu: 100m
@@ -79,7 +79,7 @@ liaison:
   resourceLimits:
     memory: 1Gi
 navigator:
-  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:da2bf88c5bd93d3664489d17b57e0c3a38d514696000526e2843a39516be5e75
+  image: ghcr.io/xenit-eu/contentgrid-navigator:main@sha256:7cf3a3db4bd7879709eae481e1396869f328912ba11d16497651f09c866e8573
   resourceRequests:
     cpu: 25m
     memory: 16Mi
