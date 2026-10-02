@@ -23,7 +23,7 @@ keycloak:
 keycloakx:
   database:
     hostname: 51.159.26.208
-    port: "11785"
+    port: 11785
   replicas: 2
 
 certificates:

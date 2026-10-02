@@ -24,7 +24,7 @@ keycloak:
 keycloakx:
   database:
     hostname: 172.16.16.5
-    port: "5432"
+    port: 5432
   replicas: 2
 
 certificates:
