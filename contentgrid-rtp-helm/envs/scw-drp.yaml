@@ -23,7 +23,7 @@ keycloak:
 keycloakx:
   database:
     hostname: 51.159.205.115
-    port: "20965"
+    port: 20965
   replicas: 2
 
 certificates:
