@@ -139,7 +139,7 @@ surveyor:
     resourceLimits:
       memory: 768Mi
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:0671ebe25b0d6e70c68d8c5f20bb39c4297b65a0bde370a95109f2d9857bfecd
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:7ed0a5231d60abf7671479f9be39eee6259052173c7eff714a73f45980e81218
     debug: false
     resourceRequests:
       cpu: 100m
