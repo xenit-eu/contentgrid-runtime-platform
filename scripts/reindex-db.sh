@@ -104,6 +104,7 @@ if (( reindexed == 0 && failed == 0 )); then
 elif [[ "${DRY_RUN}" != "0" ]]; then
     echo "${reindexed} table(s) would be reindexed, ${failed} can not be reindexed"
 else
-    echo "${reindexed} table(s) reindexed, ${failed} failed"
+    # SECONDS counts from the start of the script
+    echo "${reindexed} table(s) reindexed, ${failed} failed, in ${SECONDS}s"
 fi
 (( failed == 0 ))
