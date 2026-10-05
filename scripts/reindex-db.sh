@@ -21,6 +21,10 @@
 #   DRY_RUN=0           actually reindex (default: 1, only print what would be done)
 set -euo pipefail
 
+# psql handles ^C itself (cancelling the running query) and exits with a normal error, so without this the script would
+# just continue with the next item
+trap 'echo "Interrupted" >&2; exit 130' INT
+
 if (( $# < 2 || $# > 3 )); then
     sed -n '2,/^set /{/^set /d; s/^# \{0,1\}//; p}' "$0" >&2
     exit 2
@@ -59,7 +63,7 @@ run_psql() {
 }
 
 # Print where we're connected without echoing the connection string, which may contain a password
-target="$(run_psql <<<'\echo :HOST:PORT/:DBNAME as :USER')"
+target="$(run_psql --no-align --tuples-only <<<"SELECT :'HOST' || ':' || :'PORT' || '/' || :'DBNAME' || ' as ' || :'USER';")"
 if [[ "${DRY_RUN}" != "0" ]]; then
     echo "${target} (dry run, nothing will be reindexed; set DRY_RUN=0 to apply)"
 else

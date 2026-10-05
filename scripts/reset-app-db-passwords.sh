@@ -24,6 +24,10 @@
 #   DRY_RUN=0           actually change the passwords (default: 1, only print what would be done)
 set -euo pipefail
 
+# psql handles ^C itself (cancelling the running query) and exits with a normal error, so without this the script would
+# just continue with the next item
+trap 'echo "Interrupted" >&2; exit 130' INT
+
 DRY_RUN="${DRY_RUN:-1}"
 
 LABEL_SELECTOR='app.contentgrid.com/service-type=api'
