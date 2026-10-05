@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
-# Resets the database password of every app database user to the password stored in its secret.
+# Resets the database password of every app database user to the password stored in its secret, stored as a
+# SCRAM-SHA-256 hash. Use this to rehash passwords that are still stored with an older algorithm (md5).
 #
 # Iterates over all secrets (in all namespaces) that have
 #   label      app.contentgrid.com/service-type=api
 #   annotation api.sp.captain.contentgrid.com/db-access-credentials-id (any value)
 # reads spring.datasource.{url,username,password} from them, connects to the database server from the url
-# and runs ALTER ROLE <username> PASSWORD <password>.
+# and runs ALTER ROLE <username> PASSWORD <password> with password_encryption set to scram-sha-256.
+#
+# By default it logs in as the app user itself, with the password from the secret (which must therefore already be
+# correct; any user may change its own password). Set PGUSER/PGPASSWORD to log in as an admin instead, e.g. when the
+# password in the database differs from the one in the secret.
 #
 # Runs in dry-run mode by default; set DRY_RUN=0 to actually change passwords.
 #
-# Usage: [DRY_RUN=0 PGUSER=<admin> PGPASSWORD=<admin password>] reset-app-db-passwords.sh [kubectl args, e.g. --context foo]
+# Usage: [DRY_RUN=0] [PGUSER=<admin> PGPASSWORD=<admin password>] reset-app-db-passwords.sh [kubectl args, e.g. --context foo]
 #
 # Environment:
-#   PGUSER, PGPASSWORD  admin credentials used to connect to the database server (any libpq env var works, e.g. PGSSLMODE)
+#   PGUSER, PGPASSWORD  admin credentials used to connect to the database server (default: the app user's credentials)
+#                       (any libpq env var works, e.g. PGSSLMODE)
 #   PGHOST, PGPORT      override host/port parsed from spring.datasource.url
 #   PGDATABASE          database to connect to (default: database from spring.datasource.url)
 #   DRY_RUN=0           actually change the passwords (default: 1, only print what would be done)
@@ -24,11 +30,13 @@ LABEL_SELECTOR='app.contentgrid.com/service-type=api'
 # Dots escaped for jsonpath
 ANNOTATION_PATH='api\.sp\.captain\.contentgrid\.com/db-access-credentials-id'
 
+if [[ -n "${PGUSER:-}" ]]; then
+    : "${PGPASSWORD:?PGPASSWORD must be set to the password of admin user ${PGUSER}}"
+fi
+
 if [[ "${DRY_RUN}" != "0" ]]; then
     echo "Dry run, no passwords will be changed. Set DRY_RUN=0 to apply." >&2
 else
-    : "${PGUSER:?PGUSER must be set to the database admin user}"
-    : "${PGPASSWORD:?PGPASSWORD must be set to the database admin password}"
     command -v psql >/dev/null || { echo "psql is required" >&2; exit 1; }
 fi
 
@@ -60,15 +68,23 @@ process_secret() {
     local port="${PGPORT:-${BASH_REMATCH[3]:-5432}}"
     local database="${PGDATABASE:-${BASH_REMATCH[4]}}"
 
-    echo "  ALTER ROLE \"${username}\" on ${host}:${port}/${database} (credentials id ${credentials_id})"
+    # Log in as admin if given, otherwise as the user itself
+    local login_user="${PGUSER:-${username}}" login_password="${PGPASSWORD:-${password}}"
+
+    echo "  ALTER ROLE \"${username}\" on ${host}:${port}/${database} as ${login_user} (credentials id ${credentials_id})"
     if [[ "${DRY_RUN}" != "0" ]]; then
         return 0
     fi
 
-    # Escape for use as SQL identifier/literal; SQL goes over stdin so the password doesn't show up in the process list
+    # Escape for use as SQL identifier/literal; SQL goes over stdin and password via environment, so passwords don't show
+    # up in the process list
     local quoted_username="\"${username//\"/\"\"}\""
     local quoted_password="'${password//\'/\'\'}'"
-    psql --no-psqlrc --quiet -v ON_ERROR_STOP=1 -h "${host}" -p "${port}" -d "${database}" <<<"ALTER ROLE ${quoted_username} WITH PASSWORD ${quoted_password};"
+    PGPASSWORD="${login_password}" \
+        psql --no-psqlrc --quiet -v ON_ERROR_STOP=1 -h "${host}" -p "${port}" -U "${login_user}" -d "${database}" <<SQL
+SET password_encryption = 'scram-sha-256';
+ALTER ROLE ${quoted_username} WITH PASSWORD ${quoted_password};
+SQL
 }
 
 KUBECTL_ARGS=("$@")
