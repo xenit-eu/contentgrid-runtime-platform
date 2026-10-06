@@ -19,7 +19,7 @@ gateway:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:33218ea6a548fe8c4d7356761a15679c19530104333002d3cc1b6087260e58c6
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:69a3b5edfd16765a73acc72907bd84dab90114c1de224cd6d62fe460862c410c
   host: ~
   protocol: https
   debug: false
@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:ec8c8a3987092777aa26bad54bab502ca66fe023aaf738aa78f6a2eff868261b
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:48090369f6305425e143dfc08135f3605d5951fb9fe54f056898da72390bb0a3
   debug: false
   resourceRequests:
     cpu: 100m
@@ -95,7 +95,7 @@ surveyor:
     resourceLimits:
       memory: 256Mi
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:c90f8d78d80444b654f5414ccea84241cab0f9f5bd10695b640e578225ed2805
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:956e4712c912cb9874330dc60f55db7d4fe99cd16dd506de47b530e3ff2ff1cf
     host: ~
     debug: false
     resourceRequests:
@@ -131,7 +131,7 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:bca11acfd8b623cd36e26d858bb45f855c3e81adeb3368e8c8ebfe82d80a1774
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:5f621db24a11f765de01a8038645c4bd5acc91980eb0ae1a0021a6e530970c51
     debug: false
     resourceRequests:
       cpu: 100m
@@ -139,7 +139,7 @@ surveyor:
     resourceLimits:
       memory: 768Mi
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:e7cda53a8abc9a4242aec94dac30656200e042773530bf98b6fd1fafd3cc7bca
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:7cc388e757af77b8b2ac7e51f9f93f17df1b2aad329bb0a4a9dde1ac96e86dd3
     debug: false
     resourceRequests:
       cpu: 100m
