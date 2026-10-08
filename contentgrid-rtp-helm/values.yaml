@@ -19,7 +19,7 @@ gateway:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:69a3b5edfd16765a73acc72907bd84dab90114c1de224cd6d62fe460862c410c
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:ed10f60b6dac511380f437845c058999638b86bc7aeeae03dd78aa2292c3d4b9
   host: ~
   protocol: https
   debug: false
@@ -53,7 +53,7 @@ solon:
     # See the note on the tokenmonger limit above.
     memory: 1Gi
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:d99c63505355c980573e48f97542e8b9273c6826ff93558d0fd12bfe3d31cd67
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:225db5be75afc728238b8a5b374f53930823a9571cfeed236948a9cf38215240
   debug: false
   resourceRequests:
     cpu: 100m
@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:48090369f6305425e143dfc08135f3605d5951fb9fe54f056898da72390bb0a3
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:e1a247b81243d2ed5a1cb0519cf36b39b7490a9ac4a3175e42a823abd76a5b0b
   debug: false
   resourceRequests:
     cpu: 100m
@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:c74b9b1889a47fe55c5438c74281d178a5d601013e3ad025a9bc18e899585171
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:779863f566a355f37cc8b703b98ace298fb5abb30e5b919532ddbceadb9b0a21
   debug: false
   resourceRequests:
     cpu: 100m
@@ -95,7 +95,7 @@ surveyor:
     resourceLimits:
       memory: 256Mi
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:956e4712c912cb9874330dc60f55db7d4fe99cd16dd506de47b530e3ff2ff1cf
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:a29567105f560aeaf17fd45e21c2a80183497ecc10b45d6366e03de046687850
     host: ~
     debug: false
     resourceRequests:
@@ -131,7 +131,7 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:5f621db24a11f765de01a8038645c4bd5acc91980eb0ae1a0021a6e530970c51
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:c12002bce29e50571247abb6ccf63b67935ef7e0494eb6e1bc0cb9ea2744380a
     debug: false
     resourceRequests:
       cpu: 100m
@@ -139,7 +139,7 @@ surveyor:
     resourceLimits:
       memory: 768Mi
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:7cc388e757af77b8b2ac7e51f9f93f17df1b2aad329bb0a4a9dde1ac96e86dd3
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:9d7bfb9b07db50916b30031792615d28ac9c0306ecea162b64ddc19f8133240d
     debug: false
     resourceRequests:
       cpu: 100m
