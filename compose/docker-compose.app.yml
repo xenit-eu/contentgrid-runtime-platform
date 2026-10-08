@@ -1,6 +1,6 @@
 services:
   app-api:
-    image: ghcr.io/xenit-eu/contentgrid-appserver:SNAPSHOT@sha256:cfeb627abff5282e3b9cbc71a6c923074ed83afaa8b08839a92c3c40a779f8a3
+    image: ghcr.io/xenit-eu/contentgrid-appserver:SNAPSHOT@sha256:e48f6bc731f6148d400ab237a55d5f6fc6737d6a37c7d20b986b1cebd45315c2
     environment:
       SPRING_CONFIG_IMPORT: file:/etc/app/config/application.yml
       SPRING_DATASOURCE_URL: jdbc:postgresql://app-database/postgres
