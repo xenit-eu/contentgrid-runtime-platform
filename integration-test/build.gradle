@@ -16,7 +16,7 @@ repositories {
 dependencies {
 
     implementation platform("org.springframework.boot:spring-boot-dependencies:4.1.1")
-    implementation platform("io.fabric8:kubernetes-client-bom:7.9.0")
+    implementation platform("io.fabric8:kubernetes-client-bom:8.0.0")
 
     testImplementation 'tools.jackson.core:jackson-databind'
     testImplementation 'com.contentgrid.hal.client:hal-client:0.2.0'
