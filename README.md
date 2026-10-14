@@ -85,7 +85,7 @@ Set `gateway.accessLogging=true` to enable reactor-netty HTTP access logs on the
 
 Steps to attach a debugger to one of the services during integration tests:
 
-1. Set `<project>.debug=true`, e.g. `pathfinder.debug=true`. This adds `JAVA_TOOL_OPTIONS` for remote debugging and removes the liveness/readiness probes.
+1. Set `<project>.debug=true`, e.g. `pathfinder.debug=true`. This adds `JAVA_TOOL_OPTIONS` for remote debugging and removes the startup/liveness/readiness probes.
 2. Put a breakpoint on `K8sTestUtils.waitUntilDeploymentsReady()` in the `beforeAll` method and run the integration test in debug mode.
 3. Use k9s or kubectl to forward port 5005 of the pod. Find the `kubeconfig.yaml` in `/tmp` with `ls -latr /tmp/kubeconfig*.yml`.
 4. In IntelliJ, add a new Run/Debug configuration of type **Remote JVM Debug**, specify the local port, and give it a name.
