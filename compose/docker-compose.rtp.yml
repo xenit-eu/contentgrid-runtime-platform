@@ -16,7 +16,7 @@ services:
       start_period: 1m
 
   gateway:
-    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:27ebb033276965feae388e23f0d6e1cb2e7b27c91cdd5da47da187f2c8408d09
+    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:96743ff3ba726636eb2b7a18d11db2e455ded59912f1da5cdbeb981b665d9f34
     ports:
       - "8080:8080"
     environment:
@@ -65,7 +65,7 @@ services:
       rabbitmq:
         condition: service_healthy
   tokenmonger:
-    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:ed10f60b6dac511380f437845c058999638b86bc7aeeae03dd78aa2292c3d4b9
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:c303bd1385fedd6fb1ca73ebda814ce2af909b86b50854a884069c1b118df5d6
     ports:
       - "8081:8080"
     environment:
@@ -95,7 +95,7 @@ services:
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
 
   slingshot:
-    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:225db5be75afc728238b8a5b374f53930823a9571cfeed236948a9cf38215240
+    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:32e445eecb96c2efa6377e238b5a7e7ad921c918173cb1c29dc67fd36af3ef10
     environment:
       SPRING_CONFIG_IMPORT: file:/etc/slingshot/config/application.yml
       SPRING_RABBITMQ_HOST: rabbitmq
