@@ -81,11 +81,14 @@ There are currently 2 scenarios that can be:
  2. You have the configuration zip for an application
     1. Unpack the configuration zip into `config/app`
 
-As a final step, you need to edit the `config/app/rego/policy.rego` file to replace the placeholder with a valid OPA package name.
-Also update `config/gateway/app.yml` to set the `policy-package` configuration there to the package name that you chose.
-Failure to do this will result in OPA refusing to load the policy, and all requests to the application will be rejected with HTTP 403 Forbidden.
+The application runs in _opa-sidecar mode_: the gateway only authenticates requests, and the application authorizes them itself
+against its own OPA instance (the `app-opa` service). `app-opa` pulls the policy as a bundle from the application's
+`/actuator/policybundle` endpoint, which serves `config/app/rego/policy.rego` with the `${system.policy.package}` placeholder replaced.
+Leave the placeholder in place, and do not set a `policy-package` for the deployment in `config/gateway/app.yml`:
+with a `policy-package`, the gateway sends requests to a centralized OPA instead.
 
-After deploying an updated application, the `gateway`, `opa` and `app-api` services need to be restarted so they pick up the new configuration.
+After deploying an updated application, the `app-api` service needs to be restarted so it picks up the new configuration.
+`app-opa` picks up the new policy the next time it polls the application (within a minute).
 
 ## Production-ready setup
 
