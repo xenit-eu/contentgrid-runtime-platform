@@ -1,2 +1,15 @@
+# Pull the policy bundle from the appserver actuator endpoint (http://app-api:8081/actuator/policybundle)
+services:
+  appserver:
+    url: http://app-api:8081/actuator
+
+bundles:
+  contentgrid:
+    service: appserver
+    resource: policybundle
+    polling:
+      min_delay_seconds: 10
+      max_delay_seconds: 60
+
 decision_logs:
   console: true

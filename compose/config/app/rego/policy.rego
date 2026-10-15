@@ -1,6 +1,6 @@
 # Note: ${system.policy.package} is automatically replaced with the package name.
 # Replace it when deploying this file to OPA directly.
-package apps.depl1
+package ${system.policy.package}
 
 import rego.v1
 

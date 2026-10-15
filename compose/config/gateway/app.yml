@@ -13,5 +13,4 @@ servicediscovery:
     deployments:
       - application-id: app1
         deployment-id: depl1
-        policy-package: apps.depl1
         uri: http://app-api:8080

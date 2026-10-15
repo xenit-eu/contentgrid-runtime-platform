@@ -17,6 +17,11 @@ services:
       CONTENTGRID_SYSTEM_APPLICATIONID: app1
       CONTENTGRID_SYSTEM_DEPLOYMENTID: depl1
 
+      # opa-sidecar mode: the app authorizes requests itself against its own OPA sidecar
+      CONTENTGRID_THUNX_ABAC_SOURCE: opa
+      OPA_SERVICE_URL: http://app-opa:8181
+      OPA_QUERY: data.contentgrid.appserver.allow == true
+
     volumes:
       - ./config/app:/etc/app/config:ro
     depends_on:
@@ -24,6 +29,15 @@ services:
         condition: service_started
       app-database:
         condition: service_started
+      app-opa:
+        condition: service_started
+
+  # OPA sidecar for app-api; pulls the policy bundle from the app's /actuator/policybundle endpoint
+  app-opa:
+    image: docker.io/openpolicyagent/opa:1.21.1@sha256:d3a9a6bd4fbcb0f4403294b0d0b239b07be163ac118a46df7d50045b52e52053
+    command: ["run", "--server", "--addr=:8181", "--skip-version-check", "--log-level=error", "--config-file=/etc/opa/config.yml"]
+    volumes:
+      - ./config/opa:/etc/opa:ro
 
   app-database:
     image: docker.io/library/postgres:18@sha256:4ef4dbc939d61acea57712655ddb4b4ab27419c913f94cca0cd57cb3ea3c2280
