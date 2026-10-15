@@ -44,7 +44,7 @@ opa:
   resourceLimits:
     memory: 1Gi
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:a2ec59fe8ac6f5b65575d8e4c1b50d054fe016ffb5ab5a7fb88a5127f5d3041b
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:d618b64a285d6a127d7ae48961b061bdc84221d47fc1f64db3dcb4daca111cdf
   debug: false
   resourceRequests:
     cpu: 100m
@@ -95,7 +95,7 @@ surveyor:
     resourceLimits:
       memory: 256Mi
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:33e574038a5d308857cd18e6c9bef3a2fd90c355f410172dce90592fba4cdcd5
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:4439fa8dcbcb594e3057345c9866cc114543bf5c639e5aad35cd16357cae78eb
     host: ~
     debug: false
     resourceRequests:
@@ -131,7 +131,7 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:c97b4a3b730adbbec1082c0aeab7173b26f4f7d47b3807935f02862f2c93d70e
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:b2a2bd114fd843ad4fe7f89d0e6fb43fbe67f91a4f1fd26b118f530abf22e9b9
     debug: false
     resourceRequests:
       cpu: 100m
@@ -139,7 +139,7 @@ surveyor:
     resourceLimits:
       memory: 768Mi
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:90a9aa135b82032361352a67f52adce273c088b0d95f43416b61c7f5d8a52694
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:92b873368b271619405feb67c9c6d3dd3b2fe6be8d4927608109baefc3579d42
     debug: false
     resourceRequests:
       cpu: 100m
