@@ -268,11 +268,15 @@ def main():
             scw.upgrade("<new instance ID>", region, "enable-ha=true")
         return
 
-    # The upgrade returns the new instance; should it return the source instance, find the new one by listing
+    # Only monitor a target explicitly identified by the upgrade response.
     if response and response.get("id") and response["id"] != source["id"]:
         new_id = response["id"]
     else:
-        new_id = find_new_instance(scw, source, existing_ids, args.poll_interval, args.timeout)["id"]
+        raise ScwError(
+            f"The upgrade response did not identify the target for {source['id']}. "
+            "The upgrade may still be running; inspect it in Scaleway before retrying. "
+            "No further readiness or HA checks will be performed."
+        )
     print(f"Upgraded instance: {new_id}")
 
     target = wait_ready(scw, new_id, region, args.poll_interval, args.timeout, "upgraded instance")
