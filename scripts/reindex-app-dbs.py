@@ -5,7 +5,8 @@ Iterates over all secrets (in all namespaces, or the one given with --namespace)
   label      app.contentgrid.com/service-type=api
   annotation api.sp.captain.contentgrid.com/db-access-credentials-id (any value)
 reads spring.datasource.{url,username,password} from them and reindexes the database from the url, running
-REINDEX TABLE on every table with indexes; see reindex-db.py for details.
+REINDEX TABLE on every table with indexes; see reindex-db.py for details. With --secret only the secret(s) with that
+name are processed (combine with --namespace to pick the one in a particular namespace).
 
 The reindex is not concurrent: writes to each table (and reads using its indexes) are blocked while its indexes are
 rebuilt, so run this in a maintenance window.
@@ -17,12 +18,14 @@ user may not reindex are reported as errors); its password is taken from PGPASSW
 """
 import sys
 
-from appdb import (Failed, add_apply_argument, add_kubectl_arguments, app_secrets, argument_parser,
-                   datasource_credentials, for_each_secret, kubectl_args, read_password, reindex_database, run)
+from appdb import (CREDENTIALS_ID_ANNOTATION, LABEL_SELECTOR, Failed, add_apply_argument, add_kubectl_arguments,
+                   app_secrets, argument_parser, datasource_credentials, for_each_secret, kubectl_args, read_password,
+                   reindex_database, run)
 
 
 def main():
     parser = argument_parser(__doc__)
+    parser.add_argument("--secret", help="only process the secret(s) with this name (default: all matching secrets)")
     parser.add_argument("--user", "-U", help="log in as this user instead of the one from the secret")
     add_apply_argument(parser, "reindex")
     add_kubectl_arguments(parser)
@@ -47,7 +50,13 @@ def main():
                                 prefix="  "):
             raise Failed()
 
-    return for_each_secret(app_secrets(kubectl_args(args), args.namespace), process)
+    secrets = app_secrets(kubectl_args(args), args.namespace)
+    if args.secret:
+        secrets = [secret for secret in secrets if secret.name == args.secret]
+        if not secrets:
+            raise Failed(f"no secret named {args.secret} with label {LABEL_SELECTOR} and annotation "
+                         f"{CREDENTIALS_ID_ANNOTATION}")
+    return for_each_secret(secrets, process)
 
 
 if __name__ == "__main__":

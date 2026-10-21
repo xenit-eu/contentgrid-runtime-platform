@@ -204,10 +204,22 @@ def reindex_database(connection_string, username, password, dry_run, prefix=""):
     """
     require("psql")
 
+    # Nothing is sent while a REINDEX runs, so without keepalives an idle timeout in between (load balancer, NAT) can
+    # silently drop the connection, leaving psql waiting forever. Keepalives from the client (libpq connection
+    # parameters) keep the connection busy and make psql fail if it is dropped anyway; keepalives from the server
+    # (tcp_keepalives_* settings) make the server abort the REINDEX if the client is gone.
+    keepalives = {"keepalives": "1", "keepalives_idle": "30", "keepalives_interval": "10", "keepalives_count": "3"}
+    if "://" in connection_string:
+        separator = "&" if "?" in connection_string else "?"
+        connection = connection_string + separator + "&".join(f"{k}={v}" for k, v in keepalives.items())
+    else:
+        connection = connection_string + "".join(f" {k}={v}" for k, v in keepalives.items())
+
     def run_psql(sql, *args):
         # No timeout, reindexing can take a while
-        return psql(["-U", username, "-d", connection_string], password, sql, *args,
-                    options="-c statement_timeout=0")
+        return psql(["-U", username, "-d", connection], password, sql, *args,
+                    options="-c statement_timeout=0 -c tcp_keepalives_idle=30 -c tcp_keepalives_interval=10"
+                            " -c tcp_keepalives_count=3")
 
     def error(message):
         print(indent(message, prefix), file=sys.stderr)
