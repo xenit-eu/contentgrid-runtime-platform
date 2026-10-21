@@ -58,7 +58,7 @@ services:
       rabbitmq:
         condition: service_healthy
   tokenmonger:
-    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:24a6517dba4969342ef3165dba7f1ebeb04a008fd89357c87881eab02ded0a84
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:7d8bfbcd71149177bc93e89560bd484870fd28b8790163ac761c9b348edcea74
     ports:
       - "8081:8080"
     environment:
