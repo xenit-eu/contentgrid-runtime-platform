@@ -44,7 +44,7 @@ opa:
   resourceLimits:
     memory: 1Gi
 solon:
-  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:d618b64a285d6a127d7ae48961b061bdc84221d47fc1f64db3dcb4daca111cdf
+  image: ghcr.io/xenit-eu/contentgrid-solon:SNAPSHOT@sha256:963035b88383fb5ddc444c0c19d7ab5a9189606f8362527ef66ed3612eae824d
   debug: false
   resourceRequests:
     cpu: 100m
@@ -53,7 +53,7 @@ solon:
     # See the note on the tokenmonger limit above.
     memory: 1Gi
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:32e445eecb96c2efa6377e238b5a7e7ad921c918173cb1c29dc67fd36af3ef10
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:406713600632de78f7021eec785086794cb98fd5d63e90c654dfea144082193e
   debug: false
   resourceRequests:
     cpu: 100m
@@ -95,7 +95,7 @@ surveyor:
     resourceLimits:
       memory: 256Mi
   pegman:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:4439fa8dcbcb594e3057345c9866cc114543bf5c639e5aad35cd16357cae78eb
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-pegman:SNAPSHOT@sha256:e143942edb074b081c44038f76cbbe6a71c72959e6f6e83241f655afaa0a9f6f
     host: ~
     debug: false
     resourceRequests:
@@ -131,7 +131,7 @@ surveyor:
 #      region: fr-par
 #      token:
   postgresExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:b2a2bd114fd843ad4fe7f89d0e6fb43fbe67f91a4f1fd26b118f530abf22e9b9
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-postgres:SNAPSHOT@sha256:d85a559578b45a8c8b2245194e5a528b7b3f9120b00a31d7c16408ebc7ccf17e
     debug: false
     resourceRequests:
       cpu: 100m
@@ -139,7 +139,7 @@ surveyor:
     resourceLimits:
       memory: 768Mi
   cgappApiExporter:
-    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:92b873368b271619405feb67c9c6d3dd3b2fe6be8d4927608109baefc3579d42
+    image: ghcr.io/xenit-eu/contentgrid-surveyor-exporter-cgapp-api:SNAPSHOT@sha256:ff41b58b6413654819fa4de86daa613f0a01a104110074ae4cd1722d86b6fdf2
     debug: false
     resourceRequests:
       cpu: 100m
