@@ -6,7 +6,7 @@ ingressClassName: haproxy
 #  -----END CERTIFICATE-----
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:ded6154bb5c17cc97ccef2668873fdcecdd6dd696b3f241c510cd8e14b9d17d8
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:b9a87c0277e535b9ce36d97c52c584db7af11f5e61a978d6ba50611999ec8ebe
   debug: false
   accessLogging: false
 #  maxInitialLineLength: 4096  # increase to allow longer URLs (e.g. many query parameters)
@@ -19,7 +19,7 @@ gateway:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:7d8bfbcd71149177bc93e89560bd484870fd28b8790163ac761c9b348edcea74
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:605c15553a244b2c3dd8cb07ea5fabdae205b53fe39949cfac0e6fdd2c9c4fa6
   host: ~
   protocol: https
   debug: false
@@ -53,7 +53,7 @@ solon:
     # See the note on the tokenmonger limit above.
     memory: 1Gi
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:406713600632de78f7021eec785086794cb98fd5d63e90c654dfea144082193e
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:5b1463ff536111c3459ea36ee90b17c8c19ac64b79f27e9ced3dd3b40fa29284
   debug: false
   resourceRequests:
     cpu: 100m
@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:062a66ed2b6c4d2d1cd26f8fa76eee2dbedbd79d27f3a3004e4f631c20a7f749
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:f315d11144ab82f5e4075851c018c31463e330f8226adc3fe952890f7dd50950
   debug: false
   resourceRequests:
     cpu: 100m
@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:fc5859f17cc7d2cc49a2f06bd375f145e420c2e180f44aa07ff8a38467e0f996
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:f6fcf2cd577e7654fbf628f2b5f2b67d251c9a9acdf12cb27137550f68c87de4
   debug: false
   resourceRequests:
     cpu: 100m
