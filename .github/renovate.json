@@ -9,11 +9,32 @@
         "docker"
       ],
       "matchPackageNames": [
-        "ghcr.io/xenit-eu/contentgrid-*"
+        "ghcr.io/xenit-eu/contentgrid-*",
+        "ghcr.io/xenit-eu/kubectl"
       ],
       "groupName": "contentgrid",
       "pinDigests": true,
       "automerge": true
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "docker.xenit.eu/contentgrid/extensions/renditions/**"
+      ],
+      "groupName": "renditions extension",
+      "pinDigests": true,
+      "automerge": true
+    },
+    {
+      "matchPackageNames": [
+        "docker.xenit.eu/contentgrid/extensions/renditions/**"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
     },
     {
       "matchDatasources": [
