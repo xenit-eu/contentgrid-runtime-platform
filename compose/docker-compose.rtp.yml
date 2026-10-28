@@ -31,7 +31,7 @@ services:
         condition: service_completed_successfully
         restart: true
   gateway-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:00aece5006d80c16dbb0efa6d7d326c273fcbcfa97959fa1673976d0f1c713b3
+    image: ghcr.io/xenit-eu/kubectl@sha256:033e1da805397e673cea831249244e36b3a8e5938171934e1ace323727d766ce
     volumes:
       - ./bootstrap/gateway:/bootstrap:ro
       - gateway_keys:/etc/gateway/secrets:rw
@@ -48,7 +48,7 @@ services:
       start_period: 1m
 
   rabbitmq-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:00aece5006d80c16dbb0efa6d7d326c273fcbcfa97959fa1673976d0f1c713b3
+    image: ghcr.io/xenit-eu/kubectl@sha256:033e1da805397e673cea831249244e36b3a8e5938171934e1ace323727d766ce
     command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
     environment:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
@@ -58,7 +58,7 @@ services:
       rabbitmq:
         condition: service_healthy
   tokenmonger:
-    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:da79e5c417702a9c57a8df3d372707f323f6b0b4e5e12919794ffcba14491a81
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:16d357192a21ea92e46baf367eef7a30d404a3bdfe9dca7fe574e88574c43ad4
     ports:
       - "8081:8080"
     environment:
@@ -80,7 +80,7 @@ services:
         restart: true
 
   tokenmonger-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:00aece5006d80c16dbb0efa6d7d326c273fcbcfa97959fa1673976d0f1c713b3
+    image: ghcr.io/xenit-eu/kubectl@sha256:033e1da805397e673cea831249244e36b3a8e5938171934e1ace323727d766ce
     volumes:
       - ./bootstrap/tokenmonger:/bootstrap:ro
       - tokenmonger_keys:/etc/tokenmonger/secrets:rw
