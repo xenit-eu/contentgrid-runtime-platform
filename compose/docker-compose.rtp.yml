@@ -58,7 +58,7 @@ services:
       rabbitmq:
         condition: service_healthy
   tokenmonger:
-    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:16d357192a21ea92e46baf367eef7a30d404a3bdfe9dca7fe574e88574c43ad4
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:4aaa265e4dc1a5594f74b6a4aba17cba9f23b62ef22adfcaa1b41ed4e2630576
     ports:
       - "8081:8080"
     environment:
@@ -88,7 +88,7 @@ services:
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
 
   slingshot:
-    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:5b1463ff536111c3459ea36ee90b17c8c19ac64b79f27e9ced3dd3b40fa29284
+    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:04ef8d269e90d9550b93d23b4922c70445d0759ef6ddb5cc4040f0c287729170
     environment:
       SPRING_CONFIG_IMPORT: file:/etc/slingshot/config/application.yml
       SPRING_RABBITMQ_HOST: rabbitmq
