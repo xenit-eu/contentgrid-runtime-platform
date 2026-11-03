@@ -34,7 +34,7 @@ services:
 
   # OPA sidecar for app-api; pulls the policy bundle from the app's /actuator/policybundle endpoint
   app-opa:
-    image: docker.io/openpolicyagent/opa:1.21.2@sha256:7459fa69661242c8983d6e4116779550cbb17608f1110ddcd4e9e24da4dcb0e5
+    image: docker.io/openpolicyagent/opa:1.21.3@sha256:22a9db16423b94d2acbd4a94da3bebeb79583ed6a52ac15cad459d3de2dbbc4d
     command: ["run", "--server", "--addr=:8181", "--skip-version-check", "--log-level=error", "--config-file=/etc/opa/config.yml"]
     volumes:
       - ./config/opa:/etc/opa:ro
