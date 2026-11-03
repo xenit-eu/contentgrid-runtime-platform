@@ -16,7 +16,7 @@ services:
       start_period: 1m
 
   gateway:
-    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:ced9aa340049806fcce6d2af56bd5ec310c4f2f78395a78a637abcfefad1d9cd
+    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:c0537994f9472330aab40b53ccfa2b83e3ec92de4349e9f2d157833da5c46a4c
     ports:
       - "8080:8080"
     environment:
