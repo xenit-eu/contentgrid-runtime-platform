@@ -3,6 +3,12 @@
   "extends": [
     "github>xenit-eu/contentgrid-renovate-presets:renovate.json"
   ],
+  "helm-values": {
+    "managerFilePatterns": [
+      "/(^|/)values\\.ya?ml$/",
+      "/(^|/)contentgrid-rtp-helm/envs/[^/]+\\.ya?ml$/"
+    ]
+  },
   "packageRules": [
     {
       "matchDatasources": [
@@ -17,14 +23,17 @@
       "automerge": true
     },
     {
-      "description": "Gateway updates in their own PR, merged manually",
+      "description": "ACC-3325: gateway is pinned on scw-prod",
       "matchDatasources": [
         "docker"
+      ],
+      "matchFileNames": [
+        "contentgrid-rtp-helm/envs/scw-prod.yaml"
       ],
       "matchPackageNames": [
         "ghcr.io/xenit-eu/contentgrid-gateway"
       ],
-      "groupName": "contentgrid gateway",
+      "groupName": null,
       "automerge": false
     },
     {
