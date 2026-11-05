@@ -17,17 +17,6 @@
       "automerge": true
     },
     {
-      "description": "Gateway updates in their own PR, merged manually",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "ghcr.io/xenit-eu/contentgrid-gateway"
-      ],
-      "groupName": "contentgrid gateway",
-      "automerge": false
-    },
-    {
       "matchDatasources": [
         "docker"
       ],
