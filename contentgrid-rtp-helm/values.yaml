@@ -88,7 +88,7 @@ navigator:
 surveyor:
   enabled: true
   prometheus:
-    image: docker.io/prom/prometheus:latest@sha256:508729e0e2d18e11fd742a5a5ca70e557b940a93948c3c95fd0123a6fd538b69
+    image: docker.io/prom/prometheus:latest@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
     resourceRequests:
       cpu: 100m
       memory: 128Mi
