@@ -1,9 +1,5 @@
 secretStoreName: cg-rtp-scw-prod-secretstore
 
-gateway:
-  # ACC-3325: pinned to a known-good digest; Renovate updates need a manual merge
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:c0537994f9472330aab40b53ccfa2b83e3ec92de4349e9f2d157833da5c46a4c
-
 userapps:
   database:
     - ip: 51.159.205.58
