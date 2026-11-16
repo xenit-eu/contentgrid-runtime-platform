@@ -57,7 +57,7 @@ services:
 
   # Set up normal/dead letter exchange, request/response queues, bindings
   renditions-rabbitmq-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:b815242abac800227eade72712f61c80743cf42f283a8d0df7053f9d9f97b062
+    image: ghcr.io/xenit-eu/kubectl@sha256:ef8185a95e1df9e676919014f715702fb8c147adb8338476ed3aace3263d5475
     command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
     environment:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
