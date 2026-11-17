@@ -135,7 +135,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: setup-rabbitmq-{{ printf "%s/%s" (.Files.Get "definitions/rabbitmq.json") .Values.jobs.image | sha1sum }}
+  name: setup-rabbitmq-{{ .Files.Get "definitions/rabbitmq.json" | sha1sum }}
   labels:
     app.kubernetes.io/name: rabbitmq
     app.kubernetes.io/component: setup
