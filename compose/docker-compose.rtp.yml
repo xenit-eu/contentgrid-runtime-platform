@@ -16,7 +16,7 @@ services:
       start_period: 1m
 
   gateway:
-    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:bc137707160891bc72ce3de3aa5d7200e62367c15dfbb5e16cd41e05808efee5
+    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:1252420f51a4e1ed20220667bdda4416e22827535287fab6fd7ec448e9c6aba2
     ports:
       - "8080:8080"
     environment:
@@ -31,7 +31,7 @@ services:
         condition: service_completed_successfully
         restart: true
   gateway-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:ef8185a95e1df9e676919014f715702fb8c147adb8338476ed3aace3263d5475
+    image: ghcr.io/xenit-eu/kubectl@sha256:1c6472d515e8a8770c635a62bd97a68d2d0f1049dc74efd16d9efe6581010b3a
     volumes:
       - ./bootstrap/gateway:/bootstrap:ro
       - gateway_keys:/etc/gateway/secrets:rw
@@ -48,7 +48,7 @@ services:
       start_period: 1m
 
   rabbitmq-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:ef8185a95e1df9e676919014f715702fb8c147adb8338476ed3aace3263d5475
+    image: ghcr.io/xenit-eu/kubectl@sha256:1c6472d515e8a8770c635a62bd97a68d2d0f1049dc74efd16d9efe6581010b3a
     command: ["bash", "-c", "/tmp/rabbitmq/setup.sh"]
     environment:
       RABBITMQ_PASSWORD: $RABBITMQ_PASSWORD
@@ -58,7 +58,7 @@ services:
       rabbitmq:
         condition: service_healthy
   tokenmonger:
-    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:be264bb1e5611a2fc2bc2214e460564c8f826862f1ce985a723921d0d368620a
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:9fa0dfc5f9922e8e545b04010bad46a473e88035ba95a3131bdca28aec7806a0
     ports:
       - "8081:8080"
     environment:
@@ -80,7 +80,7 @@ services:
         restart: true
 
   tokenmonger-bootstrap:
-    image: ghcr.io/xenit-eu/kubectl@sha256:ef8185a95e1df9e676919014f715702fb8c147adb8338476ed3aace3263d5475
+    image: ghcr.io/xenit-eu/kubectl@sha256:1c6472d515e8a8770c635a62bd97a68d2d0f1049dc74efd16d9efe6581010b3a
     volumes:
       - ./bootstrap/tokenmonger:/bootstrap:ro
       - tokenmonger_keys:/etc/tokenmonger/secrets:rw
@@ -88,7 +88,7 @@ services:
     command: ["/bin/bash", "-c", "/bootstrap/gen-keys.sh"]
 
   slingshot:
-    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:e9e3c2a83cea2133999292688f381e9fe4cde98565f43a3c96396867120b3aea
+    image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:e0f820cb650beddb2461623d8c4300c4ba01cf9f4830aaf57752f3fd8dd78f3b
     environment:
       SPRING_CONFIG_IMPORT: file:/etc/slingshot/config/application.yml
       SPRING_RABBITMQ_HOST: rabbitmq
