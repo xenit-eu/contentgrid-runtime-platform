@@ -135,7 +135,7 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: setup-rabbitmq-{{ .Files.Get "definitions/rabbitmq.json" | sha1sum }}
+  name: setup-rabbitmq-{{ printf "%s/%s" (.Files.Get "definitions/rabbitmq.json") .Values.jobs.image | sha1sum }}
   labels:
     app.kubernetes.io/name: rabbitmq
     app.kubernetes.io/component: setup
@@ -153,7 +153,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: setup-rabbitmq-container
-          image: ghcr.io/xenit-eu/kubectl
+          image: {{ .Values.jobs.image }}
           imagePullPolicy: IfNotPresent
           command: ["/bin/bash", "-c", "/tmp/rabbitmq/setup.sh"]
           {{- include "contentgrid.resources" (dict "limits" .Values.jobs.resourceLimits) | nindent 10 }}

@@ -100,7 +100,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: api-init
-          image: ghcr.io/xenit-eu/contentgrid-appserver:0.1.6
+          image: ghcr.io/xenit-eu/contentgrid-appserver:0.2.5
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: initContainer
@@ -119,7 +119,7 @@ spec:
             - { name: blueprint, mountPath: /etc/app/config/blueprint, readOnly: true }
       containers:
         - name: api
-          image: ghcr.io/xenit-eu/contentgrid-appserver:0.1.6
+          image: ghcr.io/xenit-eu/contentgrid-appserver:0.2.5
           env:
             - name: SPRING_CONFIG_IMPORT
               value: configtree:/etc/app/config/*/
