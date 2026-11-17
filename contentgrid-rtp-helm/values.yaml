@@ -63,7 +63,7 @@ slingshot:
     memory: 1Gi
 pathfinder:
   enabled: true
-  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:42e00a1b47e5e0b416924bbcdcf1d34c1a2da7e7d628fb09c1106d3bef035145
+  image: ghcr.io/xenit-eu/contentgrid-pathfinder:SNAPSHOT@sha256:bdff4213a8200b7ee72bc3c44d7ecda19bd3f59b92c3ac5714c10ad094c2d0d9
   debug: false
   resourceRequests:
     cpu: 100m
