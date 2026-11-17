@@ -94,7 +94,7 @@ spec:
       automountServiceAccountToken: true
       containers:
       - name: initialize-gateway-container
-        image: ghcr.io/xenit-eu/kubectl
+        image: {{ .Values.jobs.image }}
         imagePullPolicy: IfNotPresent
         {{- with .Values.jobs.resourceLimits }}
         resources:

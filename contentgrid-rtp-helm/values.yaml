@@ -161,6 +161,7 @@ userapps:
 development: true
 
 jobs:
+  image: ghcr.io/xenit-eu/kubectl:latest@sha256:1c6472d515e8a8770c635a62bd97a68d2d0f1049dc74efd16d9efe6581010b3a
   resourceLimits:
     cpu: 200m
     memory: 512Mi
@@ -276,6 +277,9 @@ rabbitmq:
     tag: '4.4-management@sha256:af6f50d38098d8bd52fef7f3fa85015dd8b2bf6def58e995bf584ae9ba0f6407'
   fullnameOverride: rabbitmq
   bootstrap:
+    image:
+      repository: ghcr.io/xenit-eu/kubectl
+      tag: latest@sha256:1c6472d515e8a8770c635a62bd97a68d2d0f1049dc74efd16d9efe6581010b3a
     resources:
       requests:
         cpu: 100m
