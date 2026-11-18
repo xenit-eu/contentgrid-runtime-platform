@@ -148,8 +148,8 @@ class HelmIntegrationTest {
             .withPassword("apppassword");
 
     @Container
-    S3MockContainer appObjectStorage = new S3MockContainer("5.2.3")
-            .withRegion("eu-west-1");
+    S3MockContainer appObjectStorage = S3MockUtils.s3MockContainer()
+            .withRegion(Region.EU_WEST_1.id());
 
     static KubernetesClient kubernetesClient;
 
@@ -515,7 +515,7 @@ class HelmIntegrationTest {
                 .addToStringData("spring.content.storage.type.default", "s3")
                 .addToStringData("spring.content.s3.endpoint", appObjectStorage.getHttpEndpoint())
                 .addToStringData("spring.content.s3.bucket", APP_BUCKET)
-                .addToStringData("spring.content.s3.region", "eu-west-1")
+                .addToStringData("spring.content.s3.region", Region.EU_WEST_1.id())
                 .addToStringData("spring.content.s3.accessKey", "test")
                 .addToStringData("spring.content.s3.secretKey", "test")
                 .build();
