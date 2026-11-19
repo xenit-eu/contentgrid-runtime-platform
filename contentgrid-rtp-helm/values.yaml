@@ -161,7 +161,7 @@ userapps:
 development: true
 
 jobs:
-  image: ghcr.io/xenit-eu/kubectl:latest
+  image: ghcr.io/xenit-eu/kubectl
   resourceLimits:
     cpu: 200m
     memory: 512Mi

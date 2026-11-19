@@ -43,6 +43,19 @@
         "docker.io/prom/prometheus"
       ],
       "pinDigests": true
+    },
+    {
+      "description": "Keep the kubectl image for Helm jobs unpinned",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/xenit-eu/kubectl"
+      ],
+      "matchFileNames": [
+        "contentgrid-rtp-helm/values.yaml"
+      ],
+      "pinDigests": false
     }
   ]
 }
