@@ -53,7 +53,7 @@ solon:
     # See the note on the tokenmonger limit above.
     memory: 1Gi
 slingshot:
-  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:e0f820cb650beddb2461623d8c4300c4ba01cf9f4830aaf57752f3fd8dd78f3b
+  image: ghcr.io/xenit-eu/contentgrid-slingshot:SNAPSHOT@sha256:b829e7ff8007f57d641fd64a2ac03e9d5609eab3abd3bcc466c290f7dbd5872d
   debug: false
   resourceRequests:
     cpu: 100m
@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:eae5027743f37beb55432ad5e5b7007a6195f436cc9c864fd70a5bb3c016e3ca
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:66ba9f4626a1c552b3208da304846184e16ae6ae5a3f0c2461ab12fa31185311
   debug: false
   resourceRequests:
     cpu: 100m
