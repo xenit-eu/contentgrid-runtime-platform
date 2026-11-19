@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer;
 import com.contentgrid.hateoas.client.hal.HalDocument;
 import com.contentgrid.hateoas.client.hal.HalLink;
 import com.contentgrid.hateoas.client.hal.forms.HalFormsClient;
@@ -46,8 +47,6 @@ import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyPeerBuilder;
 import io.fabric8.kubernetes.api.model.networking.v1.NetworkPolicyPortBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioAsyncClient;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -90,9 +89,7 @@ import org.springframework.web.client.RestClient;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io")
@@ -144,9 +141,9 @@ class HelmIntegrationTest {
             .withPassword("apppassword");
 
     @Container
-    LocalStackContainer appObjectStorage = new LocalStackContainer(DockerImageName.parse("localstack/localstack:4.11.1"))
-            .withServices("s3")
-            .withEnv("ALLOW_NONSTANDARD_REGIONS", "1");
+    S3MockContainer appObjectStorage = S3MockUtils.s3MockContainer()
+            .withRegion(APP_BUCKET_REGION)
+            .withInitialBuckets(APP_BUCKET);
 
     static KubernetesClient kubernetesClient;
 
@@ -159,6 +156,7 @@ class HelmIntegrationTest {
 
     static final String APP_NAMESPACE = "appnamespace";
     public static final String APP_BUCKET = "app-bucket";
+    private static final String APP_BUCKET_REGION = "eu-west-1";
 
     @BeforeAll
     static void beforeAll()
@@ -510,17 +508,17 @@ class HelmIntegrationTest {
                 .endMetadata()
                 .withType("Opaque")
                 .addToStringData("spring.content.storage.type.default", "s3")
-                .addToStringData("spring.content.s3.endpoint", appObjectStorage.getEndpoint().toString())
+                .addToStringData("spring.content.s3.endpoint", appObjectStorage.getHttpEndpoint())
                 .addToStringData("spring.content.s3.bucket", APP_BUCKET)
-                .addToStringData("spring.content.s3.region", "none")
-                .addToStringData("spring.content.s3.accessKey", appObjectStorage.getAccessKey())
-                .addToStringData("spring.content.s3.secretKey", appObjectStorage.getSecretKey())
+                .addToStringData("spring.content.s3.region", APP_BUCKET_REGION)
+                .addToStringData("spring.content.s3.accessKey", "test")
+                .addToStringData("spring.content.s3.secretKey", "test")
                 .build();
 
         appClient.secrets().resource(s3Secret).create();
 
         createEgressNetworkPolicy(appClient, deploymentId + "-db", deploymentId, appDatabase.getHost(), appDatabase.getFirstMappedPort());
-        createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, appObjectStorage.getHost(), appObjectStorage.getFirstMappedPort());
+        createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, appObjectStorage.getHost(), appObjectStorage.getHttpServerPort());
 
         // Deploy manifest
         var manifestFilename = opaSidecar ? "testapp/manifests-opa_sidecar.yaml" : "testapp/manifests.yaml";
@@ -537,16 +535,6 @@ class HelmIntegrationTest {
 
             appClient.load(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)))
                     .serverSideApply();
-        }
-
-        // Create s3 bucket
-        try (var mc = MinioAsyncClient.builder()
-                .endpoint(appObjectStorage.getEndpoint().toURL())
-                .credentials(appObjectStorage.getAccessKey(), appObjectStorage.getSecretKey())
-                .build()) {
-            mc.makeBucket(MakeBucketArgs.builder()
-                    .bucket(APP_BUCKET)
-                    .build());
         }
 
         if (!opaSidecar) {
