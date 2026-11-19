@@ -90,13 +90,6 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.BucketLocationConstraint;
-import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 @Slf4j
 @DockerRegistryCache(name = "docker.io", proxy = "https://registry-1.docker.io")
@@ -149,7 +142,8 @@ class HelmIntegrationTest {
 
     @Container
     S3MockContainer appObjectStorage = S3MockUtils.s3MockContainer()
-            .withRegion(Region.EU_WEST_1.id());
+            .withRegion(APP_BUCKET_REGION)
+            .withInitialBuckets(APP_BUCKET);
 
     static KubernetesClient kubernetesClient;
 
@@ -162,6 +156,7 @@ class HelmIntegrationTest {
 
     static final String APP_NAMESPACE = "appnamespace";
     public static final String APP_BUCKET = "app-bucket";
+    private static final String APP_BUCKET_REGION = "eu-west-1";
 
     @BeforeAll
     static void beforeAll()
@@ -515,7 +510,7 @@ class HelmIntegrationTest {
                 .addToStringData("spring.content.storage.type.default", "s3")
                 .addToStringData("spring.content.s3.endpoint", appObjectStorage.getHttpEndpoint())
                 .addToStringData("spring.content.s3.bucket", APP_BUCKET)
-                .addToStringData("spring.content.s3.region", Region.EU_WEST_1.id())
+                .addToStringData("spring.content.s3.region", APP_BUCKET_REGION)
                 .addToStringData("spring.content.s3.accessKey", "test")
                 .addToStringData("spring.content.s3.secretKey", "test")
                 .build();
@@ -524,21 +519,6 @@ class HelmIntegrationTest {
 
         createEgressNetworkPolicy(appClient, deploymentId + "-db", deploymentId, appDatabase.getHost(), appDatabase.getFirstMappedPort());
         createEgressNetworkPolicy(appClient, deploymentId + "-objectstorage", deploymentId, appObjectStorage.getHost(), appObjectStorage.getHttpServerPort());
-
-        // Create the application bucket before the application is deployed
-        try (var s3 = S3Client.builder()
-                .endpointOverride(URI.create(appObjectStorage.getHttpEndpoint()))
-                .region(Region.EU_WEST_1)
-                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
-                .forcePathStyle(true)
-                .build()) {
-            s3.createBucket(CreateBucketRequest.builder()
-                    .bucket(APP_BUCKET)
-                    .createBucketConfiguration(CreateBucketConfiguration.builder()
-                            .locationConstraint(BucketLocationConstraint.EU_WEST_1)
-                            .build())
-                    .build());
-        }
 
         // Deploy manifest
         var manifestFilename = opaSidecar ? "testapp/manifests-opa_sidecar.yaml" : "testapp/manifests.yaml";
