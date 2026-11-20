@@ -16,7 +16,7 @@ services:
       start_period: 1m
 
   gateway:
-    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:b773d4e574d9af91f2407e37bae53f5788578a10960eedaa69218ac5c218f471
+    image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:1db8117243af0cc0670251d9229bfca9d789cc7cc78e0b5a0e5d5a64b287400c
     ports:
       - "8080:8080"
     environment:
@@ -58,7 +58,7 @@ services:
       rabbitmq:
         condition: service_healthy
   tokenmonger:
-    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:5dfb4600a55bb9cd6308313066bd89f714a5dfecb1883cf1b78b7d6a4a324f02
+    image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:c594b88ed12fc98ccfbdc665b06af31c1113f3a4891f5cc5bfc41a67b58c7425
     ports:
       - "8081:8080"
     environment:
