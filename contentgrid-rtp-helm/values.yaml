@@ -6,7 +6,7 @@ ingressClassName: haproxy
 #  -----END CERTIFICATE-----
 
 gateway:
-  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:68efea42243d2f326cf7e0ec202e13f7ab3e323d988efec0dfa60ddd9864f30b
+  image: ghcr.io/xenit-eu/contentgrid-gateway:SNAPSHOT@sha256:9878e0553df7b94d55dadb9fc46f3f5a42bd945b796c79027f1abd1467c294cb
   debug: false
   accessLogging: false
 #  maxInitialLineLength: 4096  # increase to allow longer URLs (e.g. many query parameters)
@@ -19,7 +19,7 @@ gateway:
     memory: 1Gi
     # No CPU limit: avoids CFS throttling spikes on latency-sensitive proxies.
 tokenmonger:
-  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:c247baf95a4f3821434884c4316b38472feadffd1d0fe42c022715d0d452d2e7
+  image: ghcr.io/xenit-eu/contentgrid-tokenmonger:SNAPSHOT@sha256:eaaa3932c70986387d399fb27c12f7c7050c5ce63ab13fd9c98b4e0fca7339ed
   host: ~
   protocol: https
   debug: false
@@ -71,7 +71,7 @@ pathfinder:
   resourceLimits:
     memory: 768Mi
 liaison:
-  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:c98feecc0ba0be39a1b6b436d660dd26609877302c6f07e9a4d9b3bb7373f24c
+  image: ghcr.io/xenit-eu/contentgrid-liaison:SNAPSHOT@sha256:9116c34db554b5baba2a2095ef16b6726ebc5f64824d809ea750b7ab101274f7
   debug: false
   resourceRequests:
     cpu: 100m
